@@ -26,8 +26,8 @@ class BigDecimal {
             this.intVal = n.intVal;
         } else {
             if (typeof n !== 'string') {
-                // Convert to string, handle minus zero
-                n = n === 0 && 1 / n < 0 ? '-0' : String(n);
+                // Convert to string, no need to handle minus zero since BigInt will convert it to 0 anyway
+                n = String(n);
             }
             BigDecimal.parseString(this, n);
         }
@@ -38,6 +38,9 @@ class BigDecimal {
     }
 
     add(other) {
+        if(!(other instanceof BigDecimal)){
+            other = new BigDecimal(other);
+        }
         const scaleDiff = this.scale - other.scale;
         if (scaleDiff === 0) {
             return BigDecimal.fromScalePrecisionBigInt(this.scale, 0, this.intVal + other.intVal);
