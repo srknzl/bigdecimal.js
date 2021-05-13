@@ -1,27 +1,52 @@
+/*
+  Copyright (c) 2021 Serkan Özel, Inc. All Rights Reserved.
 
-// Implementation of big decimal with BigInt
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/*
+ Implementation of big decimal with BigInt
+*/
 class BigDecimal {
 
-    constructor(scale, precision, intVal) {
-        this.scale = scale;
-        this.precision = precision;
-        this.intVal = intVal;
+    constructor(n) {
+        if (n instanceof BigDecimal) {
+            this.scale = n.scale;
+            this.precision = n.precision;
+            this.intVal = n.intVal;
+        } else {
+            if (typeof n !== 'string') {
+                // Convert to string, handle minus zero
+                n = n === 0 && 1 / n < 0 ? '-0' : String(n);
+            }
+            BigDecimal.parseString(this, n);
+        }
     }
 
-    parseExp(value, offset, len) {
+    static parseExp(value, offset, len) {
         return 0;
     }
 
     add(other) {
         const scaleDiff = this.scale - other.scale;
         if (scaleDiff === 0) {
-            return new BigDecimal(this.scale, 0, this.intVal + other.intVal);
+            return BigDecimal.fromScalePrecisionBigInt(this.scale, 0, this.intVal + other.intVal);
         } else if (scaleDiff < 0) {
             const bigSum = (this.intVal * (BigInt(10) ** BigInt(-1 * scaleDiff))) + other.intVal;
-            return new BigDecimal(other.scale, 0, bigSum)
+            return BigDecimal.fromScalePrecisionBigInt(other.scale, 0, bigSum)
         } else {
             const bigSum = (other.intVal * (BigInt(10) ** BigInt(scaleDiff))) + this.intVal;
-            return new BigDecimal(this.scale, 0, bigSum)
+            return BigDecimal.fromScalePrecisionBigInt(this.scale, 0, bigSum)
         }
     }
 
@@ -30,16 +55,24 @@ class BigDecimal {
         return new BigDecimal(scale, 0, this.intVal * other.intVal);
     }
 
+    static fromScalePrecisionBigInt(scale, precision, intVal) {
+        const instance = new BigDecimal(0);
+        instance.scale = scale;
+        instance.precision = precision;
+        instance.intVal = intVal;
+        return instance;
+    }
+
     toString() {
         if (this.scale === 0) {
             return this.intVal.toString();
         }
 
         if (this.scale < 0) {
-            if (this.intVal === BigInt(0)) return "0";
+            if (this.intVal === BigInt(0)) return '0';
             let str = this.intVal.toString();
             for (let i = 0; i < this.scale; i++) {
-                str += "0";
+                str += '0';
             }
             return str;
         }
@@ -47,7 +80,7 @@ class BigDecimal {
         let str = this.intVal.toString();
         let insertionPoint = str.length - this.scale;
         if (insertionPoint === 0) {
-            return (negative ? "-0." : "0.") + str;
+            return (negative ? '-0.' : '0.') + str;
         } else if (insertionPoint > 0) {
             let res = '';
             for (let i = 0; i < str.length; i++) {
@@ -58,7 +91,7 @@ class BigDecimal {
             }
             return res;
         } else {
-            let res = (negative ? "-0." : "0.");
+            let res = (negative ? '-0.' : '0.');
             for (let i = 0; i < -1 * insertionPoint; i++) {
                 res += '0'
             }
@@ -67,10 +100,10 @@ class BigDecimal {
         }
     }
 
-    static fromString(value) {
-        let prec = 0;
-        let scl = 0;
-        let rb;
+    static parseString(big, value) {
+        let precision = 0;
+        let scale = 0;
+        let intVal;
 
         let offset = 0;
         let len = value.length;
@@ -97,18 +130,18 @@ class BigDecimal {
                     c = value[offset];
                     if (c >= '0' && c <= '9') {
                         if (c == '0') {
-                            if (prec == 0) {
+                            if (precision == 0) {
                                 coeff[idx] = c;
-                                prec = 1;
+                                precision = 1;
                             } else if (idx != 0) {
                                 coeff[idx++] = c;
-                                prec++;
+                                precision++;
                             }
                         } else {
-                            if (prec != 1 || idx != 0) prec++;
+                            if (precision != 1 || idx != 0) precision++;
                             coeff[idx++] = c;
                         }
-                        if (dot) scl++;
+                        if (dot) scale++;
                         continue;
                     }
                     if (c == '.') {
@@ -122,10 +155,9 @@ class BigDecimal {
                         throw new Error('missing exp notation');
                     }
                     exp = BigDecimal.parseExp(value, offset, len);
-                    // todo parse Exp
                     break;
                 }
-                if (prec == 0) {
+                if (precision == 0) {
                     throw new Error('no digits');
                 }
                 if (exp != 0) { // had significant exponent
@@ -133,14 +165,16 @@ class BigDecimal {
                 }
                 const stringValue = coeff.join('');
 
-                if (isneg) rb = BigInt('-' + stringValue)
-                else rb = BigInt(stringValue);
+                if (isneg) intVal = BigInt('-' + stringValue)
+                else intVal = BigInt(stringValue);
             }
         } catch (error) {
-            console.log(error);
             throw error;
         }
-        return new BigDecimal(scl, prec, rb);
+        big.scale = scale;
+        big.precision = precision;
+        big.intVal = intVal;
     }
 }
+
 module.exports = BigDecimal;
