@@ -1,0 +1,26 @@
+{
+  "name": "bigint-based-decimal",
+  "version": "1.0.0",
+  "description": "A repo for BigInt based big decimal implementation for Node.js client",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "benchmark": "benchmarks/run_tests.sh"
+  },
+  "files": ["bigdecimal.js"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hazelcast/bigint-based-decimal.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hazelcast/bigint-based-decimal/issues"
+  },
+  "homepage": "https://github.com/hazelcast/bigint-based-decimal#readme",
+  "dependencies": {
+    "benchmark": "^2.1.4",
+    "big.js": "^6.0.3",
+    "bigdecimal": "^0.6.1"
+  }
+}
