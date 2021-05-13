@@ -28,7 +28,7 @@ const bigDecimalsBigjs = [] // for big.js
 const bigDecimalsGWT = [] // for gwt based bigdecimal
 
 for (const x of bigDecimalNumbers) {
-    bigDecimals.push(Decimal.fromString(x));
+    bigDecimals.push(new Decimal(x));
 }
 for (const x of bigDecimalNumbers) {
     bigDecimalsBigjs.push(new Test_numbers(x));
@@ -49,7 +49,7 @@ for (const x of smallDecimalNumbers) {
     smallDecimalsBigjs.push(new Test_numbers(x));
 }
 for (const x of smallDecimalNumbers) {
-    smallDecimals.push(Decimal.fromString(x));
+    smallDecimals.push(new Decimal(x));
 }
 for (const x of smallDecimalNumbers) {
     smallDecimalsGWT.push(BigDecimal(x));

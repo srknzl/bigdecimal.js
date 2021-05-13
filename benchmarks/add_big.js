@@ -23,7 +23,7 @@ const { bigDecimals, bigDecimalsBigjs, bigDecimalsGWT } = require('./test_number
 const suite = new Benchmark.Suite;
 
 suite.add('BigNumbersAddTest#Bigdecimal.js', function () {
-    let res2 = Decimal.fromString('0');
+    let res2 = new Decimal('0');
     for (const x of bigDecimals) {
         res2 = res2.add(x);
     }

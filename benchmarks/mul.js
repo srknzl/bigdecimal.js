@@ -23,7 +23,7 @@ const { smallDecimals, smallDecimalsBigjs, smallDecimalsGWT } = require('./test_
 const suite = new Benchmark.Suite;
 
 suite.add('MultiplyTest#Bigdecimal.js', function () {
-    let res2 = BigDecimal2.fromString('1');
+    let res2 = new Decimal('1');
     for (const x of smallDecimals) {
         res2 = res2.multiply(x);
     }
