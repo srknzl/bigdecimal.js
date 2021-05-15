@@ -265,8 +265,44 @@ class BigDecimal {
         return Math.ceil(Math.log10(value + 1));
     }
 
-    static parseExp(input: string, offset: number, length: number): number {
-
+    static parseExp(input: string, offset: number, len: number): number {
+        let exp = 0;
+        offset++;
+        let c = input[offset];
+        len--;
+        const negexp = (c === '-');
+        if (negexp || c === '+') {
+            offset++;
+            c = input[offset];
+            len--;
+        }
+        if (len <= 0) {
+            throw new RangeError('No exponent digits');
+        }
+        while (len > 10 && c === '0') {
+            offset++;
+            c = input[offset];
+            len--;
+        }
+        if (len > 10) {
+            throw new RangeError('Too many nonzero exponent digits');
+        }
+        for (; ; len--) {
+            let v: number;
+            if (c >= '0' && c <= '9') {
+                v = +c;
+            } else {
+                throw new RangeError('Not a digit.');
+            }
+            exp = exp * 10 + v;
+            if (len == 1)
+                break;
+            offset++;
+            c = input[offset];
+        }
+        if (negexp)
+            exp = -exp;
+        return exp;
     }
 
     static fromValue(value: any, mc?: MathContext): BigDecimal {
