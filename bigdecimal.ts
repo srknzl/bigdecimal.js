@@ -137,6 +137,11 @@ class BigDecimal {
     private static readonly TEN = BigDecimal.ZERO_THROUGH_TEN[10];
     private static readonly ONE_TENTH = BigDecimal.valueOf(1, 1);
     private static readonly ONE_HALF = BigDecimal.valueOf(5, 1);
+    private static NUMBER_10_POW = [
+        1e0, 1e1, 1e2, 1e3, 1e4, 1e5,
+        1e6, 1e7, 1e8, 1e9, 1e10, 1e11,
+        1e12, 1e13, 1e14, 1e15
+    ];
 
 
     static adjustScale(scl: number, exp: number): number {
@@ -275,6 +280,11 @@ class BigDecimal {
     static valueOf3(unscaledVal: number, scale: number, prec: number): BigDecimal {
 
     }
+
+    static valueOf4(unscaledVal: BigInt, scale: number): BigDecimal {
+
+    }
+
 
     static numberDigitLength(value: number): number {
         return Math.ceil(Math.log10(value + 1));
@@ -415,73 +425,15 @@ class BigDecimal {
 
 
     signum(): number {
-
+        const intCompactSignum = this.intCompact > 0 ? 1 : (this.intCompact < 0 ? -1 : 0);
+        const intValSignum = BigDecimal.bigIntSignum(this.intVal!);
+        return this.intCompact !== BigDecimal.INFLATED ? intCompactSignum : intValSignum;
     }
 
     setScale(scale: number): BigDecimal {
 
     }
 
-    static addInternal(other: BigDecimal): BigDecimal {
-        if (this.intCompact !== BigDecimal.INFLATED) {
-            if (other.intCompact !== BigDecimal.INFLATED) {
-                return BigDecimal.add3(this.intCompact, this.scale, other.intCompact, other.scale);
-            } else {
-                return BigDecimal.add2(this.intCompact, this.scale, other.intVal, other.scale);
-            }
-        } else {
-            if (other.intCompact != BigDecimal.INFLATED) {
-                return BigDecimal.add2(other.intCompact, other.scale, this.intVal, this.scale);
-            } else {
-                return BigDecimal.add1(this.intVal, this.scale, other.intVal, other.scale);
-            }
-        }
-    }
-
-    add(augend: BigDecimal, mc: MathContext): BigDecimal {
-        augend = BigDecimal.convertToBigDecimal(augend);
-        if (mc.precision == 0)
-            return BigDecimal.addInternal(augend);
-
-        // If either number is zero then the other number, rounded and
-        // scaled if necessary, is used as the result.
-        {
-            let lhsIsZero = this.signum() == 0;
-            let augendIsZero = augend.signum() == 0;
-
-            if (lhsIsZero || augendIsZero) {
-                let preferredScale = Math.max(this.scale, augend.scale);
-                let result: BigDecimal;
-
-                if (lhsIsZero && augendIsZero)
-                    return BigDecimal.zeroValueOf(preferredScale);
-                result = lhsIsZero ? BigDecimal.doRound(augend, mc) : BigDecimal.doRound(this, mc);
-
-                if (result.scale === preferredScale)
-                    return result;
-                else if (result.scale > preferredScale) {
-                    return BigDecimal.stripZerosToMatchScale(result.intVal, result.intCompact, result.scale, preferredScale);
-                } else { // result.scale < preferredScale
-                    let precisionDiff = mc.precision - result.precision;
-                    let scaleDiff = preferredScale - result.scale;
-
-                    if (precisionDiff >= scaleDiff)
-                        return result.setScale(preferredScale); // can achieve target scale
-                    else
-                        return result.setScale(result.scale + precisionDiff);
-                }
-            }
-        }
-
-        let padding = this.scale - augend.scale;
-        if (padding != 0) { // scales differ; alignment needed
-            let arg = BigDecimal.preAlign(this, augend, padding, mc);
-            BigDecimal.matchScale(arg);
-            Object.assign(this, arg[0]);
-            augend = arg[1];
-        }
-        return BigDecimal.doRound2(this.inflated().valueOf() + augend.inflated().valueOf(), this.scale, mc);
-    }
 
     inflated(): BigInt {
         return this.intVal === null ? BigInt(this.intCompact) : this.intVal;
@@ -605,7 +557,7 @@ class BigDecimal {
     private static createAndStripZerosToMatchScale(compactVal: number, scale: number, preferredScale: number): BigDecimal {
     }
 
-    private static createAndStripZerosToMatchScale2(intVal: bigint, scale: number, preferredScale: number): BigDecimal {
+    private static createAndStripZerosToMatchScale2(intVal: BigIntOrNull, scale: number, preferredScale: number): BigDecimal {
     }
 
 
@@ -638,15 +590,72 @@ class BigDecimal {
         return [big, small];
     }
 
-    negate(): BigDecimal {
-        return this.intCompact == BigDecimal.INFLATED ?
+
+    negate(mc?: MathContext): BigDecimal {
+        const result = this.intCompact == BigDecimal.INFLATED ?
             new BigDecimal(-1n * this.intVal!.valueOf(), BigDecimal.INFLATED, this.scale, this.precision) :
             BigDecimal.valueOf3(-this.intCompact, this.scale, this.precision);
+        if (mc) {
+            result.plus(mc);
+        }
+        return result;
     }
 
-    subtract(subtrahend: BigDecimal, mc: MathContext): BigDecimal {
+    add(augend: BigDecimal, mc?: MathContext): BigDecimal {
+        augend = BigDecimal.convertToBigDecimal(augend);
+        if (!mc || (mc && mc.precision === 0)) {
+            if (this.intCompact !== BigDecimal.INFLATED) {
+                if (augend.intCompact !== BigDecimal.INFLATED) {
+                    return BigDecimal.add3(this.intCompact, this.scale, augend.intCompact, augend.scale);
+                } else {
+                    return BigDecimal.add2(this.intCompact, this.scale, augend.intVal, augend.scale);
+                }
+            } else {
+                if (augend.intCompact != BigDecimal.INFLATED) {
+                    return BigDecimal.add2(augend.intCompact, augend.scale, this.intVal, this.scale);
+                } else {
+                    return BigDecimal.add1(this.intVal, this.scale, augend.intVal, augend.scale);
+                }
+            }
+        }
+        let lhsIsZero = this.signum() == 0;
+        let augendIsZero = augend.signum() == 0;
+
+        if (lhsIsZero || augendIsZero) {
+            let preferredScale = Math.max(this.scale, augend.scale);
+            let result: BigDecimal;
+
+            if (lhsIsZero && augendIsZero)
+                return BigDecimal.zeroValueOf(preferredScale);
+            result = lhsIsZero ? BigDecimal.doRound(augend, mc) : BigDecimal.doRound(this, mc);
+
+            if (result.scale === preferredScale)
+                return result;
+            else if (result.scale > preferredScale) {
+                return BigDecimal.stripZerosToMatchScale(result.intVal, result.intCompact, result.scale, preferredScale);
+            } else { // result.scale < preferredScale
+                let precisionDiff = mc.precision - result.precision;
+                let scaleDiff = preferredScale - result.scale;
+
+                if (precisionDiff >= scaleDiff)
+                    return result.setScale(preferredScale); // can achieve target scale
+                else
+                    return result.setScale(result.scale + precisionDiff);
+            }
+        }
+        let padding = this.scale - augend.scale;
+        if (padding != 0) { // scales differ; alignment needed
+            let arg = BigDecimal.preAlign(this, augend, padding, mc);
+            BigDecimal.matchScale(arg);
+            Object.assign(this, arg[0]);
+            augend = arg[1];
+        }
+        return BigDecimal.doRound2(this.inflated().valueOf() + augend.inflated().valueOf(), this.scale, mc);
+    }
+
+    subtract(subtrahend: BigDecimal, mc?: MathContext): BigDecimal {
         subtrahend = BigDecimal.convertToBigDecimal(subtrahend);
-        if (mc.precision === 0) {
+        if (!mc || (mc && mc.precision === 0)) {
             if (this.intCompact != BigDecimal.INFLATED) {
                 if ((subtrahend.intCompact != BigDecimal.INFLATED)) {
                     return BigDecimal.add3(this.intCompact, this.scale, -subtrahend.intCompact, subtrahend.scale);
@@ -660,14 +669,13 @@ class BigDecimal {
                     return BigDecimal.add1(this.intVal, this.scale, -1n * subtrahend.intVal!.valueOf(), subtrahend.scale);
                 }
             }
-        } else {
-            return this.add(subtrahend.negate(), mc);
         }
+        return this.add(subtrahend.negate(), mc);
     }
 
-    multiply(multiplicand: BigDecimal, mc: MathContext): BigDecimal {
+    multiply(multiplicand: BigDecimal, mc?: MathContext): BigDecimal {
         multiplicand = BigDecimal.convertToBigDecimal(multiplicand);
-        if (mc.precision === 0) {
+        if (!mc || (mc && mc.precision === 0)) {
             let productScale = BigDecimal.checkScale(this.scale + multiplicand.scale);
             if (this.intCompact != BigDecimal.INFLATED) {
                 if ((multiplicand.intCompact != BigDecimal.INFLATED)) {
@@ -682,20 +690,77 @@ class BigDecimal {
                     return BigDecimal.multiply4(this.intVal, multiplicand.intVal, productScale);
                 }
             }
-        } else {
-            let productScale = BigDecimal.checkScale(this.scale + multiplicand.scale);
-            if (this.intCompact != BigDecimal.INFLATED) {
-                if ((multiplicand.intCompact != BigDecimal.INFLATED)) {
-                    return BigDecimal.multiplyAndRound1(this.intCompact, multiplicand.intCompact, productScale, mc);
-                } else {
-                    return BigDecimal.multiplyAndRound2(this.intCompact, multiplicand.intVal, productScale, mc);
-                }
+        }
+        let productScale = BigDecimal.checkScale(this.scale + multiplicand.scale);
+        if (this.intCompact != BigDecimal.INFLATED) {
+            if ((multiplicand.intCompact != BigDecimal.INFLATED)) {
+                return BigDecimal.multiplyAndRound1(this.intCompact, multiplicand.intCompact, productScale, mc);
             } else {
-                if ((multiplicand.intCompact != BigDecimal.INFLATED)) {
-                    return BigDecimal.multiplyAndRound2(multiplicand.intCompact, this.intVal, productScale, mc);
-                } else {
-                    return BigDecimal.multiplyAndRound3(this.intVal, multiplicand.intVal, productScale, mc);
+                return BigDecimal.multiplyAndRound2(this.intCompact, multiplicand.intVal, productScale, mc);
+            }
+        } else {
+            if ((multiplicand.intCompact != BigDecimal.INFLATED)) {
+                return BigDecimal.multiplyAndRound2(multiplicand.intCompact, this.intVal, productScale, mc);
+            } else {
+                return BigDecimal.multiplyAndRound3(this.intVal, multiplicand.intVal, productScale, mc);
+            }
+        }
+    }
+
+    private divide(divisor: BigDecimal, mc?: MathContext): BigDecimal {
+        divisor = BigDecimal.convertToBigDecimal(divisor);
+        if (mc && mc.precision === 0) {
+            if (divisor.signum() === 0) {
+                if (this.signum() == 0)
+                    throw new RangeError('Division undefined');
+                throw new RangeError('Division by zero');
+            }
+            // Calculate preferred scale
+            let preferredScale = BigDecimal.saturateScale(this.scale - divisor.scale);
+
+            if (this.signum() == 0) // 0/y
+                return BigDecimal.zeroValueOf(preferredScale);
+            else {
+                let mc = new MathContext(
+                    Math.min(this.precision + Math.ceil(10.0 * divisor.precision / 3.0), Number.MAX_SAFE_INTEGER),
+                    RoundingMode.UNNECESSARY
+                );
+                let quotient: BigDecimal;
+                try {
+                    quotient = this.divide(divisor, mc);
+                } catch (e) {
+                    throw new RangeError('Non-terminating decimal expansion; no exact representable decimal result.');
                 }
+
+                let quotientScale = quotient.scale;
+
+                if (preferredScale > quotientScale)
+                    return quotient.setScale2(preferredScale, RoundingMode.UNNECESSARY);
+                return quotient;
+            }
+        }
+        let dividend = this;
+        let preferredScale = dividend.scale - divisor.scale;
+        if (divisor.signum() == 0) {      // x/0
+            if (dividend.signum() == 0)    // 0/0
+                throw new RangeError('Division undefined');  // NaN
+            throw new RangeError('Division by zero');
+        }
+        if (dividend.signum() == 0) // 0/y
+            return BigDecimal.zeroValueOf(BigDecimal.saturateScale(preferredScale));
+        let xscale = dividend.precision;
+        let yscale = divisor.precision;
+        if (dividend.intCompact !== BigDecimal.INFLATED) {
+            if (divisor.intCompact !== BigDecimal.INFLATED) {
+                return BigDecimal.divide2(dividend.intCompact, xscale, divisor.intCompact, yscale, preferredScale, mc);
+            } else {
+                return BigDecimal.divide3(dividend.intCompact, xscale, divisor.intVal, yscale, preferredScale, mc);
+            }
+        } else {
+            if (divisor.intCompact !== BigDecimal.INFLATED) {
+                return BigDecimal.divide4(dividend.intVal, xscale, divisor.intCompact, yscale, preferredScale, mc);
+            } else {
+                return BigDecimal.divide5(dividend.intVal, xscale, divisor.intVal, yscale, preferredScale, mc);
             }
         }
     }
@@ -719,6 +784,456 @@ class BigDecimal {
     }
 
     private static multiplyAndRound3(x: BigIntOrNull, y: BigIntOrNull, scale: number, mc: MathContext): BigDecimal {
+    }
+
+    private static saturateScale(s: number) {
+        if (s > Number.MAX_SAFE_INTEGER) {
+            return Number.MAX_SAFE_INTEGER;
+        }
+        if (s < Number.MIN_SAFE_INTEGER) {
+            return Number.MIN_SAFE_INTEGER;
+        }
+        return s;
+    }
+
+    private setScale2(newScale: number, roundingMode: RoundingMode): BigDecimal {
+
+    }
+
+    private static divide2(xs: number, xscale: number, ys: number, yscale: number, preferredScale: number, mc: MathContext): BigDecimal {
+    }
+
+    private static divide3(xs: number, xscale: number, ys: BigIntOrNull, yscale: number, preferredScale: number, mc: MathContext): BigDecimal {
+    }
+
+    private static divide4(xs: BigIntOrNull, xscale: number, ys: number, yscale: number, preferredScale: number, mc: MathContext): BigDecimal {
+    }
+
+    private static divide5(xs: BigIntOrNull, xscale: number, ys: BigIntOrNull, yscale: number, preferredScale: number, mc: MathContext): BigDecimal {
+    }
+
+    divideToIntegralValue(divisor: BigDecimal, mc?: MathContext): BigDecimal {
+        divisor = BigDecimal.convertToBigDecimal(divisor);
+        if (!mc || (mc && (mc.precision === 0 || this.compareMagnitude(divisor) < 0))) {
+            let preferredScale = BigDecimal.saturateScale(this.scale - divisor.scale);
+            if (this.compareMagnitude(divisor) < 0) {
+                return BigDecimal.zeroValueOf(preferredScale);
+            }
+
+            if (this.signum() == 0 && divisor.signum() != 0)
+                return this.setScale2(preferredScale, RoundingMode.UNNECESSARY);
+
+            let maxDigits = Math.min(
+                this.precision + Math.ceil(10.0 * divisor.precision / 3.0) + Math.abs(this.scale - divisor.scale) + 2,
+                Number.MAX_SAFE_INTEGER
+            );
+            let quotient = this.divide(divisor, new MathContext(maxDigits, RoundingMode.DOWN));
+            if (quotient.scale > 0) {
+                quotient = quotient.setScale2(0, RoundingMode.DOWN);
+                quotient = BigDecimal.stripZerosToMatchScale(quotient.intVal, quotient.intCompact, quotient.scale, preferredScale);
+            }
+
+            if (quotient.scale < preferredScale) {
+                quotient = quotient.setScale2(preferredScale, RoundingMode.UNNECESSARY);
+            }
+
+            return quotient;
+        }
+        let preferredScale = BigDecimal.saturateScale(this.scale - divisor.scale);
+
+        let result = this.divide(divisor, new MathContext(mc.precision, RoundingMode.DOWN));
+
+        if (result.scale < 0) {
+            let product = result.multiply(divisor);
+            if (this.subtract(product).compareMagnitude(divisor) >= 0) {
+                throw new RangeError('Division impossible');
+            }
+        } else if (result.scale > 0) {
+            result = result.setScale2(0, RoundingMode.DOWN);
+        }
+        let precisionDiff;
+        if ((preferredScale > result.scale) &&
+            (precisionDiff = mc.precision - result.precision) > 0) {
+            return result.setScale(result.scale + Math.min(precisionDiff, preferredScale - result.scale));
+        } else {
+            return BigDecimal.stripZerosToMatchScale(result.intVal, result.intCompact, result.scale, preferredScale);
+        }
+    }
+
+    remainder(divisor: BigDecimal, mc?: MathContext): BigDecimal {
+        return this.divideAndRemainder(divisor, mc)[1];
+    }
+
+    compareMagnitude(val: BigDecimal): number {
+
+    }
+
+    divideAndRemainder(divisor: BigDecimal, mc?: MathContext): BigDecimal[] {
+        divisor = BigDecimal.convertToBigDecimal(divisor);
+        let result = new Array<BigDecimal>(2);
+        const lhs = this;
+
+        result[0] = lhs.divideToIntegralValue(divisor, mc);
+        result[1] = lhs.subtract(result[0].multiply(divisor));
+        return result;
+
+    }
+
+    sqrt(mc: MathContext): BigDecimal {
+        const signum = this.signum();
+        if (signum !== 1) {
+            let result = null;
+            switch (signum) {
+                case -1:
+                    throw new RangeError('Attempted square root of negative BigDecimal');
+                case 0:
+                    result = BigDecimal.valueOf(0, this.scale / 2);
+                    if (!this.squareRootResultAssertions(result, mc))
+                        throw new RangeError('Square root result error');
+                    return result;
+
+                default:
+                    throw new RangeError('Bad value from signum');
+            }
+        } else {
+
+            let preferredScale = this.scale / 2;
+            const zeroWithFinalPreferredScale = BigDecimal.valueOf(0, preferredScale);
+
+            const stripped = this.stripTrailingZeros();
+            let strippedScale = stripped.scale;
+
+            if (stripped.isPowerOfTen() && strippedScale % 2 == 0) {
+                let result = BigDecimal.valueOf(1, strippedScale / 2);
+                if (result.scale != preferredScale) {
+                    result = result.add(zeroWithFinalPreferredScale, mc);
+                }
+                return result;
+            }
+
+            let scaleAdjust = 0;
+            let scale = stripped.scale - stripped.precision + 1;
+            if (scale % 2 == 0) {
+                scaleAdjust = scale;
+            } else {
+                scaleAdjust = scale - 1;
+            }
+
+            let working = stripped.scaleByPowerOfTen(scaleAdjust);
+
+            if ((BigDecimal.ONE_TENTH.compareTo(working) <= 0 && working.compareTo(BigDecimal.TEN) < 0))
+                throw new RangeError('Verifying 0.1 <= working < 10 failed')
+
+            let guess = BigDecimal.fromValue(Math.sqrt(working.numberValue()));
+            let guessPrecision = 15;
+            let originalPrecision = mc.precision;
+            let targetPrecision;
+
+            if (originalPrecision == 0) {
+                targetPrecision = stripped.precision / 2 + 1;
+            } else {
+                switch (mc.roundingMode) {
+                    case RoundingMode.HALF_UP:
+                    case RoundingMode.HALF_DOWN:
+                    case RoundingMode.HALF_EVEN:
+                        targetPrecision = 2 * originalPrecision;
+                        if (targetPrecision < 0) // Overflow
+                            targetPrecision = Number.MAX_SAFE_INTEGER - 2;
+                        break;
+
+                    default:
+                        targetPrecision = originalPrecision;
+                        break;
+                }
+            }
+
+            let approx = guess;
+            let workingPrecision = working.precision;
+            do {
+                let tmpPrecision = Math.max(Math.max(guessPrecision, targetPrecision + 2), workingPrecision);
+                let mcTmp = new MathContext(tmpPrecision, RoundingMode.HALF_EVEN);
+                // approx = 0.5 * (approx + fraction / approx)
+                approx = BigDecimal.ONE_HALF.multiply(approx.add(working.divide(approx, mcTmp), mcTmp));
+                guessPrecision *= 2;
+            } while (guessPrecision < targetPrecision + 2);
+
+            let result;
+            let targetRm = mc.roundingMode;
+            if (targetRm == RoundingMode.UNNECESSARY || originalPrecision == 0) {
+                let tmpRm = (targetRm == RoundingMode.UNNECESSARY) ? RoundingMode.DOWN : targetRm;
+                let mcTmp = new MathContext(targetPrecision, tmpRm);
+                result = approx.scaleByPowerOfTen(-scaleAdjust / 2).round(mcTmp);
+
+                // If result*result != this numerically, the square
+                // root isn't exact
+                if (this.subtract(result.square()).compareTo(BigDecimal.ZERO) != 0) {
+                    throw new RangeError('Computed square root not exact.');
+                }
+            } else {
+                result = approx.scaleByPowerOfTen(-scaleAdjust / 2).round(mc);
+
+                switch (targetRm) {
+                    case RoundingMode.DOWN:
+                    case RoundingMode.FLOOR:
+                        // Check if too big
+                        if (result.square().compareTo(this) > 0) {
+                            let ulp = result.ulp();
+                            if (approx.compareTo(BigDecimal.ONE) == 0) {
+                                ulp = ulp.multiply(BigDecimal.ONE_TENTH);
+                            }
+                            result = result.subtract(ulp);
+                        }
+                        break;
+
+                    case RoundingMode.UP:
+                    case RoundingMode.CEILING:
+                        if (result.square().compareTo(this) < 0) {
+                            result = result.add(result.ulp());
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+
+            }
+            if (!this.squareRootResultAssertions(result, mc)) throw new RangeError('Square root result error');
+            if (result.scale != preferredScale) {
+                result = result.stripTrailingZeros().add(zeroWithFinalPreferredScale,
+                    new MathContext(originalPrecision, RoundingMode.UNNECESSARY));
+            }
+            return result;
+        }
+    }
+
+    squareRootResultAssertions(result: any, mc: MathContext): boolean {
+        if (result.signum() == 0) {
+            return this.squareRootZeroResultAssertions(result, mc);
+        } else {
+            let rm = mc.roundingMode;
+            let ulp = result.ulp();
+            let neighborUp = result.add(ulp);
+            if (result.isPowerOfTen()) {
+                ulp = ulp.divide(BigDecimal.TEN);
+            }
+            let neighborDown = result.subtract(ulp);
+
+            if (!(result.signum() == 1 && this.signum() == 1))
+                throw new RangeError('Bad signum of this and/or its sqrt.');
+
+            switch (rm) {
+                case RoundingMode.DOWN:
+                case RoundingMode.FLOOR:
+                    if (!(result.square().compareTo(this) <= 0 && neighborUp.square().compareTo(this) > 0))
+                        throw new RangeError('Square of result out for bounds rounding' + RoundingMode[rm]);
+                    return true;
+                case RoundingMode.UP:
+                case RoundingMode.CEILING:
+                    if (!(result.square().compareTo(this) >= 0 && neighborDown.square().compareTo(this) < 0))
+                        throw new RangeError('Square of result out for bounds rounding' + RoundingMode[rm]);
+                    return true;
+                case RoundingMode.HALF_DOWN:
+                case RoundingMode.HALF_EVEN:
+                case RoundingMode.HALF_UP:
+                    let err = result.square().subtract(this).abs();
+                    let errUp = neighborUp.square().subtract(this);
+                    let errDown = this.subtract(neighborDown.square());
+                    let err_comp_errUp = err.compareTo(errUp);
+                    let err_comp_errDown = err.compareTo(errDown);
+
+                    if (!(errUp.signum() == 1 && errDown.signum() == 1))
+                        throw new RangeError('Errors of neighbors squared don\'t have correct signs');
+
+                    if (!(err_comp_errUp <= 0 ||
+                        err_comp_errDown <= 0))
+                        throw new RangeError('Computed square root has larger error than neighbors for ' + RoundingMode[rm]);
+
+                    if (!(((err_comp_errUp == 0) ? err_comp_errDown < 0 : true) && ((err_comp_errDown == 0) ? err_comp_errUp < 0 : true)))
+                        throw new RangeError('Incorrect error relationships');
+                    return true;
+
+                default:
+                    return true;
+            }
+        }
+    }
+
+    square(): BigDecimal {
+        return this.multiply(this);
+    }
+
+    ulp(): BigDecimal {
+        return BigDecimal.valueOf3(1, this.scale, 1);
+    }
+
+    static bigIntSignum(val: BigInt): number {
+        return val! > 0n ? 1 : (val! < 0n ? -1 : 0);
+    }
+
+    stripTrailingZeros(): BigDecimal {
+        if (this.intCompact === 0 || (this.intVal !== null && BigDecimal.bigIntSignum(this.intVal!) == 0)) {
+            return BigDecimal.ZERO;
+        } else if (this.intCompact != BigDecimal.INFLATED) {
+            return BigDecimal.createAndStripZerosToMatchScale(this.intCompact, this.scale, Number.MIN_SAFE_INTEGER);
+        } else {
+            return BigDecimal.createAndStripZerosToMatchScale2(this.intVal, this.scale, Number.MIN_SAFE_INTEGER);
+        }
+    }
+
+    isPowerOfTen(): boolean {
+        return this.unscaledValue() === 1n;
+    }
+
+    unscaledValue(): BigInt {
+        return this.inflated();
+    }
+
+    scaleByPowerOfTen(n: number) {
+        return new BigDecimal(this.intVal, this.intCompact, BigDecimal.checkScale(this.scale - n), this.precision);
+    }
+
+    compareTo(val: BigDecimal): number {
+        val = BigDecimal.convertToBigDecimal(val);
+        if (this.scale == val.scale) {
+            let xs = this.intCompact;
+            let ys = val.intCompact;
+            if (xs != BigDecimal.INFLATED && ys != BigDecimal.INFLATED) {
+                return xs != ys ? (xs > ys ? 1 : -1) : 0;
+            }
+        }
+
+        let xsign = this.signum();
+        let ysign = val.signum();
+        if (xsign != ysign) {
+            return xsign > ysign ? 1 : -1;
+        } else if (xsign == 0) {
+            return 0;
+        } else {
+            let cmp = this.compareMagnitude(val);
+            return xsign > 0 ? cmp : -cmp;
+        }
+    }
+
+    numberValue(): number {
+        if (this.intCompact != BigDecimal.INFLATED) {
+            if (this.scale == 0) {
+                return this.intCompact;
+            } else {
+                if (Math.abs(this.intCompact) < Number.MAX_SAFE_INTEGER) {
+                    if (this.scale > 0 && this.scale <= BigDecimal.MAX_COMPACT_DIGITS) {
+                        return this.intCompact / BigDecimal.NUMBER_10_POW[this.scale];
+                    } else if (this.scale < 0 && this.scale >= -BigDecimal.MAX_COMPACT_DIGITS) {
+                        return this.intCompact * BigDecimal.NUMBER_10_POW[-this.scale];
+                    }
+                }
+            }
+        }
+        return Number(this.toString());
+    }
+
+    round(mc: MathContext): BigDecimal {
+        return this.plus(mc);
+    }
+
+    setScale(newScale: number, roundingMode?: RoundingMode): BigDecimal {
+        /*
+        if (roundingMode < ROUND_UP || roundingMode > ROUND_UNNECESSARY)
+            throw new IllegalArgumentException("Invalid rounding mode");
+
+        int oldScale = this.scale;
+        if (newScale == oldScale)        // easy case
+            return this;
+        if (this.signum() == 0)            // zero can have any scale
+            return zeroValueOf(newScale);
+        if(this.intCompact!=INFLATED) {
+            long rs = this.intCompact;
+            if (newScale > oldScale) {
+                int raise = checkScale((long) newScale - oldScale);
+                if ((rs = longMultiplyPowerTen(rs, raise)) != INFLATED) {
+                    return valueOf(rs,newScale);
+                }
+                BigInteger rb = bigMultiplyPowerTen(raise);
+                return new BigDecimal(rb, INFLATED, newScale, (precision > 0) ? precision + raise : 0);
+            } else {
+                // newScale < oldScale -- drop some digits
+                // Can't predict the precision due to the effect of rounding.
+                int drop = checkScale((long) oldScale - newScale);
+                if (drop < LONG_TEN_POWERS_TABLE.length) {
+                    return divideAndRound(rs, LONG_TEN_POWERS_TABLE[drop], newScale, roundingMode, newScale);
+                } else {
+                    return divideAndRound(this.inflated(), bigTenToThe(drop), newScale, roundingMode, newScale);
+                }
+            }
+        } else {
+            if (newScale > oldScale) {
+                int raise = checkScale((long) newScale - oldScale);
+                BigInteger rb = bigMultiplyPowerTen(this.intVal,raise);
+                return new BigDecimal(rb, INFLATED, newScale, (precision > 0) ? precision + raise : 0);
+            } else {
+                // newScale < oldScale -- drop some digits
+                // Can't predict the precision due to the effect of rounding.
+                int drop = checkScale((long) oldScale - newScale);
+                if (drop < LONG_TEN_POWERS_TABLE.length)
+                    return divideAndRound(this.intVal, LONG_TEN_POWERS_TABLE[drop], newScale, roundingMode,
+                                          newScale);
+                else
+                    return divideAndRound(this.intVal,  bigTenToThe(drop), newScale, roundingMode, newScale);
+            }
+        }
+         */
+    }
+
+    plus(mc?: MathContext): BigDecimal {
+        if (!mc) return this;
+        if (mc.precision == 0)
+            return this;
+        return BigDecimal.doRound(this, mc);
+    }
+
+    squareRootZeroResultAssertions(result: any, mc: MathContext) {
+        return this.compareTo(BigDecimal.ZERO) === 0;
+    }
+
+    pow(n: number, mc?: MathContext): BigDecimal {
+        if (!mc || (mc && mc.precision == 0)) {
+            if (n < 0 || n > 999999999)
+                throw new RangeError('Invalid operation');
+            let newScale = BigDecimal.checkScale(this.scale * n);
+            return BigDecimal.valueOf4(this.inflated().valueOf() ** BigInt(n), newScale);
+        }
+        if (n < -999999999 || n > 999999999)
+            throw new RangeError('Invalid operation');
+        if (n == 0)
+            return BigDecimal.ONE;
+        let lhs = this;
+        let workmc = mc;
+        let mag = Math.abs(n);
+        if (mc.precision > 0) {
+            let elength = BigDecimal.numberDigitLength(mag);
+            if (elength > mc.precision)
+                throw new RangeError('Invalid operation');
+            workmc = new MathContext(mc.precision + elength + 1, mc.roundingMode);
+        }
+        let acc = BigDecimal.ONE;
+        let seenbit = false;
+        for (let i = 1; ; i++) {
+            mag += mag;
+            if (mag < 0) {
+                seenbit = true;
+                acc = acc.multiply(lhs, workmc);
+            }
+            if (i == 31)
+                break;
+            if (seenbit)
+                acc = acc.multiply(acc, workmc);
+        }
+        if (n < 0) // [hence mc.precision>0]
+            acc = BigDecimal.ONE.divide(acc, workmc);
+        return BigDecimal.doRound(acc, mc);
+    }
+
+    abs(mc?: MathContext) {
+        return this.signum() < 0 ? this.negate(mc) : this.plus(mc);
     }
 }
 
