@@ -37,7 +37,7 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
   OTHER DEALINGS IN THE SOFTWARE.
 */
-const BigDecimal = require('../bigdecimal');
+const { BigDecimal } = require('../lib/bigdecimal');
 const chai = require('chai');
 chai.should();
 
@@ -1856,41 +1856,41 @@ describe('Addition test', function () {
         ['4.813328953637197259781466269e-12', '-4.47e+0', '-4.469999999995186671046362802740218533731'],
     ];
     const invalidTests = [
-        [new BigDecimal('12.345'), undefined],
-        [new BigDecimal('12.345'), null],
-        [new BigDecimal('12.345'), NaN],
-        [new BigDecimal('12.345'), 'NaN'],
-        [new BigDecimal('12.345'), []],
-        [new BigDecimal('12.345'), {}],
-        [new BigDecimal('12.345'), ''],
-        [new BigDecimal('12.345'), ' '],
-        [new BigDecimal('12.345'), 'hello'],
-        [new BigDecimal('12.345'), '\t'],
-        [new BigDecimal('12.345'), new Date],
-        [new BigDecimal('12.345'), new RegExp],
-        [new BigDecimal('12.345'), function () {
+        [BigDecimal.fromValue('12.345'), undefined],
+        [BigDecimal.fromValue('12.345'), null],
+        [BigDecimal.fromValue('12.345'), NaN],
+        [BigDecimal.fromValue('12.345'), 'NaN'],
+        [BigDecimal.fromValue('12.345'), []],
+        [BigDecimal.fromValue('12.345'), {}],
+        [BigDecimal.fromValue('12.345'), ''],
+        [BigDecimal.fromValue('12.345'), ' '],
+        [BigDecimal.fromValue('12.345'), 'hello'],
+        [BigDecimal.fromValue('12.345'), '\t'],
+        [BigDecimal.fromValue('12.345'), Date.fromValue],
+        [BigDecimal.fromValue('12.345'), RegExp.fromValue],
+        [BigDecimal.fromValue('12.345'), function () {
         }],
-        [new BigDecimal('12.345'), ' 0.1'],
-        [new BigDecimal('12.345'), '7.5 '],
-        [new BigDecimal('12.345'), ' +1.2'],
-        [new BigDecimal('12.345'), ' 0 '],
-        [new BigDecimal('12.345'), '- 99'],
-        [new BigDecimal('12.345'), '9.9.9'],
-        [new BigDecimal('12.345'), '10.1.0'],
-        [new BigDecimal('12.345'), '0x16'],
-        [new BigDecimal('12.345'), '1e'],
-        [new BigDecimal('12.345'), '8 e'],
-        [new BigDecimal('12.345'), '77-e'],
-        [new BigDecimal('12.345'), '123e.0'],
-        [new BigDecimal('12.345'), '4e1.'],
-        [new BigDecimal('12.345'), Infinity],
-        [new BigDecimal('12.345'), '-Infinity'],
+        [BigDecimal.fromValue('12.345'), ' 0.1'],
+        [BigDecimal.fromValue('12.345'), '7.5 '],
+        [BigDecimal.fromValue('12.345'), ' +1.2'],
+        [BigDecimal.fromValue('12.345'), ' 0 '],
+        [BigDecimal.fromValue('12.345'), '- 99'],
+        [BigDecimal.fromValue('12.345'), '9.9.9'],
+        [BigDecimal.fromValue('12.345'), '10.1.0'],
+        [BigDecimal.fromValue('12.345'), '0x16'],
+        [BigDecimal.fromValue('12.345'), '1e'],
+        [BigDecimal.fromValue('12.345'), '8 e'],
+        [BigDecimal.fromValue('12.345'), '77-e'],
+        [BigDecimal.fromValue('12.345'), '123e.0'],
+        [BigDecimal.fromValue('12.345'), '4e1.'],
+        [BigDecimal.fromValue('12.345'), Infinity],
+        [BigDecimal.fromValue('12.345'), '-Infinity'],
     ];
 
     it('should be able to add two decimals', function () {
         for (const test of validTests) {
-            const actual = (new BigDecimal(test[0])).add(new BigDecimal(test[1])).toString();
-            const expected = new BigDecimal(test[2]).toString();
+            const actual = (BigDecimal.fromValue(test[0])).add(BigDecimal.fromValue(test[1])).toString();
+            const expected = BigDecimal.fromValue(test[2]).toString();
             actual.should.be.equal(expected, `expected '${test[0]}' + '${test[1]}' to be '${test[2]}'`);
         }
     });
@@ -1900,7 +1900,7 @@ describe('Addition test', function () {
             (() => {
                 try {
                     test[0].add(test[1]);
-                } catch (e){
+                } catch (e) {
                     console.log(e);
                     throw e;
                 }
