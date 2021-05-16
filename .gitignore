@@ -3,3 +3,4 @@
 package-lock.json
 sandbox.js
 node_modules
+lib/
