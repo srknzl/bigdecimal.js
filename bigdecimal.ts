@@ -438,12 +438,14 @@ class BigDecimal {
     }
 
     static fromValue(value: any, mc?: MathContext): BigDecimal {
+        /*
         if (typeof value === 'number') {
             return BigDecimal.fromNumber(value, 0, 0);
         }
         if (typeof value === 'bigint') {
             return BigDecimal.fromBigInt(value, 0, 0);
         }
+         */
         value = String(value);
         return BigDecimal.from1(value, 0, value.length, mc);
     }
