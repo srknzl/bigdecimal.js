@@ -189,7 +189,11 @@ class BigDecimal {
 
 
     static adjustScale(scl: number, exp: number): number {
-        return 0;
+        let adjustedScale = scl - exp;
+        if (adjustedScale > Number.MAX_SAFE_INTEGER || adjustedScale < Number.MIN_SAFE_INTEGER)
+            throw new RangeError('Scale out of range.');
+        scl = adjustedScale;
+        return scl;
     }
 
     constructor(intVal: BigIntOrNull, intCompact: number, scale: number, precision: number) {
@@ -307,8 +311,16 @@ class BigDecimal {
         return new BigDecimal(rb, rs, scl, prec);
     }
 
+
     static valueOf(unscaledVal: number, scale: number): BigDecimal {
-        return new BigDecimal(0n, 0, 0, 0);
+        if (scale == 0)
+            return BigDecimal.valueOf5(unscaledVal);
+        else if (unscaledVal == 0) {
+            return BigDecimal.zeroValueOf(scale);
+        }
+        return new BigDecimal(unscaledVal == BigDecimal.INFLATED ?
+            BigDecimal.INFLATED_BIGINT : null,
+            unscaledVal, scale, 0);
     }
 
     static valueOf2(intVal: BigInt, scale: number, prec: number): BigDecimal {
@@ -322,13 +334,26 @@ class BigDecimal {
     }
 
     static valueOf3(unscaledVal: number, scale: number, prec: number): BigDecimal {
-        return new BigDecimal(0n, 0, 0, 0);
+        if (scale == 0 && unscaledVal >= 0 && unscaledVal < BigDecimal.ZERO_THROUGH_TEN.length) {
+            return BigDecimal.ZERO_THROUGH_TEN[unscaledVal];
+        } else if (unscaledVal == 0) {
+            return BigDecimal.zeroValueOf(scale);
+        }
+        return new BigDecimal(unscaledVal == BigDecimal.INFLATED ? BigDecimal.INFLATED_BIGINT : null,
+            unscaledVal, scale, prec);
     }
 
     static valueOf4(unscaledVal: BigInt, scale: number): BigDecimal {
-        return new BigDecimal(0n, 0, 0, 0);
+        return new BigDecimal(unscaledVal, BigDecimal.compactValFor(unscaledVal), scale, 0);
     }
 
+    static valueOf5(val: number): BigDecimal {
+        if (val >= 0 && val < BigDecimal.ZERO_THROUGH_TEN.length)
+            return BigDecimal.ZERO_THROUGH_TEN[val];
+        else if (val != BigDecimal.INFLATED)
+            return new BigDecimal(null, val, 0, 0);
+        return new BigDecimal(BigDecimal.INFLATED_BIGINT, val, 0, 0);
+    }
 
     static numberDigitLength(value: number): number {
         return Math.ceil(Math.log10(value + 1));
@@ -460,8 +485,20 @@ class BigDecimal {
     }
 
     static add4(xs: number, ys: number, scale: number): BigDecimal {
-        return new BigDecimal(0n, 0, 0, 0);
+        let sum = BigDecimal.add5(xs, ys);
+        if (sum != BigDecimal.INFLATED)
+            return BigDecimal.valueOf(sum, scale);
+        return BigDecimal.valueOf4(BigInt(xs) + BigInt(ys), scale);
     }
+
+
+    static add5(xs: number, ys: number): number {
+        const sum = xs + ys;
+        if (sum >= Number.MAX_SAFE_INTEGER)
+            return BigDecimal.INFLATED;
+        return sum;
+    }
+
 
     static numberMultiplyPowerTen(val: number, n: number): number {
         if (val == 0 || n <= 0)
@@ -539,7 +576,18 @@ class BigDecimal {
     }
 
     static divideAndRound(ldividend: number, ldivisor: number, roundingMode: number): number {
-        return 0;
+        let qsign; // quotient sign
+        let q = ldividend / ldivisor; // store quotient in long
+        if (roundingMode == RoundingMode.DOWN)
+            return q;
+        let r = ldividend % ldivisor; // store remainder in long
+        qsign = ((ldividend < 0) == (ldivisor < 0)) ? 1 : -1;
+        if (r != 0) {
+            let increment = BigDecimal.needIncrement(ldivisor, roundingMode, qsign, q, r);
+            return increment ? q + qsign : q;
+        } else {
+            return q;
+        }
     }
 
     bigMultiplyPowerTen(n: number): BigInt {
@@ -989,7 +1037,46 @@ class BigDecimal {
     }
 
     setScale2(newScale: number, roundingMode: RoundingMode): BigDecimal {
-        return new BigDecimal(0n, 0, 0, 0);
+        if (roundingMode < RoundingMode.UP || roundingMode > RoundingMode.UNNECESSARY)
+            throw new RangeError('Invalid rounding mode');
+
+        let oldScale = this.scale;
+        if (newScale == oldScale)        // easy case
+            return this;
+        if (this.signum() == 0)            // zero can have any scale
+            return BigDecimal.zeroValueOf(newScale);
+        if (this.intCompact != BigDecimal.INFLATED) {
+            let rs = this.intCompact;
+            if (newScale > oldScale) {
+                let raise = BigDecimal.checkScale(newScale - oldScale);
+                if ((rs = BigDecimal.numberMultiplyPowerTen(rs, raise)) != BigDecimal.INFLATED) {
+                    return BigDecimal.valueOf(rs, newScale);
+                }
+                let rb = this.bigMultiplyPowerTen(raise);
+                return new BigDecimal(rb, BigDecimal.INFLATED, newScale, (this.precision > 0) ? this.precision + raise : 0);
+            } else {
+                // newScale < oldScale -- drop some digits
+                // Can't predict the precision due to the effect of rounding.
+                let drop = BigDecimal.checkScale(oldScale - newScale);
+                if (drop < BigDecimal.TEN_POWERS_TABLE.length) {
+                    return BigDecimal.divideAndRound2(rs, BigDecimal.TEN_POWERS_TABLE[drop], newScale, roundingMode, newScale);
+                } else {
+                    return BigDecimal.divideAndRound3(this.inflated(), BigInt(10) ** BigInt(drop), newScale, roundingMode, newScale);
+                }
+            }
+        } else {
+            if (newScale > oldScale) {
+                let raise = BigDecimal.checkScale(newScale - oldScale);
+                let rb = BigDecimal.bigMultiplyPowerTen3(this.intVal, raise);
+                return new BigDecimal(rb, BigDecimal.INFLATED, newScale, (this.precision > 0) ? this.precision + raise : 0);
+            } else {
+                let drop = BigDecimal.checkScale(oldScale - newScale);
+                if (drop < BigDecimal.TEN_POWERS_TABLE.length)
+                    return BigDecimal.divideAndRound4(this.intVal!, BigDecimal.TEN_POWERS_TABLE[drop], newScale, roundingMode, newScale);
+                else
+                    return BigDecimal.divideAndRound3(this.intVal!, BigInt(10) ** BigInt(drop), newScale, roundingMode, newScale);
+            }
+        }
     }
 
     static divide2(xs: number, xscale: number, ys: number, yscale: number, preferredScale: number, mc: MathContext): BigDecimal {
@@ -1742,7 +1829,7 @@ class BigDecimal {
         return (mr < mr) ? -1 : ((mr == mq) ? 0 : 1);
     }
 
-    static divideAndRound4(bdividend: BigInt, ldivisor: number, scale: number, roundingMode: RoundingMode, preferredScale: number) {
+    static divideAndRound4(bdividend: BigInt, ldivisor: number, scale: number, roundingMode: RoundingMode, preferredScale: number): BigDecimal {
         let mq = bdividend.valueOf() / BigInt(ldivisor);
         const mr = Number(bdividend) % ldivisor;
         const isRemainderZero = mr === 0;
@@ -1766,7 +1853,7 @@ class BigDecimal {
         }
     }
 
-    static needIncrement3(ldivisor: any, roundingMode: RoundingMode, qsign: number, mq: BigInt, r: number) {
+    static needIncrement3(ldivisor: number, roundingMode: RoundingMode, qsign: number, mq: BigInt, r: number) {
         if (r === 0) throw new RangeError('Unexpected remainder');
 
         let cmpFracHalf;
@@ -1976,11 +2063,36 @@ class BigDecimal {
     }
 
     static divideAndRound5(bdividend: BigIntOrNull, ldivisor: number, roundingMode: number): BigInt {
-        return 0n;
+        let mq = bdividend!.valueOf() / BigInt(ldivisor);
+        // store quotient & remainder in long
+        let r = Number(bdividend!) % ldivisor;
+        // record remainder is zero or not
+        let isRemainderZero = (r == 0);
+        // quotient sign
+        let qsign = (ldivisor < 0) ? BigDecimal.bigIntSignum(-1n * bdividend!.valueOf()) : BigDecimal.bigIntSignum(bdividend!);
+        if (!isRemainderZero) {
+            if (BigDecimal.needIncrement3(ldivisor, roundingMode, qsign, mq, r)) {
+                mq += 1n;
+            }
+        }
+        return mq * BigInt(qsign);
     }
 
     static divideAndRound6(bdividend: BigIntOrNull, bdivisor: BigIntOrNull, roundingMode: number): BigInt {
-        return 0n;
+        let isRemainderZero; // record remainder is zero or not
+        let qsign; // quotient sign
+        let mq = bdividend!.valueOf() / bdivisor!.valueOf();
+        // store quotient & remainder in long
+        let mr = bdividend!.valueOf() % bdivisor!.valueOf();
+        // Descend into mutables for faster remainder checks
+        isRemainderZero = mr === 0n;
+        qsign = (BigDecimal.bigIntSignum(bdividend!) != BigDecimal.bigIntSignum(bdivisor!)) ? -1 : 1;
+        if (!isRemainderZero) {
+            if (BigDecimal.needIncrement2(bdivisor!, roundingMode, qsign, mq, mr)) {
+                mq += 1n;
+            }
+        }
+        return mq * BigInt(qsign);
     }
 
     static divideSmallFastPath(xs: number, xscale: number, ys: number, yscale: number, preferredScale: number, mc: MathContext) {
