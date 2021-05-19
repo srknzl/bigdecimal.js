@@ -267,7 +267,58 @@ export class BigDecimal {
 
         let idx = 0;
         if (isCompact) {
-
+            for (; len > 0; offset++, len--) {
+                c = input[offset];
+                if ((c == '0')) { // have zero
+                    if (prec == 0)
+                        prec = 1;
+                    else if (rs != 0) {
+                        rs *= 10;
+                        ++prec;
+                    } // else digit is a redundant leading zero
+                    if (dot)
+                        ++scl;
+                } else if ((c >= '1' && c <= '9')) { // have digit
+                    let digit = +c;
+                    if (prec != 1 || rs != 0)
+                        ++prec; // prec unchanged if preceded by 0s
+                    rs = rs * 10 + digit;
+                    if (dot)
+                        ++scl;
+                } else if (c == '.') {   // have dot
+                    // have dot
+                    if (dot) // two dots
+                        throw new RangeError('Character array contains more than one decimal point.');
+                    dot = true;
+                } else if ((c == 'e') || (c == 'E')) {
+                    exp = BigDecimal.parseExp(input, offset, len);
+                    // Next test is required for backwards compatibility
+                    if (exp > Number.MAX_SAFE_INTEGER) // overflow
+                        throw new RangeError('Exponent overflow.');
+                    break; // [saves a test]
+                } else {
+                    throw new RangeError('Character ' + c
+                        + ' is neither a decimal digit number, decimal point, nor'
+                        + ' "e" notation exponential mark.');
+                }
+            }
+            if (prec == 0) // no digits found
+                throw new RangeError('No digits found.');
+            // Adjust scale if exp is not zero.
+            if (exp != 0) { // had significant exponent
+                scl = BigDecimal.adjustScale(scl, exp);
+            }
+            rs = isneg ? -rs : rs;
+            let mcp = mc.precision;
+            let drop = prec - mcp;
+            if (mcp > 0 && drop > 0) {
+                while (drop > 0) {
+                    scl = BigDecimal.checkScaleNonZero(scl - drop);
+                    rs = BigDecimal.divideAndRound(rs, BigDecimal.TEN_POWERS_TABLE[drop], mc.roundingMode);
+                    prec = BigDecimal.numberDigitLength(rs);
+                    drop = prec - mcp;
+                }
+            }
         } else {
             let coeff = [];
             for (; len > 0; offset++, len--) {
