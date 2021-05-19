@@ -13,9 +13,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-const { Big: Test_numbers } = require('big.js');
-const Decimal = require('../bigdecimal.js');
-const { BigDecimal } = require('bigdecimal');
+const { Big } = require('big.js');
+const { BigDecimal } = require('../lib/big_decimal.js');
+const { BigDecimal: GWTDecimal } = require('bigdecimal');
 
 const bigDecimalNumbers = [
     '11231231.232323', '1222235657.2312', '1222235657.2312', '1222235632257.23124',
@@ -28,13 +28,13 @@ const bigDecimalsBigjs = [] // for big.js
 const bigDecimalsGWT = [] // for gwt based bigdecimal
 
 for (const x of bigDecimalNumbers) {
-    bigDecimals.push(new Decimal(x));
+    bigDecimals.push(BigDecimal.fromValue(x));
 }
 for (const x of bigDecimalNumbers) {
-    bigDecimalsBigjs.push(new Test_numbers(x));
+    bigDecimalsBigjs.push(new Big(x));
 }
 for (const x of bigDecimalNumbers) {
-    bigDecimalsGWT.push(BigDecimal(x));
+    bigDecimalsGWT.push(GWTDecimal(x));
 }
 
 const smallDecimalNumbers = [
@@ -46,13 +46,13 @@ const smallDecimalsBigjs = [] // for big.js
 const smallDecimalsGWT = [] // for gwt based bigdecimal
 
 for (const x of smallDecimalNumbers) {
-    smallDecimalsBigjs.push(new Test_numbers(x));
+    smallDecimals.push(BigDecimal.fromValue(x));
 }
 for (const x of smallDecimalNumbers) {
-    smallDecimals.push(new Decimal(x));
+    smallDecimalsBigjs.push(new Big(x));
 }
 for (const x of smallDecimalNumbers) {
-    smallDecimalsGWT.push(BigDecimal(x));
+    smallDecimalsGWT.push(GWTDecimal(x));
 }
 
 module.exports = {

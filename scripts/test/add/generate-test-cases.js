@@ -4,8 +4,8 @@ const additionTests = require('./addition-tests');
 
 const fs = require('fs');
 
-async function runJava(first, second, result) {
-    const { stdout, stderr } = await exec(`java Main ${first} ${second}`);
+async function runJava(first, second) {
+    const { stdout} = await exec(`java Main ${first} ${second}`);
     return stdout.trim();
 }
 

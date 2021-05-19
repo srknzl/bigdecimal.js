@@ -15,15 +15,15 @@
 */
 'use strict';
 const { Big } = require('big.js');
-const Decimal = require('../bigdecimal.js');
-const { BigDecimal } = require('bigdecimal');
+const { BigDecimal } = require('../lib/big_decimal.js');
+const { BigDecimal: GWTDecimal } = require('bigdecimal');
 const Benchmark = require('benchmark');
 const { bigDecimals, bigDecimalsBigjs, bigDecimalsGWT } = require('./test_numbers');
 
 const suite = new Benchmark.Suite;
 
 suite.add('BigNumbersAddMulTest#Bigdecimal.js', function () {
-    let res2 = new Decimal('0');
+    let res2 = BigDecimal.fromValue('0');
     for (const x of bigDecimals) {
         res2 = res2.add(x);
     }
@@ -39,7 +39,7 @@ suite.add('BigNumbersAddMulTest#Bigdecimal.js', function () {
         res = res.mul(x);
     }
 }).add('BigNumbersAddMulTest#GWTBased', function () {
-    let res = BigDecimal('0');
+    let res = GWTDecimal('0');
     for (const x of bigDecimalsGWT) {
         res = res.add(x);
     }
