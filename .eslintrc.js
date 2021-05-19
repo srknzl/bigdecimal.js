@@ -114,6 +114,7 @@ module.exports = {
                 'FunctionExpression > BlockStatement.body'
             ]
         }],
-        'space-in-parens': 'error'
+        'space-in-parens': 'error',
+        'eqeqeq': 'error'
     }
 };

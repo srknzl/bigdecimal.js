@@ -13,29 +13,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-  -------------------------------------------------------
-  Copyright © `<2021>` `Michael Mclaughlin`
-
-  Permission is hereby granted, free of charge, to any person
-  obtaining a copy of this software and associated documentation
-  files (the “Software”), to deal in the Software without
-  restriction, including without limitation the rights to use,
-  copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the
-  Software is furnished to do so, subject to the following
-  conditions:
-
-  The above copyright notice and this permission notice shall be
-  included in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
-  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-  OTHER DEALINGS IN THE SOFTWARE.
 */
 const { BigDecimal } = require('../../lib/bigdecimal');
 const chai = require('chai');
@@ -77,25 +54,17 @@ describe('Addition test', function () {
     ];
 
     it('should be able to add two decimals', function () {
-        let counter = 0;
         for (const test of additionTestCases) {
-            counter++;
-            if (counter % 100 === 0) console.log(counter);
             const actual = (BigDecimal.fromValue(test.arguments[0])).add(BigDecimal.fromValue(test.arguments[1])).toString();
             const expected = test.result;
             actual.should.be.equal(expected, `expected '${test.arguments[0]}' + '${test.arguments[1]}' to be '${expected}'`);
         }
     });
 
-    it('should throw on invalid usage', function () {
+    it('should throw on invalid argument', function () {
         for (const test of invalidTests) {
             (() => {
-                try {
-                    test[0].add(test[1]);
-                } catch (e) {
-                    console.log(e);
-                    throw e;
-                }
+                test[0].add(test[1]);
             }).should.throw(undefined, undefined, `expected '${test[0]}' + '${test[1]}' to throw`);
         }
     });
