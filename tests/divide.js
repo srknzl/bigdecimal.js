@@ -1,13 +1,13 @@
 const { BigDecimal, MathContext, RoundingMode } = require('../lib/big_decimal');
 const chai = require('chai');
-const additionTestCases = require('./divisionTestCases.json');
+const testCases = require('./testCases/divisionTestCases.json');
 const invalidTests = require('./invalidTests');
 chai.should();
 
 describe('Division test', function () {
 
     it('should be able to divide two decimals', function () {
-        for (const test of additionTestCases) {
+        for (const test of testCases) {
             const actual =
                 (BigDecimal.fromValue(test.arguments[0])).divide(
                     BigDecimal.fromValue(test.arguments[1]), new MathContext(

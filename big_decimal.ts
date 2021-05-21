@@ -874,8 +874,8 @@ export class BigDecimal {
 
     /** @internal */
     private preAlign(augend: BigDecimal, padding: number, mc: MathContext): BigDecimal[] {
-        if (padding !== 0) {
-            throw new RangeError('Padding must be zero');
+        if (padding === 0) {
+            throw new RangeError('Padding must be non-zero');
         }
         let big: BigDecimal;
         let small: BigDecimal;
@@ -925,15 +925,16 @@ export class BigDecimal {
                 }
             }
         }
-        const lhsIsZero = this.signum() === 0;
+        let lhs: BigDecimal = this;
+        const lhsIsZero = lhs.signum() === 0;
         const augendIsZero = augend.signum() === 0;
 
         if (lhsIsZero || augendIsZero) {
-            const preferredScale = Math.max(this.scale, augend.scale);
+            const preferredScale = Math.max(lhs.scale, augend.scale);
 
             if (lhsIsZero && augendIsZero)
                 return BigDecimal.zeroValueOf(preferredScale);
-            const result = lhsIsZero ? BigDecimal.doRound(augend, mc) : BigDecimal.doRound(this, mc);
+            const result = lhsIsZero ? BigDecimal.doRound(augend, mc) : BigDecimal.doRound(lhs, mc);
 
             if (result.scale === preferredScale)
                 return result;
@@ -949,14 +950,14 @@ export class BigDecimal {
                     return result.setScale(result.scale + precisionDiff);
             }
         }
-        const padding = this.scale - augend.scale;
+        const padding = lhs.scale - augend.scale;
         if (padding !== 0) {
             const arg = this.preAlign(augend, padding, mc);
             BigDecimal.matchScale(arg);
-            Object.assign(this, arg[0]);
+            lhs = arg[0];
             augend = arg[1];
         }
-        return BigDecimal.doRound2(this.inflated().valueOf() + augend.inflated().valueOf(), this.scale, mc);
+        return BigDecimal.doRound2(lhs.inflated().valueOf() + augend.inflated().valueOf(), lhs.scale, mc);
     }
 
     subtract(subtrahend: BigDecimal, mc?: MathContext): BigDecimal {

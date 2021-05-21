@@ -4,94 +4,119 @@ const testNumbers = require('./test-numbers');
 
 const fs = require('fs');
 
-async function runAddJava(first, second) {
-    const { stdout } = await exec(`java Main ${first} ${second}`);
-    return stdout.trim();
+async function runAddJava(first, second, precision, roundingMode) {
+    try {
+        const { stdout, stderr } = await exec(`java -cp com/Add Main ${first} ${second} ${precision} ${roundingMode}`);
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim();
+    } catch (e) {
+        return 'errorThrown';
+    }
 }
 
-async function runSubtractJava(first, second) {
-    const { stdout } = await exec(`java Main ${first} ${second}`);
-    return stdout.trim();
+async function runSubtractJava(first, second, precision, roundingMode) {
+    try {
+        const { stdout, stderr } = await exec(`java -cp com/Subtract Main ${first} ${second} ${precision} ${roundingMode}`);
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim();
+    } catch (e) {
+        return 'errorThrown';
+    }
+}
+
+async function runMultiplyJava(first, second, precision, roundingMode) {
+    try {
+        const { stdout, stderr } = await exec(`java -cp com/Multiply Main ${first} ${second} ${precision} ${roundingMode}`);
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim();
+    } catch (e) {
+        return 'errorThrown';
+    }
 }
 
 async function runDivideJava(first, second, precision, roundingMode) {
-    const { stdout } = await exec(`java Main ${first} ${second} ${precision} ${roundingMode}`);
-    return stdout.trim();
+    try {
+        const { stdout, stderr } = await exec(`java -cp com/Divide Main ${first} ${second} ${precision} ${roundingMode}`);
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim();
+    } catch (e) {
+        return 'errorThrown';
+    }
 }
 
-async function runAddTest(tuple, addTestCases) {
-    const addResult = await runAddJava(tuple[0], tuple[1]);
+async function generateAddTest(tuple, addTestCases) {
+    const args = [
+        tuple[0],
+        tuple[1],
+        Math.floor(Math.random() * 1000), // precision
+        Math.floor(Math.random() * 8) // rounding mode
+    ];
+    const addResult = await runAddJava(...args);
     addTestCases.push({
-        arguments: [tuple[0], tuple[1]],
+        arguments: args,
         result: addResult.trim()
     });
 }
 
-async function runSubtractTest(tuple, subtractTestCases) {
-    const subtractResult = await runSubtractJava(tuple[0], tuple[1]);
+async function generateSubtractTest(tuple, subtractTestCases) {
+    const args = [
+        tuple[0],
+        tuple[1],
+        Math.floor(Math.random() * 1000), // precision
+        Math.floor(Math.random() * 8) // rounding mode
+    ];
+    const subtractResult = await runSubtractJava(...args);
     subtractTestCases.push({
-        arguments: [tuple[0], tuple[1]],
+        arguments: args,
         result: subtractResult.trim()
     });
 }
 
-async function runDivideTest(tuple, divideTestCases) {
-    if (Number.parseFloat(tuple[1]) !== 0) { // if second number is zero skip
-        const divideResult = await runDivideJava(
-            tuple[0],
-            tuple[1],
-            Math.floor(Math.random() * 100000), // random precision
-            Math.floor(Math.random() * 8) // random rounding mode
-        );
-        divideTestCases.push({
-            arguments: [tuple[0], tuple[1]],
-            result: divideResult.trim()
-        });
-    }
+async function generateMultiplyTest(tuple, multiplyTestCases) {
+    const args = [
+        tuple[0],
+        tuple[1],
+        Math.floor(Math.random() * 1000), // precision
+        Math.floor(Math.random() * 8) // rounding mode
+    ];
+    const multiplyResult = await runMultiplyJava(...args);
+    multiplyTestCases.push({
+        arguments: args,
+        result: multiplyResult.trim()
+    });
+}
+
+async function generateDivideTest(tuple, divideTestCases) {
+    const args = [
+        tuple[0],
+        tuple[1],
+        Math.floor(Math.random() * 1000), // precision
+        Math.floor(Math.random() * 8) // rounding mode
+    ];
+    const divideResult = await runDivideJava(...args);
+    divideTestCases.push({
+        arguments: args,
+        result: divideResult.trim()
+    });
 }
 
 async function run() {
     const addTestCases = [];
     const subtractTestCases = [];
+    const multiplyTestCases = [];
     const divideTestCases = [];
 
     for (const tuple of testNumbers) {
-        await runAddTest(tuple, addTestCases);
-        await runSubtractTest(tuple, subtractTestCases);
-        await runDivideTest(tuple, divideTestCases);
+        await generateAddTest(tuple, addTestCases);
+        await generateSubtractTest(tuple, subtractTestCases);
+        await generateMultiplyTest(tuple, multiplyTestCases);
+        await generateDivideTest(tuple, divideTestCases);
     }
     fs.writeFileSync('additionTestCases.json', JSON.stringify(addTestCases));
     fs.writeFileSync('subtractionTestCases.json', JSON.stringify(subtractTestCases));
+    fs.writeFileSync('multiplicationTestCases.json', JSON.stringify(multiplyTestCases));
     fs.writeFileSync('divisionTestCases.json', JSON.stringify(divideTestCases));
 
 }
 
 run().catch(console.log);
-
-
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
-const multiplicationTests = require('./multiplication-tests');
-
-const fs = require('fs');
-
-async function runJava(first, second) {
-    const { stdout} = await exec(`java Main ${first} ${second}`);
-    return stdout.trim();
-}
-
-async function run() {
-    const testCases = [];
-    for (const tuple of multiplicationTests) {
-        const result = await runJava(tuple[0], tuple[1]);
-        testCases.push({
-            arguments: [tuple[0], tuple[1]],
-            result: result.trim()
-        });
-    }
-    fs.writeFileSync('multiplicationTestCases.json', JSON.stringify(testCases));
-}
-
-run().catch(console.log);
-
-
