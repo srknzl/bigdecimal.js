@@ -6,6 +6,7 @@
   "scripts": {
     "test": "mocha tests/**/*.js",
     "compile": "tsc",
+    "lint:ci": "eslint --ext .ts .",
     "lint": "eslint --ext .ts --cache --fix .",
     "benchmark": "benchmarks/run_tests.sh"
   },
