@@ -1073,9 +1073,7 @@ export class BigDecimal {
     /** @internal */
     private static multiply1(x: number, y: number): number {
         const product = x * y;
-        const ax = Math.abs(x);
-        const ay = Math.abs(y);
-        if (((ax | ay) >>> 31 === 0) || (y === 0) || (product / y === x)) {
+        if (product <= Number.MAX_SAFE_INTEGER && product > Number.MIN_SAFE_INTEGER) {
             return product;
         }
         return BigDecimal.INFLATED;
