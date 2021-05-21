@@ -6,6 +6,9 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
+      - name: Install
+        run: |
+          npm i
       - name: Lint
         run: |
           npm run lint:ci
