@@ -1,7 +1,7 @@
-const { BigDecimal } = require('../../lib/big_decimal');
+const { BigDecimal } = require('../lib/big_decimal');
 const chai = require('chai');
-const additionTestCases = require('./additionTestCases.json');
-const invalidTests = require('../invalidTests');
+const additionTestCases = require('./add/additionTestCases.json');
+const invalidTests = require('./invalidTests');
 chai.should();
 
 describe('Addition test', function () {

@@ -14,10 +14,10 @@
   limitations under the License.
 
 */
-const { BigDecimal } = require('../../lib/big_decimal');
+const { BigDecimal } = require('../lib/big_decimal');
 const chai = require('chai');
-const additionTestCases = require('./multiplicationTestCases.json');
-const invalidTests = require('../invalidTests');
+const additionTestCases = require('./multiply/multiplicationTestCases.json');
+const invalidTests = require('./invalidTests');
 chai.should();
 
 describe('Multiplication test', function () {

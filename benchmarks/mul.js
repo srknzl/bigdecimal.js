@@ -8,7 +8,7 @@ const { smallDecimals, smallDecimalsBigjs, smallDecimalsGWT } = require('./test_
 const suite = new Benchmark.Suite;
 
 suite.add('MultiplyTest#Bigdecimal.js', function () {
-    let res2 = BigDecimal.fromValuel('1');
+    let res2 = BigDecimal.fromValue('1');
     for (const x of smallDecimals) {
         res2 = res2.multiply(x);
     }
