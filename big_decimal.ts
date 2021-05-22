@@ -2201,8 +2201,13 @@ export class BigDecimal {
     /** @internal */
     private static divideAndRound5(bdividend: BigIntOrNull, ldivisor: number, roundingMode: number): BigInt {
         let mq = bdividend!.valueOf() / BigInt(ldivisor);
+        let r: number;
 
-        const r = Number(bdividend!) % ldivisor;
+        if (bdividend! <= BigInt(Number.MAX_SAFE_INTEGER) && bdividend! >= BigInt(Number.MIN_SAFE_INTEGER)) {
+            r = Number(bdividend!) % ldivisor;
+        } else {
+            r = Number(bdividend!.valueOf() % BigInt(ldivisor));
+        }
 
         const isRemainderZero = (r === 0);
 
