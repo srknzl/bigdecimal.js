@@ -8,7 +8,11 @@ node benchmarks/mul.js
 echo '----------'
 node benchmarks/mul_big.js
 echo '----------'
-node benchmarks/add_mul.js
+node benchmarks/subtract.js
 echo '----------'
-node benchmarks/add_mul_big.js
+node benchmarks/subtract_big.js
+echo '----------'
+node benchmarks/divide.js
+echo '----------'
+node benchmarks/divide_big.js
 echo '----------'

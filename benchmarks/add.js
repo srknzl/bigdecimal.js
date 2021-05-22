@@ -7,23 +7,25 @@ const { smallDecimals, smallDecimalsBigjs, smallDecimalsGWT } = require('./test_
 
 const suite = new Benchmark.Suite;
 
+const initialValue = '0';
+
 suite.add('AddTest#Bigdecimal.js', function () {
-    let res2 = BigDecimal.fromValue('0');
+    let res2 = BigDecimal.fromValue(initialValue);
     for (const x of smallDecimals) {
         res2 = res2.add(x);
     }
 }).add('AddTest#Big.js', function () {
-    let res = new Big('0');
+    let res = new Big(initialValue);
     for (const x of smallDecimalsBigjs) {
         res = res.add(x);
     }
 }).add('AddTest#GWTBased', function () {
-    let res2 = GWTDecimal('0');
+    let res2 = GWTDecimal(initialValue);
     for (const x of smallDecimalsGWT) {
         res2 = res2.add(x);
     }
 }).on('cycle', function (event) {
-    console.log(String(event.target))
+    console.log(String(event.target));
 }).on('complete', function () {
     console.log('Fastest is ' + this.filter('fastest').map('name'));
 }).run();

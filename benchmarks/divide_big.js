@@ -12,17 +12,17 @@ const precision = 123;
 Big.DP = precision;
 Big.RM = 1;
 
-suite.add('BigNumbersDivideTest#Bigdecimal.js', function () {
+suite.add('DivideTest(Big Numbers)#Bigdecimal.js', function () {
     let res2 = BigDecimal.fromValue(initialValue);
     for (const x of bigDecimals) {
         res2 = res2.divide(x, new MathContext(precision, RoundingMode.HALF_UP));
     }
-}).add('BigNumbersDivideTest#Big.js', function () {
+}).add('DivideTest(Big Numbers)#Big.js', function () {
     let res = new Big(initialValue);
     for (const x of bigDecimalsBigjs) {
         res = res.div(x);
     }
-}).add('BigNumbersDivideTest#GWTBased', function () {
+}).add('DivideTest(Big Numbers)#GWTBased', function () {
     let res2 = GWTDecimal(initialValue);
 
     for (const x of bigDecimalsGWT) {

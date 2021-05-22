@@ -7,29 +7,22 @@ const { smallDecimals, smallDecimalsBigjs, smallDecimalsGWT } = require('./test_
 
 const suite = new Benchmark.Suite;
 
-suite.add('AddMulTest#Bigdecimal.js', function () {
-    let res2 = BigDecimal.fromValue('0');
+const initialValue = '0';
+
+suite.add('SubtractTest#Bigdecimal.js', function () {
+    let res2 = BigDecimal.fromValue(initialValue);
     for (const x of smallDecimals) {
-        res2 = res2.add(x);
+        res2 = res2.subtract(x);
     }
-    for (const x of smallDecimals) {
-        res2 = res2.multiply(x);
-    }
-}).add('AddMulTest#Big.js', function () {
-    let res = new Big('0');
+}).add('SubtractTest#Big.js', function () {
+    let res = new Big(initialValue);
     for (const x of smallDecimalsBigjs) {
-        res = res.add(x);
+        res = res.sub(x);
     }
-    for (const x of smallDecimalsBigjs) {
-        res = res.mul(x);
-    }
-}).add('AddMulTest#GWTBased', function () {
-    let res2 = GWTDecimal('0');
+}).add('SubtractTest#GWTBased', function () {
+    let res2 = GWTDecimal(initialValue);
     for (const x of smallDecimalsGWT) {
-        res2 = res2.add(x);
-    }
-    for (const x of smallDecimalsGWT) {
-        res2 = res2.multiply(x);
+        res2 = res2.subtract(x);
     }
 }).on('cycle', function (event) {
     console.log(String(event.target))
