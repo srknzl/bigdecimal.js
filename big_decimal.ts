@@ -371,7 +371,7 @@ export class BigDecimal {
                             prec = BigDecimal.numberDigitLength(rs);
                             break;
                         }
-                        prec = rb.toString().length;
+                        prec = BigDecimal.bigDigitLength(rb);
                         drop = prec - mcp;
                     }
                 }
@@ -440,6 +440,7 @@ export class BigDecimal {
 
     /** @internal */
     private static numberDigitLength(value: number): number {
+        if (value < 0) value *= -1;
         return Math.ceil(Math.log10(value + 1));
     }
 
@@ -748,7 +749,7 @@ export class BigDecimal {
                         prec = BigDecimal.numberDigitLength(compactVal);
                         break;
                     }
-                    prec = intVal!.toString().length;
+                    prec = BigDecimal.bigDigitLength(intVal!);
                     drop = prec - mcp;
                 }
             }
@@ -769,6 +770,12 @@ export class BigDecimal {
     }
 
     /** @internal */
+    private static bigDigitLength(b: BigInt) {
+        if (b < 0n) b = b.valueOf() * -1n;
+        return b.toString().length;
+    }
+
+    /** @internal */
     private static doRound2(intVal: BigInt, scale: number, mc: MathContext): BigDecimal {
         const mcp = mc.precision;
         let prec = 0;
@@ -777,7 +784,7 @@ export class BigDecimal {
             const mode = mc.roundingMode;
             let drop;
             if (compactVal === BigDecimal.INFLATED) {
-                prec = intVal.toString().length;
+                prec = BigDecimal.bigDigitLength(intVal);
                 drop = prec - mcp;
                 while (drop > 0) {
                     scale = BigDecimal.checkScaleNonZero(scale - drop);
@@ -786,7 +793,7 @@ export class BigDecimal {
                     if (compactVal !== BigDecimal.INFLATED) {
                         break;
                     }
-                    prec = intVal.toString().length;
+                    prec = BigDecimal.bigDigitLength(intVal);
                     drop = prec - mcp;
                 }
             }
@@ -1857,8 +1864,6 @@ export class BigDecimal {
             else if (cmpFracHalf > 0)
                 return true;
             else {
-                if (cmpFracHalf !== 0) throw new RangeError('Expected cmp frac half to be zero');
-
                 switch (roundingMode) {
                 case RoundingMode.HALF_DOWN:
                     return false;
@@ -1901,7 +1906,7 @@ export class BigDecimal {
             return new BigDecimal(null, qsign * numberForm, scale, BigDecimal.numberDigitLength(numberForm));
         } else {
             return new BigDecimal(
-                BigInt(qsign) * bigInt.valueOf(), BigDecimal.INFLATED, scale, bigInt.toString().length
+                BigInt(qsign) * bigInt.valueOf(), BigDecimal.INFLATED, scale, BigDecimal.bigDigitLength(bigInt)
             );
         }
     }
@@ -1948,19 +1953,17 @@ export class BigDecimal {
     ): boolean {
         if (mr === 0n) throw new RangeError('Unexpected remainder');
 
-        const cmpFracHalf = BigDecimal.compareHalf(mr, mq);
+        const cmpFracHalf = BigDecimal.compareHalf(mr, mdivisor);
 
         return BigDecimal.commonNeedIncrement(roundingMode, qsign, cmpFracHalf, mq.valueOf() % 2n === 1n);
     }
 
     /** @internal */
-    private static compareHalf(mr: BigInt, mq: BigInt) {
+    private static compareHalf(mr: BigInt, mq: BigInt): number {
         mq = mq.valueOf() / 2n;
-        if (mr < 0n)
-            mr = -1n * mr.valueOf();
-        if (mq < 0n)
-            mq = -1n * mq.valueOf();
-        return (mr < mr) ? -1 : ((mr === mq) ? 0 : 1);
+        if (mr < mq) return -1;
+        if (mr > mq) return 1;
+        return 0;
     }
 
     /** @internal */
@@ -2200,6 +2203,12 @@ export class BigDecimal {
 
     /** @internal */
     private static divideAndRound5(bdividend: BigIntOrNull, ldivisor: number, roundingMode: number): BigInt {
+        const bdividendSignum = BigDecimal.bigIntSignum(bdividend!);
+        const ldivisorNegative = (ldivisor < 0);
+
+        if (bdividend! < 0n) bdividend! = bdividend!.valueOf() * -1n;
+        if (ldivisor < 0) ldivisor = ldivisor * -1;
+
         let mq = bdividend!.valueOf() / BigInt(ldivisor);
         let r: number;
 
@@ -2211,8 +2220,7 @@ export class BigDecimal {
 
         const isRemainderZero = (r === 0);
 
-        const qsign = (ldivisor < 0) ?
-            BigDecimal.bigIntSignum(-1n * bdividend!.valueOf()) : BigDecimal.bigIntSignum(bdividend!);
+        const qsign = ldivisorNegative ? (bdividendSignum * -1) : bdividendSignum;
         if (!isRemainderZero) {
             if (BigDecimal.needIncrement3(ldivisor, roundingMode, qsign, mq, r)) {
                 mq += 1n;
@@ -2223,10 +2231,16 @@ export class BigDecimal {
 
     /** @internal */
     private static divideAndRound6(bdividend: BigIntOrNull, bdivisor: BigIntOrNull, roundingMode: number): BigInt {
+        const bdividendSignum = BigDecimal.bigIntSignum(bdividend!);
+        const bdivisorSignum = BigDecimal.bigIntSignum(bdivisor!);
+
+        if (bdividend! < 0n) bdividend! = bdividend!.valueOf() * -1n;
+        if (bdivisor! < 0n) bdivisor! = bdivisor!.valueOf() * -1n;
+
         let mq = bdividend!.valueOf() / bdivisor!.valueOf();
         const mr = bdividend!.valueOf() % bdivisor!.valueOf();
         const isRemainderZero = mr === 0n;
-        const qsign = (BigDecimal.bigIntSignum(bdividend!) !== BigDecimal.bigIntSignum(bdivisor!)) ? -1 : 1;
+        const qsign = (bdividendSignum !== bdivisorSignum) ? -1 : 1;
         if (!isRemainderZero) {
             if (BigDecimal.needIncrement2(bdivisor!, roundingMode, qsign, mq, mr)) {
                 mq += 1n;
