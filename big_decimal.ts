@@ -681,7 +681,7 @@ export class BigDecimal {
 
     /** @internal */
     private static divideAndRound(ldividend: number, ldivisor: number, roundingMode: number): number {
-        const q = Math.floor(ldividend / ldivisor);
+        const q = Math.trunc(ldividend / ldivisor);
         if (roundingMode === RoundingMode.DOWN)
             return q;
         const r = ldividend % ldivisor;
@@ -1805,7 +1805,7 @@ export class BigDecimal {
     private static divideAndRound2(
         ldividend: number, ldivisor: number, scale: number, roundingMode: RoundingMode, preferredScale: number
     ): BigDecimal {
-        const q = ldividend / ldivisor;
+        const q = Math.trunc(ldividend / ldivisor);
         if (roundingMode === RoundingMode.DOWN && scale === preferredScale)
             return BigDecimal.fromNumber2(q, scale, 0);
         const r = ldividend % ldivisor;
@@ -1903,10 +1903,10 @@ export class BigDecimal {
     private static bigIntToBigDecimal(bigInt: BigInt, qsign: number, scale: number): BigDecimal {
         if (bigInt <= BigInt(Number.MAX_SAFE_INTEGER) && bigInt >= BigInt(Number.MIN_SAFE_INTEGER)) {
             const numberForm = Number(bigInt);
-            return new BigDecimal(null, qsign * numberForm, scale, BigDecimal.numberDigitLength(numberForm));
+            return new BigDecimal(null, qsign * numberForm, scale, 0);
         } else {
             return new BigDecimal(
-                BigInt(qsign) * bigInt.valueOf(), BigDecimal.INFLATED, scale, BigDecimal.bigDigitLength(bigInt)
+                BigInt(qsign) * bigInt.valueOf(), BigDecimal.INFLATED, scale, 0
             );
         }
     }
@@ -1970,10 +1970,25 @@ export class BigDecimal {
     private static divideAndRound4(
         bdividend: BigInt, ldivisor: number, scale: number, roundingMode: RoundingMode, preferredScale: number
     ): BigDecimal {
+        const divisorNegative = ldivisor < 0;
+        const dividendSignum = BigDecimal.bigIntSignum(bdividend);
+
+        if (divisorNegative) ldivisor *= -1;
+        if (dividendSignum === -1) bdividend = bdividend.valueOf() * -1n;
+
         let mq = bdividend.valueOf() / BigInt(ldivisor);
-        const mr = Number(bdividend) % ldivisor;
+        let mr: number;
+
+        const bDividendNumber = Number(bdividend);
+
+        if (Number.isSafeInteger(bDividendNumber)) {
+            mr = bDividendNumber % ldivisor;
+        } else {
+            mr = Number(BigInt(bdividend) % BigInt(ldivisor));
+        }
+
         const isRemainderZero = mr === 0;
-        const qsign = (ldivisor < 0) ? -BigDecimal.bigIntSignum(bdividend) : BigDecimal.bigIntSignum(bdividend);
+        const qsign = divisorNegative ? -dividendSignum : dividendSignum;
         if (!isRemainderZero) {
             if (BigDecimal.needIncrement3(ldivisor, roundingMode, qsign, mq, mr)) {
                 mq += BigInt(1);
@@ -2057,7 +2072,7 @@ export class BigDecimal {
 
         if (this.scale === 2 && this.intCompact >= 0 && this.intCompact < Number.MAX_SAFE_INTEGER) {
             const lowInt = this.intCompact % 100;
-            const highInt = Math.floor(this.intCompact / 100);
+            const highInt = Math.trunc(this.intCompact / 100);
             return (highInt.toString() + '.' + BigDecimal.DIGIT_TENS[lowInt] + BigDecimal.DIGIT_ONES[lowInt]);
         }
 
@@ -2203,24 +2218,27 @@ export class BigDecimal {
 
     /** @internal */
     private static divideAndRound5(bdividend: BigIntOrNull, ldivisor: number, roundingMode: number): BigInt {
-        const bdividendSignum = BigDecimal.bigIntSignum(bdividend!);
-        const ldivisorNegative = (ldivisor < 0);
 
-        if (bdividend! < 0n) bdividend! = bdividend!.valueOf() * -1n;
-        if (ldivisor < 0) ldivisor = ldivisor * -1;
+        const dividendSignum = BigDecimal.bigIntSignum(bdividend!);
+        const divisorNegative = ldivisor < 0;
+
+        if (dividendSignum === -1) bdividend = bdividend!.valueOf() * -1n;
+        if (divisorNegative) ldivisor *= -1;
 
         let mq = bdividend!.valueOf() / BigInt(ldivisor);
         let r: number;
 
-        if (bdividend! <= BigInt(Number.MAX_SAFE_INTEGER) && bdividend! >= BigInt(Number.MIN_SAFE_INTEGER)) {
-            r = Number(bdividend!) % ldivisor;
+        const bDividendNumber = Number(bdividend);
+
+        if (Number.isSafeInteger(bDividendNumber)) {
+            r = bDividendNumber % ldivisor;
         } else {
             r = Number(bdividend!.valueOf() % BigInt(ldivisor));
         }
 
         const isRemainderZero = (r === 0);
 
-        const qsign = ldivisorNegative ? (bdividendSignum * -1) : bdividendSignum;
+        const qsign = divisorNegative ? (dividendSignum * -1) : dividendSignum;
         if (!isRemainderZero) {
             if (BigDecimal.needIncrement3(ldivisor, roundingMode, qsign, mq, r)) {
                 mq += 1n;
@@ -2325,7 +2343,6 @@ export class BigDecimal {
                     ((scaledX < 0) === (ys < 0)) ? 1 : -1, mcp, scl, BigDecimal.checkScaleNonZero(preferredScale)
                 );
             } else {
-
                 const scaledXs = BigDecimal.numberMultiplyPowerTen(scaledX, mcp);
                 if (scaledXs === BigDecimal.INFLATED) {
                     quotient = null;
@@ -2369,7 +2386,7 @@ export class BigDecimal {
             if (diff < raise) {
                 return BigDecimal.scaledTenPow(raise - diff, qsign, preferredScale);
             } else {
-                return BigDecimal.fromNumber2(qsign, scale, 0 - raise);
+                return BigDecimal.fromNumber2(qsign, scale - raise, 0);
             }
         } else {
             return BigDecimal.scaledTenPow(raise, qsign, scale);
