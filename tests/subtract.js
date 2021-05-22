@@ -1,4 +1,4 @@
-const { BigDecimal } = require('../lib/big_decimal');
+const { BigDecimal, MathContext } = require('../lib/big_decimal');
 const chai = require('chai');
 const testCases = require('./testCases/subtractionTestCases.json');
 const invalidTests = require('./invalidTests');
@@ -8,7 +8,17 @@ describe('Subtraction test', function () {
 
     it('should be able to subtract two decimals', function () {
         for (const test of testCases) {
-            const actual = (BigDecimal.fromValue(test.arguments[0])).subtract(BigDecimal.fromValue(test.arguments[1])).toString();
+            const subtraction = () => {
+                return BigDecimal.fromValue(test.arguments[0]).subtract(
+                    BigDecimal.fromValue(test.arguments[1]),
+                    new MathContext(test.arguments[2], test.arguments[3])
+                ).toString();
+            };
+            if (test.result === 'errorThrown') {
+                subtraction.should.throw(undefined, undefined, `expected '${test[0]}' - '${test[1]}' to throw`);
+                continue;
+            }
+            const actual = subtraction();
             const expected = test.result;
             actual.should.be.equal(expected, `expected '${test.arguments[0]}' - '${test.arguments[1]}' to be '${expected}'`);
         }

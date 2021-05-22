@@ -681,7 +681,7 @@ export class BigDecimal {
 
     /** @internal */
     private static divideAndRound(ldividend: number, ldivisor: number, roundingMode: number): number {
-        const q = ldividend / ldivisor;
+        const q = Math.floor(ldividend / ldivisor);
         if (roundingMode === RoundingMode.DOWN)
             return q;
         const r = ldividend % ldivisor;
