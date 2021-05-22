@@ -730,9 +730,9 @@ export class BigDecimal {
     /** @internal */
     private getPrecision(): number {
         let result = this.precision;
-        if (result == 0) {
-            let s = this.intCompact;
-            if (s != BigDecimal.INFLATED)
+        if (result === 0) {
+            const s = this.intCompact;
+            if (s !== BigDecimal.INFLATED)
                 result = BigDecimal.numberDigitLength(s);
             else
                 result = BigDecimal.bigDigitLength(this.intVal!);
