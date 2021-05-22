@@ -728,6 +728,20 @@ export class BigDecimal {
     }
 
     /** @internal */
+    private getPrecision(): number {
+        let result = this.precision;
+        if (result == 0) {
+            let s = this.intCompact;
+            if (s != BigDecimal.INFLATED)
+                result = BigDecimal.numberDigitLength(s);
+            else
+                result = BigDecimal.bigDigitLength(this.intVal!);
+            this.precision = result;
+        }
+        return result;
+    }
+
+    /** @internal */
     private static doRound(val: BigDecimal, mc: MathContext): BigDecimal {
         const mcp = mc.precision;
         let wasDivided = false;
@@ -735,7 +749,7 @@ export class BigDecimal {
             let intVal = val.intVal;
             let compactVal = val.intCompact;
             let scale = val.scale;
-            let prec = val.precision;
+            let prec = val.getPrecision();
             const mode = mc.roundingMode;
             let drop;
             if (compactVal === BigDecimal.INFLATED) {
@@ -895,9 +909,9 @@ export class BigDecimal {
             small = this;
         }
 
-        const estResultUlpScale = big.scale - big.precision + mc.precision;
+        const estResultUlpScale = big.scale - big.getPrecision() + mc.precision;
 
-        const smallHighDigitPos = small.scale - small.precision + 1;
+        const smallHighDigitPos = small.scale - small.getPrecision() + 1;
         if (smallHighDigitPos > big.scale + 2 &&
             smallHighDigitPos > estResultUlpScale + 2) {
             small = BigDecimal.fromNumber2(small.signum(), this.checkScale(Math.max(big.scale, estResultUlpScale) + 3), 0);
@@ -948,7 +962,7 @@ export class BigDecimal {
             else if (result.scale > preferredScale) {
                 return BigDecimal.stripZerosToMatchScale(result.intVal, result.intCompact, result.scale, preferredScale);
             } else {
-                const precisionDiff = mc.precision - result.precision;
+                const precisionDiff = mc.precision - result.getPrecision();
                 const scaleDiff = preferredScale - result.scale;
 
                 if (precisionDiff >= scaleDiff)
@@ -1036,7 +1050,7 @@ export class BigDecimal {
                 return BigDecimal.zeroValueOf(preferredScale);
             else {
                 const mc = new MathContext(
-                    Math.min(this.precision + Math.ceil(10.0 * divisor.precision / 3.0), Number.MAX_SAFE_INTEGER),
+                    Math.min(this.getPrecision() + Math.ceil(10.0 * divisor.getPrecision() / 3.0), Number.MAX_SAFE_INTEGER),
                     RoundingMode.UNNECESSARY
                 );
                 let quotient: BigDecimal;
@@ -1061,8 +1075,8 @@ export class BigDecimal {
         }
         if (this.signum() === 0)
             return BigDecimal.zeroValueOf(BigDecimal.saturateScale(preferredScale));
-        const xscale = this.precision;
-        const yscale = divisor.precision;
+        const xscale = this.getPrecision();
+        const yscale = divisor.getPrecision();
         if (this.intCompact !== BigDecimal.INFLATED) {
             if (divisor.intCompact !== BigDecimal.INFLATED) {
                 return BigDecimal.divide2(this.intCompact, xscale, divisor.intCompact, yscale, preferredScale, mc);
@@ -1320,7 +1334,7 @@ export class BigDecimal {
                 return this.setScale(preferredScale, RoundingMode.UNNECESSARY);
 
             const maxDigits = Math.min(
-                this.precision + Math.ceil(10.0 * divisor.precision / 3.0) + Math.abs(this.scale - divisor.scale) + 2,
+                this.getPrecision() + Math.ceil(10.0 * divisor.getPrecision() / 3.0) + Math.abs(this.scale - divisor.scale) + 2,
                 Number.MAX_SAFE_INTEGER
             );
             let quotient = this.divide(divisor, new MathContext(maxDigits, RoundingMode.DOWN));
@@ -1351,7 +1365,7 @@ export class BigDecimal {
         }
         let precisionDiff;
         if ((preferredScale > result.scale) &&
-            (precisionDiff = mc.precision - result.precision) > 0) {
+            (precisionDiff = mc.precision - result.getPrecision()) > 0) {
             return result.setScale(result.scale + Math.min(precisionDiff, preferredScale - result.scale));
         } else {
             return BigDecimal.stripZerosToMatchScale(result.intVal, result.intCompact, result.scale, preferredScale);
@@ -1374,9 +1388,8 @@ export class BigDecimal {
 
         const sdiff = this.scale - val.scale;
         if (sdiff !== 0) {
-
-            const xae = this.precision - this.scale;
-            const yae = val.precision - val.scale;
+            const xae = this.getPrecision() - this.scale;
+            const yae = val.getPrecision() - val.scale;
             if (xae < yae)
                 return -1;
             if (xae > yae)
@@ -1470,7 +1483,7 @@ export class BigDecimal {
             }
 
             let scaleAdjust = 0;
-            const scale = stripped.scale - stripped.precision + 1;
+            const scale = stripped.scale - stripped.getPrecision() + 1;
             if (scale % 2 === 0) {
                 scaleAdjust = scale;
             } else {
@@ -1488,7 +1501,7 @@ export class BigDecimal {
             let targetPrecision;
 
             if (originalPrecision === 0) {
-                targetPrecision = stripped.precision / 2 + 1;
+                targetPrecision = stripped.getPrecision() / 2 + 1;
             } else {
                 switch (mc.roundingMode) {
                 case RoundingMode.HALF_UP:
@@ -1506,7 +1519,7 @@ export class BigDecimal {
             }
 
             let approx = guess;
-            const workingPrecision = working.precision;
+            const workingPrecision = working.getPrecision();
             do {
                 const tmpPrecision = Math.max(Math.max(guessPrecision, targetPrecision + 2), workingPrecision);
                 const mcTmp = new MathContext(tmpPrecision, RoundingMode.HALF_EVEN);
@@ -1924,10 +1937,14 @@ export class BigDecimal {
     private static divideAndRound3(
         bdividend: BigInt, bdivisor: BigInt, scale: number, roundingMode: RoundingMode, preferredScale: number
     ): BigDecimal {
+        const qsign = (BigDecimal.bigIntSignum(bdividend) !== BigDecimal.bigIntSignum(bdivisor)) ? -1 : 1;
+
+        if (bdividend < 0n) bdividend = bdividend.valueOf() * -1n;
+        if (bdivisor < 0n) bdivisor = bdivisor.valueOf() * -1n;
+
         let mq = bdividend.valueOf() / bdivisor.valueOf();
         const mr = bdividend.valueOf() % bdivisor.valueOf();
         const isRemainderZero = mr === 0n;
-        const qsign = (BigDecimal.bigIntSignum(bdividend) !== BigDecimal.bigIntSignum(bdivisor)) ? -1 : 1;
         if (!isRemainderZero) {
             if (BigDecimal.needIncrement2(bdivisor, roundingMode, qsign, mq, mr)) {
                 mq += BigInt(1);

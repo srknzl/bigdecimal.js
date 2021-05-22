@@ -20,14 +20,7 @@ describe('Division test', function () {
             }
             const actual = division();
             const expected = test.result;
-            try {
-                actual.should.be.equal(expected, `expected '${test.arguments[0]}' / '${test.arguments[1]}' to be '${expected}'`);
-
-            } catch (e) {
-                console.log(i);
-                console.log(e);
-                throw e;
-            }
+            actual.should.be.equal(expected, `expected '${test.arguments[0]}' / '${test.arguments[1]}' to be '${expected}'`);
         }
     });
 
