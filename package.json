@@ -14,7 +14,7 @@
     "benchmark": "benchmarks/run_tests.sh"
   },
   "files": [
-    "bigdecimal.js"
+    "lib/big_decimal.js"
   ],
   "repository": {
     "type": "git",
