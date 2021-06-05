@@ -13,17 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-
-/*
- Implementation of big decimal with BigInt
-*/
-
-/**
- * Sentinel value for intCompact indicating the
- * significand information is only available from intVal.
- */
-
-declare type BigIntOrNull = BigInt | null;
+declare type BigIntOrNull = BigInt | null
 
 export enum RoundingMode {
     UP,
@@ -59,13 +49,252 @@ export class MathContext {
     static DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
 }
 
+/**
+ * BigInt based BigDecimal implementation. This class is ported from java.math.BigDecimal. The following documentation is from
+ * openjdk/jdk repository.
+ *
+ * Immutable, arbitrary-precision signed decimal numbers.  A
+ * `BigDecimal` consists of an arbitrary precision integer
+ * {@link unscaledValue | unscaled value} and a 32-bit
+ * integer {@link scale | scale}.  If zero or positive,
+ * the scale is the number of digits to the right of the decimal
+ * point.  If negative, the unscaled value of the number is multiplied
+ * by ten to the power of the negation of the scale.  The value of the
+ * number represented by the `BigDecimal` is therefore
+ * <code>(unscaledValue &times; 10<sup>-scale</sup>)</code>.
+ *
+ * The `BigDecimal` class provides operations for
+ * arithmetic, scale manipulation, rounding, comparison, hashing, and
+ * format conversion.  The {@link toString} method provides a
+ * canonical representation of a `BigDecimal`.
+ *
+ * The `BigDecimal` class gives its user complete control
+ * over rounding behavior.  If no rounding mode is specified and the
+ * exact result cannot be represented, a `RangeError`
+ * is thrown; otherwise, calculations can be carried out to a chosen
+ * precision and rounding mode by supplying an appropriate {@link
+ * MathContext} object to the operation.  In either case, eight
+ * <em>rounding modes</em> are provided for the control of rounding.
+ *
+ * When a `MathContext` object is supplied with a precision
+ * setting of 0 (for example, {@link MathContext.UNLIMITED}),
+ * arithmetic operations are exact, as are the arithmetic methods
+ * which take no `MathContext` object. As a corollary of
+ * computing the exact result, the rounding mode setting of a `
+ * MathContext` object with a precision setting of 0 is not used and
+ * thus irrelevant.  In the case of divide, the exact quotient could
+ * have an infinitely long decimal expansion; for example, 1 divided
+ * by 3.  If the quotient has a non-terminating decimal expansion and
+ * the operation is specified to return an exact result, a RangeError
+ * is thrown.  Otherwise, the exact result of the
+ * division is returned, as done for other operations.
+ *
+ * When the precision setting is not 0, the rules of `BigDecimal`
+ * arithmetic are broadly compatible with selected modes
+ * of operation of the arithmetic defined in ANSI X3.274-1996 and ANSI
+ * X3.274-1996/AM 1-2000 (section 7.4).  Unlike those standards,
+ * `BigDecimal` includes many rounding modes.  Any conflicts
+ * between these ANSI standards and the `BigDecimal`
+ * specification are resolved in favor of `BigDecimal`.
+ *
+ * Since the same numerical value can have different
+ * representations (with different scales), the rules of arithmetic
+ * and rounding must specify both the numerical result and the scale
+ * used in the result's representation.
+ *
+ * The different representations of the same numerical value are
+ * called members of the same <i>cohort</i>. The {@link
+ * compareTo |  natural order} of `BigDecimal`
+ * considers members of the same cohort to be equal to each other. In
+ * contrast, the {@link equals | equals} method requires both the
+ * numerical value and representation to be the same for equality to
+ * hold. The results of methods like {@link scale} and {@link
+ * unscaledValue} will differ for numerically equal values with
+ * different representations.
+ *
+ * In general the rounding modes and precision setting determine
+ * how operations return results with a limited number of digits when
+ * the exact result has more digits (perhaps infinitely many in the
+ * case of division and square root) than the number of digits returned.
+ *
+ * First, the total number of digits to return is specified by the
+ * `MathContext`'s `precision` setting; this determines
+ * the result's <i>precision</i>.  The digit count starts from the
+ * leftmost nonzero digit of the exact result.  The rounding mode
+ * determines how any discarded trailing digits affect the returned
+ * result.
+ *
+ * For all arithmetic operators, the operation is carried out as
+ * though an exact intermediate result were first calculated and then
+ * rounded to the number of digits specified by the precision setting
+ * (if necessary), using the selected rounding mode.  If the exact
+ * result is not returned, some digit positions of the exact result
+ * are discarded.  When rounding increases the magnitude of the
+ * returned result, it is possible for a new digit position to be
+ * created by a carry propagating to a leading "9" digit.
+ * For example, rounding the value 999.9 to three digits rounding up
+ * would be numerically equal to one thousand, represented as
+ * 100&times;10<sup>1</sup>.  In such cases, the new "1" is
+ * the leading digit position of the returned result.
+ *
+ * For methods and constructors with a `MathContext`
+ * parameter, if the result is inexact but the rounding mode is {@link
+ * RoundingMode.UNNECESSARY | UNNECESSARY}, a RangeError will be thrown.
+ *
+ * Besides a logical exact result, each arithmetic operation has a
+ * preferred scale for representing a result.  The preferred
+ * scale for each operation is listed in the table below.
+ *
+ * <table class="striped" style="text-align:left">
+ * <caption>Preferred Scales for Results of Arithmetic Operations
+ * </caption>
+ * <thead>
+ * <tr><th scope="col">Operation</th><th scope="col">Preferred Scale of Result</th></tr>
+ * </thead>
+ * <tbody>
+ * <tr><th scope="row">Add</th><td>max(addend.scale(), augend.scale())</td>
+ * <tr><th scope="row">Subtract</th><td>max(minuend.scale(), subtrahend.scale())</td>
+ * <tr><th scope="row">Multiply</th><td>multiplier.scale() + multiplicand.scale()</td>
+ * <tr><th scope="row">Divide</th><td>dividend.scale() - divisor.scale()</td>
+ * <tr><th scope="row">Square root</th><td>radicand.scale()/2</td>
+ * </tbody>
+ * </table>
+ *
+ * These scales are the ones used by the methods which return exact
+ * arithmetic results; except that an exact divide may have to use a
+ * larger scale since the exact result may have more digits.  For
+ * example, `1/32` is `0.03125`.
+ *
+ * Before rounding, the scale of the logical exact intermediate
+ * result is the preferred scale for that operation. If the exact
+ * numerical result cannot be represented in `precision`
+ * digits, rounding selects the set of digits to return and the scale
+ * of the result is reduced from the scale of the intermediate result
+ * to the least scale which can represent the `precision`
+ * digits actually returned.  If the exact result can be represented
+ * with at most `precision` digits, the representation
+ * of the result with the scale closest to the preferred scale is
+ * returned.  In particular, an exactly representable quotient may be
+ * represented in fewer than `precision` digits by removing
+ * trailing zeros and decreasing the scale.  For example, rounding to
+ * three digits using the {@link RoundingMode.FLOOR | floor}
+ * rounding mode, <br>
+ *
+ * `19/100 = 0.19   // integer=19,  scale=2` <br>
+ *
+ * but<br>
+ *
+ * `21/110 = 0.190  // integer=190, scale=3` <br>
+ *
+ * Note that for add, subtract, and multiply, the reduction in
+ * scale will equal the number of digit positions of the exact result
+ * which are discarded. If the rounding causes a carry propagation to
+ * create a new high-order digit position, an additional digit of the
+ * result is discarded than when no new digit position is created.
+ *
+ * Other methods may have slightly different rounding semantics.
+ * For example, the result of the `pow` method using the
+ * {@link pow | specified algorithm} can
+ * occasionally differ from the rounded mathematical result by more
+ * than one unit in the last place, one <i>{@link ulp}</i>.
+ *
+ * Two types of operations are provided for manipulating the scale
+ * of a `BigDecimal`: scaling/rounding operations and decimal
+ * point motion operations.  Scaling/rounding operations ({@link
+ * setScale} and {@link round}) return a
+ * `BigDecimal` whose value is approximately (or exactly) equal
+ * to that of the operand, but whose scale or precision is the
+ * specified value; that is, they increase or decrease the precision
+ * of the stored number with minimal effect on its value.  Decimal
+ * point motion operations ({@link movePointLeft} and
+ * {@link movePointRight}) return a
+ * `BigDecimal` created from the operand by moving the decimal
+ * point a specified distance in the specified direction.
+ *
+ * As a 32-bit integer, the set of values for the scale is large,
+ * but bounded. If the scale of a result would exceed the range of a
+ * 32-bit integer, either by overflow or underflow, the operation may
+ * throw a RangerError.
+ *
+ * For the sake of brevity and clarity, pseudo-code is used
+ * throughout the descriptions of `BigDecimal` methods.  The
+ * pseudo-code expression `(i + j)` is shorthand for "a
+ * `BigDecimal` whose value is that of the `BigDecimal`
+ * `i` added to that of the `BigDecimal`
+ * `j`." The pseudo-code expression `(i == j)` is
+ * shorthand for "`true` if and only if the
+ * `BigDecimal` `i` represents the same value as the
+ * `BigDecimal` `j`." Other pseudo-code expressions
+ * are interpreted similarly.  Square brackets are used to represent
+ * the particular `BigInt` and scale pair defining a
+ * `BigDecimal` value; for example [19, 2] is the
+ * `BigDecimal` numerically equal to 0.19 having a scale of 2.
+ *
+ * <h2>Relation to IEEE 754 Decimal Arithmetic</h2>
+ *
+ * Starting with its 2008 revision, the <cite>IEEE 754 Standard for
+ * Floating-point Arithmetic</cite> has covered decimal formats and
+ * operations. While there are broad similarities in the decimal
+ * arithmetic defined by IEEE 754 and by this class, there are notable
+ * differences as well. The fundamental similarity shared by {@code
+ * BigDecimal} and IEEE 754 decimal arithmetic is the conceptual
+ * operation of computing the mathematical infinitely precise real
+ * number value of an operation and then mapping that real number to a
+ * representable decimal floating-point value under a <em>rounding
+ * policy</em>. The rounding policy is called a {@link
+ * RoundingMode | rounding mode} for `BigDecimal` and called a
+ * rounding-direction attribute in IEEE 754-2019. When the exact value
+ * is not representable, the rounding policy determines which of the
+ * two representable decimal values bracketing the exact value is
+ * selected as the computed result. The notion of a <em>preferred
+ * scale/preferred exponent</em> is also shared by both systems.
+ *
+ * For differences, IEEE 754 includes several kinds of values not
+ * modeled by `BigDecimal` including negative zero, signed
+ * infinities, and NaN (not-a-number). IEEE 754 defines formats, which
+ * are parameterized by base (binary or decimal), number of digits of
+ * precision, and exponent range. A format determines the set of
+ * representable values. Most operations accept as input one or more
+ * values of a given format and produce a result in the same format.
+ * A `BigDecimal`'s {@link scale} is equivalent to
+ * negating an IEEE 754 value's exponent. `BigDecimal` values do
+ * not have a format in the same sense; all values have the same
+ * possible range of scale/exponent and the {@link
+ * unscaledValue | unscaled value} has arbitrary precision. Instead,
+ * for the `BigDecimal` operations taking a `MathContext`
+ * parameter, if the `MathContext` has a nonzero precision, the
+ * set of possible representable values for the result is determined
+ * by the precision of the `MathContext` argument. For example
+ * in `BigDecimal`, if a nonzero three-digit number and a
+ * nonzero four-digit number are multiplied together in the context of
+ * a `MathContext` object having a precision of three, the
+ * result will have three digits (assuming no overflow or underflow,
+ * etc.).
+ *
+ * The rounding policies implemented by `BigDecimal`
+ * operations indicated by {@link RoundingMode | rounding modes}
+ * are a proper superset of the IEEE 754 rounding-direction
+ * attributes.
+
+ * `BigDecimal` arithmetic will most resemble IEEE 754
+ * decimal arithmetic if a `MathContext` corresponding to an
+ * IEEE 754 decimal format, such as {@link MathContext.DECIMAL64 |
+ * decimal64} or {@link MathContext.DECIMAL128 | decimal128} is
+ * used to round all starting values and intermediate operations. The
+ * numerical values computed can differ if the exponent range of the
+ * IEEE 754 format being approximated is exceeded since a
+ * `MathContext` does not constrain the scale of `BigDecimal`
+ * results. Operations that would generate a NaN or exact infinity,
+ * such as dividing by zero, throw a RangeError in
+ * `BigDecimal` arithmetic.
+ */
 export class BigDecimal {
 
     /** @internal */
     private readonly intVal: BigIntOrNull;
 
     /** @internal */
-    private readonly scale: number;
+    private readonly _scale: number;
 
     /** @internal */
     private precision: number;
@@ -73,7 +302,11 @@ export class BigDecimal {
     /** @internal */
     private stringCache: string | undefined = undefined;
 
-    /** @internal */
+    /**
+     * Sentinel value for {@link intCompact} indicating the
+     * significand information is only available from intVal.
+     * @internal
+     */
     private static readonly INFLATED = Number.MIN_SAFE_INTEGER;
     /** @internal */
     private static readonly INFLATED_BIGINT = BigInt(BigDecimal.INFLATED);
@@ -224,7 +457,7 @@ export class BigDecimal {
     /** @internal */
     private constructor(bigIntValue: BigIntOrNull, intCompact: number, scale: number, precision: number) {
         this.intVal = bigIntValue;
-        this.scale = scale;
+        this._scale = scale;
         this.precision = precision;
         this.intCompact = intCompact;
     }
@@ -748,7 +981,7 @@ export class BigDecimal {
         if (mcp > 0) {
             let intVal = val.intVal;
             let compactVal = val.intCompact;
-            let scale = val.scale;
+            let scale = val._scale;
             let prec = val.getPrecision();
             const mode = mc.roundingMode;
             let drop;
@@ -886,10 +1119,10 @@ export class BigDecimal {
 
     /** @internal */
     private static matchScale(val: BigDecimal[]): void {
-        if (val[0].scale < val[1].scale) {
-            val[0] = val[0].setScale(val[1].scale, RoundingMode.UNNECESSARY);
-        } else if (val[1].scale < val[0].scale) {
-            val[1] = val[1].setScale(val[0].scale, RoundingMode.UNNECESSARY);
+        if (val[0]._scale < val[1]._scale) {
+            val[0] = val[0].setScale(val[1]._scale, RoundingMode.UNNECESSARY);
+        } else if (val[1]._scale < val[0]._scale) {
+            val[1] = val[1].setScale(val[0]._scale, RoundingMode.UNNECESSARY);
         }
     }
 
@@ -909,20 +1142,20 @@ export class BigDecimal {
             small = this;
         }
 
-        const estResultUlpScale = big.scale - big.getPrecision() + mc.precision;
+        const estResultUlpScale = big._scale - big.getPrecision() + mc.precision;
 
-        const smallHighDigitPos = small.scale - small.getPrecision() + 1;
-        if (smallHighDigitPos > big.scale + 2 &&
+        const smallHighDigitPos = small._scale - small.getPrecision() + 1;
+        if (smallHighDigitPos > big._scale + 2 &&
             smallHighDigitPos > estResultUlpScale + 2) {
-            small = BigDecimal.fromNumber2(small.signum(), this.checkScale(Math.max(big.scale, estResultUlpScale) + 3), 0);
+            small = BigDecimal.fromNumber2(small.signum(), this.checkScale(Math.max(big._scale, estResultUlpScale) + 3), 0);
         }
         return [big, small];
     }
 
     negate(mc?: MathContext): BigDecimal {
         const result = this.intCompact === BigDecimal.INFLATED ?
-            new BigDecimal(-1n * this.intVal!.valueOf(), BigDecimal.INFLATED, this.scale, this.precision) :
-            BigDecimal.fromNumber2(-this.intCompact, this.scale, this.precision);
+            new BigDecimal(-1n * this.intVal!.valueOf(), BigDecimal.INFLATED, this._scale, this.precision) :
+            BigDecimal.fromNumber2(-this.intCompact, this._scale, this.precision);
         if (mc) {
             result.plus(mc);
         }
@@ -934,15 +1167,15 @@ export class BigDecimal {
         if (!mc || (mc && mc.precision === 0)) {
             if (this.intCompact !== BigDecimal.INFLATED) {
                 if (augend.intCompact !== BigDecimal.INFLATED) {
-                    return BigDecimal.add3(this.intCompact, this.scale, augend.intCompact, augend.scale);
+                    return BigDecimal.add3(this.intCompact, this._scale, augend.intCompact, augend._scale);
                 } else {
-                    return BigDecimal.add2(this.intCompact, this.scale, augend.intVal, augend.scale);
+                    return BigDecimal.add2(this.intCompact, this._scale, augend.intVal, augend._scale);
                 }
             } else {
                 if (augend.intCompact !== BigDecimal.INFLATED) {
-                    return BigDecimal.add2(augend.intCompact, augend.scale, this.intVal, this.scale);
+                    return BigDecimal.add2(augend.intCompact, augend._scale, this.intVal, this._scale);
                 } else {
-                    return BigDecimal.add1(this.intVal, this.scale, augend.intVal, augend.scale);
+                    return BigDecimal.add1(this.intVal, this._scale, augend.intVal, augend._scale);
                 }
             }
         }
@@ -951,34 +1184,34 @@ export class BigDecimal {
         const augendIsZero = augend.signum() === 0;
 
         if (lhsIsZero || augendIsZero) {
-            const preferredScale = Math.max(lhs.scale, augend.scale);
+            const preferredScale = Math.max(lhs._scale, augend._scale);
 
             if (lhsIsZero && augendIsZero)
                 return BigDecimal.zeroValueOf(preferredScale);
             const result = lhsIsZero ? BigDecimal.doRound(augend, mc) : BigDecimal.doRound(lhs, mc);
 
-            if (result.scale === preferredScale)
+            if (result._scale === preferredScale)
                 return result;
-            else if (result.scale > preferredScale) {
-                return BigDecimal.stripZerosToMatchScale(result.intVal, result.intCompact, result.scale, preferredScale);
+            else if (result._scale > preferredScale) {
+                return BigDecimal.stripZerosToMatchScale(result.intVal, result.intCompact, result._scale, preferredScale);
             } else {
                 const precisionDiff = mc.precision - result.getPrecision();
-                const scaleDiff = preferredScale - result.scale;
+                const scaleDiff = preferredScale - result._scale;
 
                 if (precisionDiff >= scaleDiff)
                     return result.setScale(preferredScale);
                 else
-                    return result.setScale(result.scale + precisionDiff);
+                    return result.setScale(result._scale + precisionDiff);
             }
         }
-        const padding = lhs.scale - augend.scale;
+        const padding = lhs._scale - augend._scale;
         if (padding !== 0) {
             const arg = this.preAlign(augend, padding, mc);
             BigDecimal.matchScale(arg);
             lhs = arg[0];
             augend = arg[1];
         }
-        return BigDecimal.doRound2(lhs.inflated().valueOf() + augend.inflated().valueOf(), lhs.scale, mc);
+        return BigDecimal.doRound2(lhs.inflated().valueOf() + augend.inflated().valueOf(), lhs._scale, mc);
     }
 
     subtract(subtrahend: BigDecimal, mc?: MathContext): BigDecimal {
@@ -986,15 +1219,15 @@ export class BigDecimal {
         if (!mc || (mc && mc.precision === 0)) {
             if (this.intCompact !== BigDecimal.INFLATED) {
                 if ((subtrahend.intCompact !== BigDecimal.INFLATED)) {
-                    return BigDecimal.add3(this.intCompact, this.scale, -subtrahend.intCompact, subtrahend.scale);
+                    return BigDecimal.add3(this.intCompact, this._scale, -subtrahend.intCompact, subtrahend._scale);
                 } else {
-                    return BigDecimal.add2(this.intCompact, this.scale, -1n * subtrahend.intVal!.valueOf(), subtrahend.scale);
+                    return BigDecimal.add2(this.intCompact, this._scale, -1n * subtrahend.intVal!.valueOf(), subtrahend._scale);
                 }
             } else {
                 if ((subtrahend.intCompact !== BigDecimal.INFLATED)) {
-                    return BigDecimal.add2(-subtrahend.intCompact, subtrahend.scale, this.intVal, this.scale);
+                    return BigDecimal.add2(-subtrahend.intCompact, subtrahend._scale, this.intVal, this._scale);
                 } else {
-                    return BigDecimal.add1(this.intVal, this.scale, -1n * subtrahend.intVal!.valueOf(), subtrahend.scale);
+                    return BigDecimal.add1(this.intVal, this._scale, -1n * subtrahend.intVal!.valueOf(), subtrahend._scale);
                 }
             }
         }
@@ -1004,7 +1237,7 @@ export class BigDecimal {
     multiply(multiplicand: BigDecimal, mc?: MathContext): BigDecimal {
         multiplicand = BigDecimal.convertToBigDecimal(multiplicand);
         if (!mc || (mc && mc.precision === 0)) {
-            const productScale = this.checkScale(this.scale + multiplicand.scale);
+            const productScale = this.checkScale(this._scale + multiplicand._scale);
             if (this.intCompact !== BigDecimal.INFLATED) {
                 if ((multiplicand.intCompact !== BigDecimal.INFLATED)) {
                     return BigDecimal.multiply2(this.intCompact, multiplicand.intCompact, productScale);
@@ -1019,7 +1252,7 @@ export class BigDecimal {
                 }
             }
         }
-        const productScale = this.checkScale(this.scale + multiplicand.scale);
+        const productScale = this.checkScale(this._scale + multiplicand._scale);
         if (this.intCompact !== BigDecimal.INFLATED) {
             if ((multiplicand.intCompact !== BigDecimal.INFLATED)) {
                 return BigDecimal.multiplyAndRound1(this.intCompact, multiplicand.intCompact, productScale, mc);
@@ -1044,7 +1277,7 @@ export class BigDecimal {
                 throw new RangeError('Division by zero');
             }
 
-            const preferredScale = BigDecimal.saturateScale(this.scale - divisor.scale);
+            const preferredScale = BigDecimal.saturateScale(this._scale - divisor._scale);
 
             if (this.signum() === 0)
                 return BigDecimal.zeroValueOf(preferredScale);
@@ -1060,14 +1293,14 @@ export class BigDecimal {
                     throw new RangeError('Non-terminating decimal expansion; no exact representable decimal result.');
                 }
 
-                const quotientScale = quotient.scale;
+                const quotientScale = quotient._scale;
 
                 if (preferredScale > quotientScale)
                     return quotient.setScale(preferredScale, RoundingMode.UNNECESSARY);
                 return quotient;
             }
         }
-        const preferredScale = this.scale - divisor.scale;
+        const preferredScale = this._scale - divisor._scale;
         if (divisor.signum() === 0) {
             if (this.signum() === 0)
                 throw new RangeError('Division undefined');
@@ -1325,7 +1558,7 @@ export class BigDecimal {
     divideToIntegralValue(divisor: BigDecimal, mc?: MathContext): BigDecimal {
         divisor = BigDecimal.convertToBigDecimal(divisor);
         if (!mc || (mc && (mc.precision === 0 || this.compareMagnitude(divisor) < 0))) {
-            const preferredScale = BigDecimal.saturateScale(this.scale - divisor.scale);
+            const preferredScale = BigDecimal.saturateScale(this._scale - divisor._scale);
             if (this.compareMagnitude(divisor) < 0) {
                 return BigDecimal.zeroValueOf(preferredScale);
             }
@@ -1334,41 +1567,41 @@ export class BigDecimal {
                 return this.setScale(preferredScale, RoundingMode.UNNECESSARY);
 
             const maxDigits = Math.min(
-                this.getPrecision() + Math.ceil(10.0 * divisor.getPrecision() / 3.0) + Math.abs(this.scale - divisor.scale) + 2,
+                this.getPrecision() + Math.ceil(10.0 * divisor.getPrecision() / 3.0) + Math.abs(this._scale - divisor._scale) + 2,
                 Number.MAX_SAFE_INTEGER
             );
             let quotient = this.divide(divisor, new MathContext(maxDigits, RoundingMode.DOWN));
-            if (quotient.scale > 0) {
+            if (quotient._scale > 0) {
                 quotient = quotient.setScale(0, RoundingMode.DOWN);
                 quotient = BigDecimal.stripZerosToMatchScale(
-                    quotient.intVal, quotient.intCompact, quotient.scale, preferredScale
+                    quotient.intVal, quotient.intCompact, quotient._scale, preferredScale
                 );
             }
 
-            if (quotient.scale < preferredScale) {
+            if (quotient._scale < preferredScale) {
                 quotient = quotient.setScale(preferredScale, RoundingMode.UNNECESSARY);
             }
 
             return quotient;
         }
-        const preferredScale = BigDecimal.saturateScale(this.scale - divisor.scale);
+        const preferredScale = BigDecimal.saturateScale(this._scale - divisor._scale);
 
         let result = this.divide(divisor, new MathContext(mc.precision, RoundingMode.DOWN));
 
-        if (result.scale < 0) {
+        if (result._scale < 0) {
             const product = result.multiply(divisor);
             if (this.subtract(product).compareMagnitude(divisor) >= 0) {
                 throw new RangeError('Division impossible');
             }
-        } else if (result.scale > 0) {
+        } else if (result._scale > 0) {
             result = result.setScale(0, RoundingMode.DOWN);
         }
         let precisionDiff;
-        if ((preferredScale > result.scale) &&
+        if ((preferredScale > result._scale) &&
             (precisionDiff = mc.precision - result.getPrecision()) > 0) {
-            return result.setScale(result.scale + Math.min(precisionDiff, preferredScale - result.scale));
+            return result.setScale(result._scale + Math.min(precisionDiff, preferredScale - result._scale));
         } else {
-            return BigDecimal.stripZerosToMatchScale(result.intVal, result.intCompact, result.scale, preferredScale);
+            return BigDecimal.stripZerosToMatchScale(result.intVal, result.intCompact, result._scale, preferredScale);
         }
     }
 
@@ -1386,10 +1619,10 @@ export class BigDecimal {
         if (ys === 0)
             return 1;
 
-        const sdiff = this.scale - val.scale;
+        const sdiff = this._scale - val._scale;
         if (sdiff !== 0) {
-            const xae = this.getPrecision() - this.scale;
-            const yae = val.getPrecision() - val.scale;
+            const xae = this.getPrecision() - this._scale;
+            const yae = val.getPrecision() - val._scale;
             if (xae < yae)
                 return -1;
             if (xae > yae)
@@ -1426,7 +1659,7 @@ export class BigDecimal {
             return false;
         if (value === this)
             return true;
-        if (this.scale !== value.scale)
+        if (this._scale !== value._scale)
             return false;
         const s = this.intCompact;
         let xs = value.intCompact;
@@ -1458,7 +1691,7 @@ export class BigDecimal {
             case -1:
                 throw new RangeError('Attempted square root of negative BigDecimal');
             case 0:
-                result = BigDecimal.fromNumber2(0, this.scale / 2, 0);
+                result = BigDecimal.fromNumber2(0, this._scale / 2, 0);
                 if (!this.squareRootResultAssertions(result, mc))
                     throw new RangeError('Square root result error');
                 return result;
@@ -1468,22 +1701,22 @@ export class BigDecimal {
             }
         } else {
 
-            const preferredScale = this.scale / 2;
+            const preferredScale = this._scale / 2;
             const zeroWithFinalPreferredScale = BigDecimal.fromNumber2(0, preferredScale, 0);
 
             const stripped = this.stripTrailingZeros();
-            const strippedScale = stripped.scale;
+            const strippedScale = stripped._scale;
 
             if (stripped.isPowerOfTen() && strippedScale % 2 === 0) {
                 let result = BigDecimal.fromNumber2(1, strippedScale, 0 / 2);
-                if (result.scale !== preferredScale) {
+                if (result._scale !== preferredScale) {
                     result = result.add(zeroWithFinalPreferredScale, mc);
                 }
                 return result;
             }
 
             let scaleAdjust = 0;
-            const scale = stripped.scale - stripped.getPrecision() + 1;
+            const scale = stripped._scale - stripped.getPrecision() + 1;
             if (scale % 2 === 0) {
                 scaleAdjust = scale;
             } else {
@@ -1566,7 +1799,7 @@ export class BigDecimal {
 
             }
             if (!this.squareRootResultAssertions(result, mc)) throw new RangeError('Square root result error');
-            if (result.scale !== preferredScale) {
+            if (result._scale !== preferredScale) {
                 result = result.stripTrailingZeros().add(zeroWithFinalPreferredScale,
                     new MathContext(originalPrecision, RoundingMode.UNNECESSARY));
             }
@@ -1634,7 +1867,7 @@ export class BigDecimal {
     }
 
     ulp(): BigDecimal {
-        return BigDecimal.fromNumber2(1, this.scale, 1);
+        return BigDecimal.fromNumber2(1, this._scale, 1);
     }
 
     /** @internal */
@@ -1646,9 +1879,9 @@ export class BigDecimal {
         if (this.intCompact === 0 || (this.intVal !== null && BigDecimal.bigIntSignum(this.intVal!) === 0)) {
             return BigDecimal.ZERO;
         } else if (this.intCompact !== BigDecimal.INFLATED) {
-            return BigDecimal.createAndStripZerosToMatchScale(this.intCompact, this.scale, Number.MIN_SAFE_INTEGER);
+            return BigDecimal.createAndStripZerosToMatchScale(this.intCompact, this._scale, Number.MIN_SAFE_INTEGER);
         } else {
-            return BigDecimal.createAndStripZerosToMatchScale2(this.intVal, this.scale, Number.MIN_SAFE_INTEGER);
+            return BigDecimal.createAndStripZerosToMatchScale2(this.intVal, this._scale, Number.MIN_SAFE_INTEGER);
         }
     }
 
@@ -1661,13 +1894,17 @@ export class BigDecimal {
         return this.inflated();
     }
 
+    scale(): number {
+        return this._scale;
+    }
+
     scaleByPowerOfTen(n: number) {
-        return new BigDecimal(this.intVal, this.intCompact, this.checkScale(this.scale - n), this.precision);
+        return new BigDecimal(this.intVal, this.intCompact, this.checkScale(this._scale - n), this.precision);
     }
 
     compareTo(val: BigDecimal): number {
         val = BigDecimal.convertToBigDecimal(val);
-        if (this.scale === val.scale) {
+        if (this._scale === val._scale) {
             const xs = this.intCompact;
             const ys = val.intCompact;
             if (xs !== BigDecimal.INFLATED && ys !== BigDecimal.INFLATED) {
@@ -1689,14 +1926,14 @@ export class BigDecimal {
 
     numberValue(): number {
         if (this.intCompact !== BigDecimal.INFLATED) {
-            if (this.scale === 0) {
+            if (this._scale === 0) {
                 return this.intCompact;
             } else {
                 if (Math.abs(this.intCompact) < Number.MAX_SAFE_INTEGER) {
-                    if (this.scale > 0 && this.scale <= BigDecimal.MAX_COMPACT_DIGITS) {
-                        return this.intCompact / BigDecimal.NUMBER_10_POW[this.scale];
-                    } else if (this.scale < 0 && this.scale >= -BigDecimal.MAX_COMPACT_DIGITS) {
-                        return this.intCompact * BigDecimal.NUMBER_10_POW[-this.scale];
+                    if (this._scale > 0 && this._scale <= BigDecimal.MAX_COMPACT_DIGITS) {
+                        return this.intCompact / BigDecimal.NUMBER_10_POW[this._scale];
+                    } else if (this._scale < 0 && this._scale >= -BigDecimal.MAX_COMPACT_DIGITS) {
+                        return this.intCompact * BigDecimal.NUMBER_10_POW[-this._scale];
                     }
                 }
             }
@@ -1712,7 +1949,7 @@ export class BigDecimal {
         if (roundingMode < RoundingMode.UP || roundingMode > RoundingMode.UNNECESSARY)
             throw new RangeError('Invalid rounding mode');
 
-        const oldScale = this.scale;
+        const oldScale = this._scale;
         if (newScale === oldScale)
             return this;
         if (this.signum() === 0)
@@ -1777,7 +2014,7 @@ export class BigDecimal {
         if (!mc || (mc && mc.precision === 0)) {
             if (n < 0 || n > 999999999)
                 throw new RangeError('Invalid operation');
-            const newScale = this.checkScale(this.scale * n);
+            const newScale = this.checkScale(this._scale * n);
             return BigDecimal.fromBigInt(this.inflated().valueOf() ** BigInt(n), newScale, 0);
         }
         if (n < -999999999 || n > 999999999)
@@ -2042,17 +2279,17 @@ export class BigDecimal {
     movePointLeft(n: number): BigDecimal {
         if (n === 0) return this;
 
-        const newScale = this.checkScale(this.scale + n);
+        const newScale = this.checkScale(this._scale + n);
         const num = new BigDecimal(this.intVal, this.intCompact, newScale, 0);
-        return num.scale < 0 ? num.setScale(0, RoundingMode.UNNECESSARY) : num;
+        return num._scale < 0 ? num.setScale(0, RoundingMode.UNNECESSARY) : num;
     }
 
     movePointRight(n: number): BigDecimal {
         if (n === 0) return this;
 
-        const newScale = this.checkScale(this.scale - n);
+        const newScale = this.checkScale(this._scale - n);
         const num = new BigDecimal(this.intVal, this.intCompact, newScale, 0);
-        return num.scale < 0 ? num.setScale(0, RoundingMode.UNNECESSARY) : num;
+        return num._scale < 0 ? num.setScale(0, RoundingMode.UNNECESSARY) : num;
     }
 
     min(val: BigDecimal): BigDecimal {
@@ -2084,10 +2321,10 @@ export class BigDecimal {
 
     /** @internal */
     private layoutChars(sci: boolean): string {
-        if (this.scale === 0)
+        if (this._scale === 0)
             return (this.intCompact !== BigDecimal.INFLATED) ? this.intCompact.toString() : this.intVal!.toString();
 
-        if (this.scale === 2 && this.intCompact >= 0 && this.intCompact < Number.MAX_SAFE_INTEGER) {
+        if (this._scale === 2 && this.intCompact >= 0 && this.intCompact < Number.MAX_SAFE_INTEGER) {
             const lowInt = this.intCompact % 100;
             const highInt = Math.trunc(this.intCompact / 100);
             return (highInt.toString() + '.' + BigDecimal.DIGIT_TENS[lowInt] + BigDecimal.DIGIT_ONES[lowInt]);
@@ -2105,9 +2342,9 @@ export class BigDecimal {
         if (this.signum() < 0)
             buf += '-';
         const coeffLen = coeff.length - offset;
-        let adjusted = -this.scale + (coeffLen - 1);
-        if ((this.scale >= 0) && (adjusted >= -6)) {
-            let pad = this.scale - coeffLen;
+        let adjusted = -this._scale + (coeffLen - 1);
+        if ((this._scale >= 0) && (adjusted >= -6)) {
+            let pad = this._scale - coeffLen;
             if (pad >= 0) {
                 buf += '0';
                 buf += '.';
@@ -2118,7 +2355,7 @@ export class BigDecimal {
             } else {
                 buf += coeff.substr(offset, -pad);
                 buf += '.';
-                buf += coeff.substr(-pad + offset, this.scale);
+                buf += coeff.substr(-pad + offset, this._scale);
             }
         } else {
             if (sci) {
@@ -2172,18 +2409,18 @@ export class BigDecimal {
     }
 
     toPlainString(): string {
-        if (this.scale === 0) {
+        if (this._scale === 0) {
             if (this.intCompact !== BigDecimal.INFLATED) {
                 return this.intCompact.toString();
             } else {
                 return this.intVal!.toString();
             }
         }
-        if (this.scale < 0) {
+        if (this._scale < 0) {
             if (this.signum() === 0) {
                 return '0';
             }
-            const trailingZeros = this.checkScale(-this.scale);
+            const trailingZeros = this.checkScale(-this._scale);
             let buf = '';
             if (this.intCompact !== BigDecimal.INFLATED) {
                 buf += this.intCompact.toString();
@@ -2201,7 +2438,7 @@ export class BigDecimal {
         } else {
             str = BigDecimal.bigIntAbs(this.intVal!).toString();
         }
-        return BigDecimal.getValueString(this.signum(), str, this.scale);
+        return BigDecimal.getValueString(this.signum(), str, this._scale);
     }
 
     /** @internal */
