@@ -13,8 +13,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-declare type BigIntOrNull = BigInt | null
-
 export enum RoundingMode {
     UP,
     DOWN,
@@ -291,7 +289,7 @@ export class MathContext {
 export class BigDecimal {
 
     /** @internal */
-    private readonly intVal: BigIntOrNull;
+    private readonly intVal: BigInt | null;
 
     /** @internal */
     private readonly _scale: number;
@@ -455,7 +453,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private constructor(bigIntValue: BigIntOrNull, intCompact: number, scale: number, precision: number) {
+    private constructor(bigIntValue: BigInt | null, intCompact: number, scale: number, precision: number) {
         this.intVal = bigIntValue;
         this._scale = scale;
         this.precision = precision;
@@ -478,7 +476,7 @@ export class BigDecimal {
         let prec = 0;
         let scl = 0;
         let rs = 0;
-        let rb: BigIntOrNull = null;
+        let rb: BigInt | null = null;
 
         let isneg = false;
         if (input[offset] === '-') {
@@ -742,17 +740,17 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static add1(fst: BigIntOrNull, scale1: number, snd: BigIntOrNull, scale2: number) {
+    private static add1(fst: BigInt, scale1: number, snd: BigInt, scale2: number) {
         let rscale = scale1;
         const sdiff = rscale - scale2;
         if (sdiff !== 0) {
             if (sdiff < 0) {
                 const raise = this.checkScale3(fst, -sdiff);
                 rscale = scale2;
-                fst = BigDecimal.bigMultiplyPowerTen3(fst, raise);
+                fst = BigDecimal.bigMultiplyPowerTen3(fst!, raise);
             } else {
                 const raise = this.checkScale3(snd, sdiff);
-                snd = BigDecimal.bigMultiplyPowerTen3(snd, raise);
+                snd = BigDecimal.bigMultiplyPowerTen3(snd!, raise);
             }
         }
         const sum = fst!.valueOf() + snd!.valueOf();
@@ -761,7 +759,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static add2(xs: number, scale1: number, snd: BigIntOrNull, scale2: number) {
+    private static add2(xs: number, scale1: number, snd: BigInt, scale2: number) {
         let rscale = scale1;
         const sdiff = rscale - scale2;
         const sameSigns = ((snd! === 0n && xs === 0) || (snd! > 0n && xs > 0) || (snd! < 0n && xs < 0));
@@ -885,7 +883,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static checkScale3(intVal: BigIntOrNull, val: number) {
+    private static checkScale3(intVal: BigInt, val: number) {
         if (val > BigDecimal.MAX_INT_VALUE || val < BigDecimal.MIN_INT_VALUE) {
             val = (val > BigDecimal.MAX_INT_VALUE) ? BigDecimal.MAX_INT_VALUE : BigDecimal.MIN_INT_VALUE;
             if (intVal !== 0n) {
@@ -904,7 +902,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static divideAndRoundByTenPow(intVal: BigIntOrNull, tenPow: number, roundingMode: number): BigInt {
+    private static divideAndRoundByTenPow(intVal: BigInt, tenPow: number, roundingMode: number): BigInt {
         if (tenPow < BigDecimal.TEN_POWERS_TABLE.length)
             intVal = BigDecimal.divideAndRound5(intVal, BigDecimal.TEN_POWERS_TABLE[tenPow], roundingMode);
         else
@@ -944,12 +942,12 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static bigMultiplyPowerTen3(value: BigIntOrNull, n: any): BigIntOrNull {
+    private static bigMultiplyPowerTen3(value: BigInt, n: any): BigInt {
         if (n <= 0) return value;
         if (n < BigDecimal.TEN_POWERS_TABLE.length) {
             return value!.valueOf() * BigInt(BigDecimal.TEN_POWERS_TABLE[n]);
         }
-        return BigInt(10) ** BigInt(n) * BigInt(value);
+        return BigInt(10) ** BigInt(n) * value.valueOf();
     }
 
     /** @internal */
@@ -989,7 +987,7 @@ export class BigDecimal {
                 drop = prec - mcp;
                 while (drop > 0) {
                     scale = BigDecimal.checkScaleNonZero(scale - drop);
-                    intVal = BigDecimal.divideAndRoundByTenPow(intVal, drop, mode);
+                    intVal = BigDecimal.divideAndRoundByTenPow(intVal!, drop, mode);
                     wasDivided = true;
                     compactVal = BigDecimal.compactValFor(intVal);
                     if (compactVal !== BigDecimal.INFLATED) {
@@ -1078,7 +1076,7 @@ export class BigDecimal {
 
     /** @internal */
     private static stripZerosToMatchScale(
-        intVal: BigIntOrNull, intCompact: number, scale: number, preferredScale: number
+        intVal: BigInt, intCompact: number, scale: number, preferredScale: number
     ): BigDecimal {
         if (intCompact !== BigDecimal.INFLATED) {
             return BigDecimal.createAndStripZerosToMatchScale(intCompact, scale, preferredScale);
@@ -1103,7 +1101,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static createAndStripZerosToMatchScale2(intVal: BigIntOrNull, scale: number, preferredScale: number): BigDecimal {
+    private static createAndStripZerosToMatchScale2(intVal: BigInt, scale: number, preferredScale: number): BigDecimal {
         let qr: BigInt[];
         while (BigDecimal.bigIntCompareMagnitude(intVal!, 10n) >= 0 && scale > preferredScale) {
             if (intVal!.valueOf() % 2n === 1n)
@@ -1169,13 +1167,13 @@ export class BigDecimal {
                 if (augend.intCompact !== BigDecimal.INFLATED) {
                     return BigDecimal.add3(this.intCompact, this._scale, augend.intCompact, augend._scale);
                 } else {
-                    return BigDecimal.add2(this.intCompact, this._scale, augend.intVal, augend._scale);
+                    return BigDecimal.add2(this.intCompact, this._scale, augend.intVal!, augend._scale);
                 }
             } else {
                 if (augend.intCompact !== BigDecimal.INFLATED) {
-                    return BigDecimal.add2(augend.intCompact, augend._scale, this.intVal, this._scale);
+                    return BigDecimal.add2(augend.intCompact, augend._scale, this.intVal!, this._scale);
                 } else {
-                    return BigDecimal.add1(this.intVal, this._scale, augend.intVal, augend._scale);
+                    return BigDecimal.add1(this.intVal!, this._scale, augend.intVal!, augend._scale);
                 }
             }
         }
@@ -1193,7 +1191,7 @@ export class BigDecimal {
             if (result._scale === preferredScale)
                 return result;
             else if (result._scale > preferredScale) {
-                return BigDecimal.stripZerosToMatchScale(result.intVal, result.intCompact, result._scale, preferredScale);
+                return BigDecimal.stripZerosToMatchScale(result.intVal!, result.intCompact, result._scale, preferredScale);
             } else {
                 const precisionDiff = mc.precision - result.getPrecision();
                 const scaleDiff = preferredScale - result._scale;
@@ -1225,9 +1223,9 @@ export class BigDecimal {
                 }
             } else {
                 if ((subtrahend.intCompact !== BigDecimal.INFLATED)) {
-                    return BigDecimal.add2(-subtrahend.intCompact, subtrahend._scale, this.intVal, this._scale);
+                    return BigDecimal.add2(-subtrahend.intCompact, subtrahend._scale, this.intVal!, this._scale);
                 } else {
-                    return BigDecimal.add1(this.intVal, this._scale, -1n * subtrahend.intVal!.valueOf(), subtrahend._scale);
+                    return BigDecimal.add1(this.intVal!, this._scale, -1n * subtrahend.intVal!.valueOf(), subtrahend._scale);
                 }
             }
         }
@@ -1242,13 +1240,13 @@ export class BigDecimal {
                 if ((multiplicand.intCompact !== BigDecimal.INFLATED)) {
                     return BigDecimal.multiply2(this.intCompact, multiplicand.intCompact, productScale);
                 } else {
-                    return BigDecimal.multiply3(this.intCompact, multiplicand.intVal, productScale);
+                    return BigDecimal.multiply3(this.intCompact, multiplicand.intVal!, productScale);
                 }
             } else {
                 if ((multiplicand.intCompact !== BigDecimal.INFLATED)) {
-                    return BigDecimal.multiply3(multiplicand.intCompact, this.intVal, productScale);
+                    return BigDecimal.multiply3(multiplicand.intCompact, this.intVal!, productScale);
                 } else {
-                    return BigDecimal.multiply4(this.intVal, multiplicand.intVal, productScale);
+                    return BigDecimal.multiply4(this.intVal!, multiplicand.intVal!, productScale);
                 }
             }
         }
@@ -1257,13 +1255,13 @@ export class BigDecimal {
             if ((multiplicand.intCompact !== BigDecimal.INFLATED)) {
                 return BigDecimal.multiplyAndRound1(this.intCompact, multiplicand.intCompact, productScale, mc);
             } else {
-                return BigDecimal.multiplyAndRound2(this.intCompact, multiplicand.intVal, productScale, mc);
+                return BigDecimal.multiplyAndRound2(this.intCompact, multiplicand.intVal!, productScale, mc);
             }
         } else {
             if ((multiplicand.intCompact !== BigDecimal.INFLATED)) {
-                return BigDecimal.multiplyAndRound2(multiplicand.intCompact, this.intVal, productScale, mc);
+                return BigDecimal.multiplyAndRound2(multiplicand.intCompact, this.intVal!, productScale, mc);
             } else {
-                return BigDecimal.multiplyAndRound3(this.intVal, multiplicand.intVal, productScale, mc);
+                return BigDecimal.multiplyAndRound3(this.intVal!, multiplicand.intVal!, productScale, mc);
             }
         }
     }
@@ -1314,13 +1312,13 @@ export class BigDecimal {
             if (divisor.intCompact !== BigDecimal.INFLATED) {
                 return BigDecimal.divide2(this.intCompact, xscale, divisor.intCompact, yscale, preferredScale, mc);
             } else {
-                return BigDecimal.divide3(this.intCompact, xscale, divisor.intVal, yscale, preferredScale, mc);
+                return BigDecimal.divide3(this.intCompact, xscale, divisor.intVal!, yscale, preferredScale, mc);
             }
         } else {
             if (divisor.intCompact !== BigDecimal.INFLATED) {
-                return BigDecimal.divide4(this.intVal, xscale, divisor.intCompact, yscale, preferredScale, mc);
+                return BigDecimal.divide4(this.intVal!, xscale, divisor.intCompact, yscale, preferredScale, mc);
             } else {
-                return BigDecimal.divide5(this.intVal, xscale, divisor.intVal, yscale, preferredScale, mc);
+                return BigDecimal.divide5(this.intVal!, xscale, divisor.intVal!, yscale, preferredScale, mc);
             }
         }
     }
@@ -1344,7 +1342,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static multiply3(x: number, y: BigIntOrNull, scale: number): BigDecimal {
+    private static multiply3(x: number, y: BigInt, scale: number): BigDecimal {
         if (x === 0) {
             return BigDecimal.zeroValueOf(scale);
         }
@@ -1352,7 +1350,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static multiply4(x: BigIntOrNull, y: BigIntOrNull, scale: number): BigDecimal {
+    private static multiply4(x: BigInt, y: BigInt, scale: number): BigDecimal {
         return new BigDecimal(x!.valueOf() * y!.valueOf(), BigDecimal.INFLATED, scale, 0);
     }
 
@@ -1376,7 +1374,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static multiplyAndRound2(x: number, y: BigIntOrNull, scale: number, mc: MathContext): BigDecimal {
+    private static multiplyAndRound2(x: number, y: BigInt, scale: number, mc: MathContext): BigDecimal {
         if (x === 0) {
             return BigDecimal.zeroValueOf(scale);
         }
@@ -1384,7 +1382,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static multiplyAndRound3(x: BigIntOrNull, y: BigIntOrNull, scale: number, mc: MathContext): BigDecimal {
+    private static multiplyAndRound3(x: BigInt, y: BigInt, scale: number, mc: MathContext): BigDecimal {
         return BigDecimal.doRound2(x!.valueOf() * y!.valueOf(), scale, mc);
     }
 
@@ -1454,9 +1452,9 @@ export class BigDecimal {
 
     /** @internal */
     private static divide3(
-        xs: number, xscale: number, ys: BigIntOrNull, yscale: number, preferredScale: number, mc: MathContext
+        xs: number, xscale: number, ys: BigInt, yscale: number, preferredScale: number, mc: MathContext
     ): BigDecimal {
-        if (BigDecimal.compareMagnitudeNormalized2(xs, xscale, ys!, yscale) > 0) {
+        if (BigDecimal.compareMagnitudeNormalized2(xs, xscale, ys, yscale) > 0) {
             yscale -= 1;
         }
         const mcp = mc.precision;
@@ -1468,14 +1466,14 @@ export class BigDecimal {
             const raise = BigDecimal.checkScaleNonZero(mcp + yscale - xscale);
             const rb = BigDecimal.bigMultiplyPowerTen2(xs, raise);
             quotient = BigDecimal.divideAndRound3(
-                rb, ys!, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
+                rb, ys, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
             );
         } else {
             const newScale = BigDecimal.checkScaleNonZero(xscale - mcp);
             const raise = BigDecimal.checkScaleNonZero(newScale - yscale);
             const rb = BigDecimal.bigMultiplyPowerTen3(ys, raise);
             quotient = BigDecimal.divideAndRound3(
-                BigInt(xs), rb!, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
+                BigInt(xs), rb, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
             );
         }
 
@@ -1484,9 +1482,9 @@ export class BigDecimal {
 
     /** @internal */
     private static divide4(
-        xs: BigIntOrNull, xscale: number, ys: number, yscale: number, preferredScale: number, mc: MathContext
+        xs: BigInt, xscale: number, ys: number, yscale: number, preferredScale: number, mc: MathContext
     ): BigDecimal {
-        if ((-BigDecimal.compareMagnitudeNormalized2(ys, yscale, xs!, xscale)) > 0) {
+        if ((-BigDecimal.compareMagnitudeNormalized2(ys, yscale, xs, xscale)) > 0) {
             yscale -= 1;
         }
         const mcp = mc.precision;
@@ -1498,13 +1496,13 @@ export class BigDecimal {
             const raise = BigDecimal.checkScaleNonZero(mcp + yscale - xscale);
             const rb = BigDecimal.bigMultiplyPowerTen3(xs, raise);
             quotient = BigDecimal.divideAndRound4(
-                rb!, ys, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
+                rb, ys, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
             );
         } else {
             const newScale = BigDecimal.checkScaleNonZero(xscale - mcp);
             if (newScale === yscale) {
                 quotient = BigDecimal.divideAndRound4(
-                    xs!, ys, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
+                    xs, ys, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
                 );
             } else {
                 const raise = BigDecimal.checkScaleNonZero(newScale - yscale);
@@ -1512,11 +1510,11 @@ export class BigDecimal {
                 if ((scaledYs = BigDecimal.numberMultiplyPowerTen(ys, raise)) === BigDecimal.INFLATED) {
                     const rb = BigDecimal.bigMultiplyPowerTen2(ys, raise);
                     quotient = BigDecimal.divideAndRound3(
-                        xs!, rb, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
+                        xs, rb, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
                     );
                 } else {
                     quotient = BigDecimal.divideAndRound4(
-                        xs!, scaledYs, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
+                        xs, scaledYs, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
                     );
                 }
             }
@@ -1526,10 +1524,10 @@ export class BigDecimal {
 
     /** @internal */
     private static divide5(
-        xs: BigIntOrNull, xscale: number, ys: BigIntOrNull, yscale: number, preferredScale: number, mc: MathContext
+        xs: BigInt, xscale: number, ys: BigInt, yscale: number, preferredScale: number, mc: MathContext
     ): BigDecimal {
 
-        if (BigDecimal.compareMagnitudeNormalized3(xs!, xscale, ys!, yscale) > 0) {
+        if (BigDecimal.compareMagnitudeNormalized3(xs, xscale, ys, yscale) > 0) {
             yscale -= 1;
         }
         const mcp = mc.precision;
@@ -1541,14 +1539,14 @@ export class BigDecimal {
             const raise = BigDecimal.checkScaleNonZero(mcp + yscale - xscale);
             const rb = BigDecimal.bigMultiplyPowerTen3(xs, raise);
             quotient = BigDecimal.divideAndRound3(
-                rb!, ys!, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
+                rb, ys, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
             );
         } else {
             const newScale = BigDecimal.checkScaleNonZero(xscale - mcp);
             const raise = BigDecimal.checkScaleNonZero(newScale - yscale);
             const rb = BigDecimal.bigMultiplyPowerTen3(ys, raise);
             quotient = BigDecimal.divideAndRound3(
-                xs!, rb!, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
+                xs, rb, scl, roundingMode, BigDecimal.checkScaleNonZero(preferredScale)
             );
         }
 
@@ -1574,7 +1572,7 @@ export class BigDecimal {
             if (quotient._scale > 0) {
                 quotient = quotient.setScale(0, RoundingMode.DOWN);
                 quotient = BigDecimal.stripZerosToMatchScale(
-                    quotient.intVal, quotient.intCompact, quotient._scale, preferredScale
+                    quotient.intVal!, quotient.intCompact, quotient._scale, preferredScale
                 );
             }
 
@@ -1601,7 +1599,7 @@ export class BigDecimal {
             (precisionDiff = mc.precision - result.getPrecision()) > 0) {
             return result.setScale(result._scale + Math.min(precisionDiff, preferredScale - result._scale));
         } else {
-            return BigDecimal.stripZerosToMatchScale(result.intVal, result.intCompact, result._scale, preferredScale);
+            return BigDecimal.stripZerosToMatchScale(result.intVal!, result.intCompact, result._scale, preferredScale);
         }
     }
 
@@ -1872,7 +1870,7 @@ export class BigDecimal {
 
     /** @internal */
     private static bigIntSignum(val: BigInt): number {
-        return val! > 0n ? 1 : (val! < 0n ? -1 : 0);
+        return val > 0n ? 1 : (val < 0n ? -1 : 0);
     }
 
     stripTrailingZeros(): BigDecimal {
@@ -1881,7 +1879,7 @@ export class BigDecimal {
         } else if (this.intCompact !== BigDecimal.INFLATED) {
             return BigDecimal.createAndStripZerosToMatchScale(this.intCompact, this._scale, Number.MIN_SAFE_INTEGER);
         } else {
-            return BigDecimal.createAndStripZerosToMatchScale2(this.intVal, this._scale, Number.MIN_SAFE_INTEGER);
+            return BigDecimal.createAndStripZerosToMatchScale2(this.intVal!, this._scale, Number.MIN_SAFE_INTEGER);
         }
     }
 
@@ -1980,7 +1978,7 @@ export class BigDecimal {
         } else {
             if (newScale > oldScale) {
                 const raise = this.checkScale(newScale - oldScale);
-                const rb = BigDecimal.bigMultiplyPowerTen3(this.intVal, raise);
+                const rb = BigDecimal.bigMultiplyPowerTen3(this.intVal!, raise);
                 return new BigDecimal(
                     rb, BigDecimal.INFLATED, newScale, (this.precision > 0) ? this.precision + raise : 0
                 );
@@ -2238,7 +2236,7 @@ export class BigDecimal {
         if (Number.isSafeInteger(bDividendNumber)) {
             mr = bDividendNumber % ldivisor;
         } else {
-            mr = Number(BigInt(bdividend) % BigInt(ldivisor));
+            mr = Number(bdividend.valueOf() % BigInt(ldivisor));
         }
 
         const isRemainderZero = mr === 0;
@@ -2471,15 +2469,15 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static divideAndRound5(bdividend: BigIntOrNull, ldivisor: number, roundingMode: number): BigInt {
+    private static divideAndRound5(bdividend: BigInt, ldivisor: number, roundingMode: number): BigInt {
 
-        const dividendSignum = BigDecimal.bigIntSignum(bdividend!);
+        const dividendSignum = BigDecimal.bigIntSignum(bdividend);
         const divisorNegative = ldivisor < 0;
 
-        if (dividendSignum === -1) bdividend = bdividend!.valueOf() * -1n;
+        if (dividendSignum === -1) bdividend = bdividend.valueOf() * -1n;
         if (divisorNegative) ldivisor *= -1;
 
-        let mq = bdividend!.valueOf() / BigInt(ldivisor);
+        let mq = bdividend.valueOf() / BigInt(ldivisor);
         let r: number;
 
         const bDividendNumber = Number(bdividend);
@@ -2487,7 +2485,7 @@ export class BigDecimal {
         if (Number.isSafeInteger(bDividendNumber)) {
             r = bDividendNumber % ldivisor;
         } else {
-            r = Number(bdividend!.valueOf() % BigInt(ldivisor));
+            r = Number(bdividend.valueOf() % BigInt(ldivisor));
         }
 
         const isRemainderZero = (r === 0);
@@ -2502,19 +2500,19 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static divideAndRound6(bdividend: BigIntOrNull, bdivisor: BigIntOrNull, roundingMode: number): BigInt {
-        const bdividendSignum = BigDecimal.bigIntSignum(bdividend!);
-        const bdivisorSignum = BigDecimal.bigIntSignum(bdivisor!);
+    private static divideAndRound6(bdividend: BigInt, bdivisor: BigInt, roundingMode: number): BigInt {
+        const bdividendSignum = BigDecimal.bigIntSignum(bdividend);
+        const bdivisorSignum = BigDecimal.bigIntSignum(bdivisor);
 
-        if (bdividend! < 0n) bdividend! = bdividend!.valueOf() * -1n;
-        if (bdivisor! < 0n) bdivisor! = bdivisor!.valueOf() * -1n;
+        if (bdividend < 0n) bdividend = bdividend.valueOf() * -1n;
+        if (bdivisor < 0n) bdivisor = bdivisor.valueOf() * -1n;
 
-        let mq = bdividend!.valueOf() / bdivisor!.valueOf();
-        const mr = bdividend!.valueOf() % bdivisor!.valueOf();
+        let mq = bdividend.valueOf() / bdivisor.valueOf();
+        const mr = bdividend.valueOf() % bdivisor.valueOf();
         const isRemainderZero = mr === 0n;
         const qsign = (bdividendSignum !== bdivisorSignum) ? -1 : 1;
         if (!isRemainderZero) {
-            if (BigDecimal.needIncrement2(bdivisor!, roundingMode, qsign, mq, mr)) {
+            if (BigDecimal.needIncrement2(bdivisor, roundingMode, qsign, mq, mr)) {
                 mq += 1n;
             }
         }
@@ -2695,9 +2693,9 @@ export class BigDecimal {
     private static compareMagnitudeNormalized3(xs: BigInt, xscale: number, ys: BigInt, yscale: number): number {
         const sdiff = xscale - yscale;
         if (sdiff < 0) {
-            return BigDecimal.bigIntCompareMagnitude(BigDecimal.bigMultiplyPowerTen3(xs, -sdiff)!, ys);
+            return BigDecimal.bigIntCompareMagnitude(BigDecimal.bigMultiplyPowerTen3(xs, -sdiff), ys);
         } else {
-            return BigDecimal.bigIntCompareMagnitude(xs, BigDecimal.bigMultiplyPowerTen3(ys, sdiff)!);
+            return BigDecimal.bigIntCompareMagnitude(xs, BigDecimal.bigMultiplyPowerTen3(ys, sdiff));
         }
     }
 }
