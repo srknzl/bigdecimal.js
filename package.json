@@ -31,7 +31,7 @@
     "@typescript-eslint/eslint-plugin": "~4.24.0",
     "@typescript-eslint/parser": "~4.26.0",
     "benchmark": "~2.1.4",
-    "big.js": "~6.0.3",
+    "big.js": "~6.1.1",
     "bigdecimal": "~0.6.1",
     "chai": "~4.3",
     "eslint": "~7.26.0",
