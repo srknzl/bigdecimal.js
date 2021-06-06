@@ -1,0 +1,14 @@
+name: API Docs
+on: [ push ]
+jobs:
+  Run-Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install
+        run: |
+          npm i
+      - name: Generate docs
+        run: |
+          npm run generate-docs
