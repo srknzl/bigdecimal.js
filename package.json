@@ -27,19 +27,17 @@
     "url": "https://github.com/hazelcast/bigint-based-decimal/issues"
   },
   "homepage": "https://github.com/hazelcast/bigint-based-decimal#readme",
-  "dependencies": {
-    "benchmark": "^2.1.4",
-    "big.js": "^6.0.3",
-    "bigdecimal": "^0.6.1"
-  },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.24.0",
-    "@typescript-eslint/parser": "^4.24.0",
-    "chai": "^4.3.4",
-    "eslint": "^7.26.0",
-    "mocha": "^8.4.0",
-    "rimraf": "^3.0.2",
-    "typedoc": "^0.20.36",
-    "typescript": "^4.2.4"
+    "@typescript-eslint/eslint-plugin": "~4.24.0",
+    "@typescript-eslint/parser": "~4.24.0",
+    "benchmark": "~2.1.4",
+    "big.js": "~6.0.3",
+    "bigdecimal": "~0.6.1",
+    "chai": "~3.4",
+    "eslint": "~7.26.0",
+    "mocha": "~8.4.0",
+    "rimraf": "~3.0.2",
+    "typedoc": "~0.20.36",
+    "typescript": "~4.2.4"
   }
 }
