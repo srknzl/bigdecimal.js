@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha tests/**/*.js",
-    "compile": "tsc -v && tsc",
+    "compile": "tsc",
     "clean": "rimraf docs lib node_modules",
     "pregenerate-docs": "rimraf docs",
     "generate-docs": "typedoc --options typedoc.json",
