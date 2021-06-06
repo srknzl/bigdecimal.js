@@ -1,4 +1,4 @@
-const { BigDecimal, MathContext, RoundingMode } = require('../lib/big_decimal');
+const { BigDecimal, MathContext } = require('../lib/big_decimal');
 const chai = require('chai');
 const testCases = require('./testCases/divisionTestCases.json');
 const invalidTests = require('./invalidTests');
@@ -7,7 +7,7 @@ chai.should();
 describe('Division test', function () {
 
     it('should be able to divide two decimals', function () {
-        for (const [i, test] of testCases.entries()) {
+        for (const test of testCases) {
             const division = () => {
                 return BigDecimal.fromValue(test.arguments[0]).divide(
                     BigDecimal.fromValue(test.arguments[1]),
@@ -15,7 +15,7 @@ describe('Division test', function () {
                 ).toString();
             };
             if (test.result === 'errorThrown') {
-                division.should.throw(undefined, undefined, `expected '${test[0]}' / '${test[1]}' to throw`);
+                division.should.throw(undefined, undefined, `expected '${test.arguments[0]}' / '${test.arguments[1]}' to throw`);
                 continue;
             }
             const actual = division();

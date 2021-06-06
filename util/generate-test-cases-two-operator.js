@@ -101,21 +101,69 @@ async function generateDivideTest(tuple, divideTestCases) {
 }
 
 async function run() {
+    const additionOutputName = 'additionTestCases.json';
+    const subtractionOutputName = 'subtractionTestCases.json';
+    const multiplicationOutputName = 'multiplicationTestCases.json';
+    const divisionOutputName = 'multiplicationTestCases.json';
+
     const addTestCases = [];
     const subtractTestCases = [];
     const multiplyTestCases = [];
     const divideTestCases = [];
 
-    for (const tuple of testNumbers) {
-        await generateAddTest(tuple, addTestCases);
-        await generateSubtractTest(tuple, subtractTestCases);
-        await generateMultiplyTest(tuple, multiplyTestCases);
-        await generateDivideTest(tuple, divideTestCases);
+    if (fs.existsSync(additionOutputName)) {
+        console.log(`${additionOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${additionOutputName}..`);
+        let counter = 0;
+        for (const tuple of testNumbers) {
+            await generateAddTest(tuple, addTestCases);
+            counter++;
+            if(counter % 100 === 0) console.log(counter);
+        }
+        fs.writeFileSync(additionOutputName, JSON.stringify(addTestCases));
     }
-    fs.writeFileSync('additionTestCases.json', JSON.stringify(addTestCases));
-    fs.writeFileSync('subtractionTestCases.json', JSON.stringify(subtractTestCases));
-    fs.writeFileSync('multiplicationTestCases.json', JSON.stringify(multiplyTestCases));
-    fs.writeFileSync('divisionTestCases.json', JSON.stringify(divideTestCases));
+
+    if (fs.existsSync(subtractionOutputName)) {
+        console.log(`${subtractionOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${subtractionOutputName}..`);
+        let counter = 0;
+        for (const tuple of testNumbers) {
+            await generateSubtractTest(tuple, subtractTestCases);
+            counter++;
+            if(counter % 100 === 0) console.log(counter);
+        }
+        fs.writeFileSync(subtractionOutputName, JSON.stringify(subtractTestCases));
+    }
+
+    if (fs.existsSync(multiplicationOutputName)) {
+        console.log(`${multiplicationOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${multiplicationOutputName}..`);
+        let counter = 0;
+        for (const tuple of testNumbers) {
+            await generateMultiplyTest(tuple, multiplyTestCases);
+            counter++;
+            if(counter % 100 === 0) console.log(counter);
+        }
+        fs.writeFileSync(multiplicationOutputName, JSON.stringify(multiplyTestCases));
+    }
+
+    if (fs.existsSync(divisionOutputName)) {
+        console.log(`${divisionOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${divisionOutputName}..`);
+        let counter = 0;
+        for (const tuple of testNumbers) {
+            await generateDivideTest(tuple, divideTestCases);
+            counter++;
+            if(counter % 100 === 0) console.log(counter);
+        }
+        fs.writeFileSync(divisionOutputName, JSON.stringify(divideTestCases));
+    }
+
+
 
 }
 

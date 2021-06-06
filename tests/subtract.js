@@ -15,7 +15,7 @@ describe('Subtraction test', function () {
                 ).toString();
             };
             if (test.result === 'errorThrown') {
-                subtraction.should.throw(undefined, undefined, `expected '${test[0]}' - '${test[1]}' to throw`);
+                subtraction.should.throw(undefined, undefined, `expected '${test.arguments[0]}' - '${test.arguments[1]}' to throw`);
                 continue;
             }
             const actual = subtraction();

@@ -15,7 +15,7 @@ describe('Addition test', function () {
                 ).toString();
             };
             if (test.result === 'errorThrown') {
-                addition.should.throw(undefined, undefined, `expected '${test[0]}' + '${test[1]}' to throw`);
+                addition.should.throw(undefined, undefined, `expected '${test.arguments[0]}' + '${test.arguments[1]}' to throw`);
                 continue;
             }
             const actual = addition();
