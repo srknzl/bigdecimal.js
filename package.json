@@ -6,6 +6,7 @@
   "scripts": {
     "test": "mocha tests/**/*.js",
     "compile": "tsc",
+    "clean": "rimraf docs lib node_modules",
     "pregenerate-docs": "rimraf docs",
     "generate-docs": "typedoc --options typedoc.json",
     "generate-docs:watch": "typedoc --watch --options typedoc.json",
