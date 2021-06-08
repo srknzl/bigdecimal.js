@@ -1,7 +1,7 @@
 name: API Docs
 on: [ push ]
 jobs:
-  Run-Tests:
+  Generate-Docs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
