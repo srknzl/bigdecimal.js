@@ -16,3 +16,7 @@ node benchmarks/divide.js
 echo '----------'
 node benchmarks/divide_big.js
 echo '----------'
+node benchmarks/abs.js
+echo '----------'
+node benchmarks/abs_big.js
+echo '----------'
