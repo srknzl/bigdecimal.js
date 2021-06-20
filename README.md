@@ -25,8 +25,9 @@ const z = x.add(y);
 console.log(z.toString()); // 2.2222222222222222222222
 ```
 
+* You can also construct a BigDecimal from a number or a BigInt:
+
 ```javascript
-// You can also construct from number and BigInt
 const x = BigDecimal.fromValue(1.1);
 const y = BigDecimal.fromValue(2n);
 
