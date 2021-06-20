@@ -1,7 +1,7 @@
 # BigDecimal.js
 
-[BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal(arbitrary precision floats) implementation for Node.js. 
-This implementation is based on java BigDecimal class. Like java BigDecimal class, it uses big integers internally. This implementation 
+[BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal(arbitrary precision floats) implementation for Node.js.
+This implementation is based on java BigDecimal class. Like java BigDecimal class, it uses big integers internally. This implementation
 is faster than popular big decimal libraries. See [benchmarks section](https://github.com/srknzl/bigdecimal.js#running-benchmarks) for comparison.
 
 **Note: This release is a preview release, and the package is currently in active development. API can change in the near future. I appreciate your feedback, thanks.**
@@ -25,14 +25,19 @@ const z = x.add(y);
 console.log(z.toString()); // 2.2222222222222222222222
 ```
 
+* You can also construct a BigDecimal from a number or a BigInt:
+
 ```javascript
-// You can also construct from number and BigInt
 const x = BigDecimal.fromValue(1.1);
 const y = BigDecimal.fromValue(2n);
 
 console.log(x.toString()); // 1.1
 console.log(y.toString()); // 2
 ```
+
+## Documentation
+
+* [API Documentation](https://srknzl.github.io/bigdecimal.js/api/current/docs)
 
 ## Testing
 
@@ -42,7 +47,7 @@ console.log(y.toString()); // 2
 
 ## Running Benchmarks
 
-There is a benchmark suite that compares 
+There is a benchmark suite that compares
 
 * BigDecimal.js
 * [big.js](https://github.com/MikeMcl/big.js)
