@@ -1,0 +1,160 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>bigdecimal.js</title>
+	<meta name="description" content="Documentation for bigdecimal.js">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">bigdecimal.js</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>bigdecimal.js</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#bigdecimaljs" id="bigdecimaljs" style="color: inherit; text-decoration: none;">
+					<h1>BigDecimal.js</h1>
+				</a>
+				<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt">BigInt</a> based BigDecimal(arbitrary precision floats) implementation for Node.js.
+					This implementation is based on java BigDecimal class. Like java BigDecimal class, it uses big integers internally. This implementation
+				is faster than popular big decimal libraries. See <a href="https://github.com/srknzl/bigdecimal.js#running-benchmarks">benchmarks section</a> for comparison.</p>
+				<p><strong>Note: This release is a preview release, and the package is currently in active development. API can change in the near future. I appreciate your feedback, thanks.</strong></p>
+				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+					<h2>Features</h2>
+				</a>
+				<ul>
+					<li>Faster than other BigDecimal libraries because of native BigInt(for now, benchmarked against <code>big.js</code> and <code>bigdecimal</code> )</li>
+					<li>Simple API that is exactly same with Java&#39;s <a href="https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/math/BigDecimal.html">BigDecimal</a></li>
+					<li>No dependencies</li>
+				</ul>
+				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+					<h2>Usage</h2>
+				</a>
+				<ul>
+					<li>The example usage is given below:</li>
+				</ul>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">BigDecimal</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;bigdecimal.js&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">x</span><span style="color: #000000"> = </span><span style="color: #001080">BigDecimal</span><span style="color: #000000">.</span><span style="color: #795E26">fromValue</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;1.1111111111111111111111&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">y</span><span style="color: #000000"> = </span><span style="color: #001080">BigDecimal</span><span style="color: #000000">.</span><span style="color: #795E26">fromValue</span><span style="color: #000000">(</span><span style="color: #001080">x</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">z</span><span style="color: #000000"> = </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">add</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">);</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">z</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 2.2222222222222222222222</span>
+</code></pre>
+				<pre><code class="language-javascript"><span style="color: #008000">// You can also construct from number and BigInt</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">x</span><span style="color: #000000"> = </span><span style="color: #001080">BigDecimal</span><span style="color: #000000">.</span><span style="color: #795E26">fromValue</span><span style="color: #000000">(</span><span style="color: #098658">1.1</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">y</span><span style="color: #000000"> = </span><span style="color: #001080">BigDecimal</span><span style="color: #000000">.</span><span style="color: #795E26">fromValue</span><span style="color: #000000">(</span><span style="color: #098658">2</span><span style="color: #0000FF">n</span><span style="color: #000000">);</span>
+
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 1.1</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 2</span>
+</code></pre>
+				<a href="#testing" id="testing" style="color: inherit; text-decoration: none;">
+					<h2>Testing</h2>
+				</a>
+				<ul>
+					<li>Install dependencies: <code>npm i</code></li>
+					<li>Compile: <code>npm run compile</code></li>
+					<li>Run tests: <code>npm test</code></li>
+				</ul>
+				<a href="#running-benchmarks" id="running-benchmarks" style="color: inherit; text-decoration: none;">
+					<h2>Running Benchmarks</h2>
+				</a>
+				<p>There is a benchmark suite that compares </p>
+				<ul>
+					<li>BigDecimal.js</li>
+					<li><a href="https://github.com/MikeMcl/big.js">big.js</a></li>
+					<li><a href="https://github.com/iriscouch/bigdecimal.js">GWT based BigDecimal</a></li>
+				</ul>
+				<p>To run the benchmark run <code>npm install</code> and then <code>npm run benchmark</code>.</p>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-enum">
+						<a href="enums/roundingmode.html" class="tsd-kind-icon">Rounding<wbr>Mode</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/bigdecimal.html" class="tsd-kind-icon">Big<wbr>Decimal</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/mathcontext.html" class="tsd-kind-icon">Math<wbr>Context</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
