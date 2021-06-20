@@ -1616,13 +1616,12 @@ export class BigDecimal {
             if (xae > yae)
                 return 1;
             if (sdiff < 0) {
-
                 if (sdiff > Number.MIN_SAFE_INTEGER &&
                     (xs === BigDecimal.INFLATED ||
                         (xs = BigDecimal.numberMultiplyPowerTen(xs, -sdiff)) === BigDecimal.INFLATED) &&
                     ys === BigDecimal.INFLATED) {
                     const rb = this.bigMultiplyPowerTen(-sdiff);
-                    return BigDecimal.bigIntCompareMagnitude(rb, this.intVal!);
+                    return BigDecimal.bigIntCompareMagnitude(rb, val.intVal!);
                 }
             } else {
                 if (sdiff <= Number.MAX_SAFE_INTEGER &&

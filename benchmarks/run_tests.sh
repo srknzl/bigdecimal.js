@@ -20,3 +20,7 @@ node benchmarks/abs.js
 echo '----------'
 node benchmarks/abs_big.js
 echo '----------'
+node benchmarks/compare.js
+echo '----------'
+node benchmarks/compare_big.js
+echo '----------'

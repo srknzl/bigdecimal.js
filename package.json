@@ -4,7 +4,7 @@
   "description": "A repo for BigInt based big decimal implementation for Node.js client",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests/**/*.js",
+    "test": "mocha tests/methods/**/*.js",
     "compile": "tsc",
     "clean": "rimraf docs lib",
     "pregenerate-docs": "rimraf docs",
