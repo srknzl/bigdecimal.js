@@ -1,8 +1,8 @@
 {
-  "name": "bigint-based-decimal",
-  "version": "1.0.0",
-  "description": "A repo for BigInt based big decimal implementation for Node.js client",
-  "main": "index.js",
+  "name": "bigdecimal.js",
+  "version": "0.0.1",
+  "description": "BigInt based BigDecimal implementation",
+  "main": "lib/bigdecimal.js",
   "scripts": {
     "test": "mocha -t 10000 tests/methods/**/*.js",
     "compile": "tsc",
@@ -12,19 +12,37 @@
     "generate-docs:watch": "typedoc --watch --options typedoc.json",
     "lint:ci": "eslint --ext .ts .",
     "lint": "eslint --ext .ts --cache --fix .",
-    "benchmark": "benchmarks/run_tests.sh"
+    "benchmark": "node benchmarks/runBench.js"
   },
-  "files": [
-    "lib/bigdecimal.js"
+  "keywords": [
+    "bigdecimal",
+    "decimal",
+    "math",
+    "arbitrary",
+    "precision",
+    "number",
+    "arithmetic"
   ],
+  "files": [
+    "lib/bigdecimal.js",
+    "lib/bigdecimal.d.ts"
+  ],
+  "types": "lib/bigdecimal.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hazelcast/bigint-based-decimal.git"
   },
-  "author": "Serkan Özel",
+  "author": {
+    "name" : "Serkan Özel",
+    "email" : "serkanozel380@gmail.com",
+    "url" : "https://github.com/srknzl"
+  },
   "license": "Apache 2.0",
   "bugs": {
     "url": "https://github.com/hazelcast/bigint-based-decimal/issues"
+  },
+  "engines": {
+    "node": ">=10.4.0"
   },
   "homepage": "https://github.com/hazelcast/bigint-based-decimal#readme",
   "devDependencies": {
