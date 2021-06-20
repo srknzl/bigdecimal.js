@@ -1125,9 +1125,6 @@ export class BigDecimal {
 
     /** @internal */
     private preAlign(augend: BigDecimal, padding: number, mc: MathContext): BigDecimal[] {
-        if (padding === 0) {
-            throw new RangeError('Padding must be non-zero');
-        }
         let big: BigDecimal;
         let small: BigDecimal;
 
@@ -1689,8 +1686,6 @@ export class BigDecimal {
                 throw new RangeError('Attempted square root of negative BigDecimal');
             case 0:
                 result = BigDecimal.fromNumber2(0, this._scale / 2, 0);
-                if (!this.squareRootResultAssertions(result, mc))
-                    throw new RangeError('Square root result error');
                 return result;
 
             default:
@@ -1721,9 +1716,6 @@ export class BigDecimal {
             }
 
             const working = stripped.scaleByPowerOfTen(scaleAdjust);
-
-            if ((BigDecimal.ONE_TENTH.compareTo(working) <= 0 && working.compareTo(BigDecimal.TEN) < 0))
-                throw new RangeError('Verifying 0.1 <= working < 10 failed');
 
             const guess = BigDecimal.fromValue(Math.sqrt(working.numberValue()));
             let guessPrecision = 15;
@@ -1795,66 +1787,11 @@ export class BigDecimal {
                 }
 
             }
-            if (!this.squareRootResultAssertions(result, mc)) throw new RangeError('Square root result error');
             if (result._scale !== preferredScale) {
                 result = result.stripTrailingZeros().add(zeroWithFinalPreferredScale,
                     new MathContext(originalPrecision, RoundingMode.UNNECESSARY));
             }
             return result;
-        }
-    }
-
-    /** @internal */
-    private squareRootResultAssertions(result: any, mc: MathContext): boolean {
-        if (result.signum() === 0) {
-            return this.squareRootZeroResultAssertions(result, mc);
-        } else {
-            const rm = mc.roundingMode;
-            let ulp = result.ulp();
-            const neighborUp = result.add(ulp);
-            if (result.isPowerOfTen()) {
-                ulp = ulp.divide(BigDecimal.TEN);
-            }
-            const neighborDown = result.subtract(ulp);
-
-            if (!(result.signum() === 1 && this.signum() === 1))
-                throw new RangeError('Bad signum of this and/or its sqrt.');
-
-            const err = result.square().subtract(this).abs();
-            const errUp = neighborUp.square().subtract(this);
-            const errDown = this.subtract(neighborDown.square());
-            const errComErrUp = err.compareTo(errUp);
-            const errCompErrDown = err.compareTo(errDown);
-
-            switch (rm) {
-            case RoundingMode.DOWN:
-            case RoundingMode.FLOOR:
-                if (!(result.square().compareTo(this) <= 0 && neighborUp.square().compareTo(this) > 0))
-                    throw new RangeError('Square of result out for bounds rounding' + RoundingMode[rm]);
-                return true;
-            case RoundingMode.UP:
-            case RoundingMode.CEILING:
-                if (!(result.square().compareTo(this) >= 0 && neighborDown.square().compareTo(this) < 0))
-                    throw new RangeError('Square of result out for bounds rounding' + RoundingMode[rm]);
-                return true;
-            case RoundingMode.HALF_DOWN:
-            case RoundingMode.HALF_EVEN:
-            case RoundingMode.HALF_UP:
-                if (!(errUp.signum() === 1 && errDown.signum() === 1))
-                    throw new RangeError('Errors of neighbors squared don\'t have correct signs');
-
-                if (!(errComErrUp <= 0 || errCompErrDown <= 0))
-                    throw new RangeError('Computed square root has larger error than neighbors for '
-                        + RoundingMode[rm]);
-
-                if (!(((errComErrUp === 0) ? errCompErrDown < 0 : true) &&
-                    ((errCompErrDown === 0) ? errComErrUp < 0 : true)))
-                    throw new RangeError('Incorrect error relationships');
-                return true;
-
-            default:
-                return true;
-            }
         }
     }
 
@@ -2070,8 +2007,6 @@ export class BigDecimal {
 
     /** @internal */
     private static needIncrement(ldivisor: number, roundingMode: RoundingMode, qsign: number, q: number, r: number) {
-        if (r === 0) throw new RangeError('Unexpected remainder');
-
         let cmpFracHalf;
         if (r <= BigDecimal.HALF_NUMBER_MIN_VALUE || r > BigDecimal.HALF_NUMBER_MAX_VALUE) {
             cmpFracHalf = 1;
@@ -2103,9 +2038,6 @@ export class BigDecimal {
             return qsign < 0;
 
         default:
-            if (!(roundingMode >= RoundingMode.HALF_UP && roundingMode <= RoundingMode.HALF_EVEN))
-                throw new RangeError(`Unexpected rounding mode ${RoundingMode[roundingMode]}`);
-
             if (cmpFracHalf < 0)
                 return false;
             else if (cmpFracHalf > 0)
@@ -2202,10 +2134,7 @@ export class BigDecimal {
     private static needIncrement2(
         mdivisor: BigInt, roundingMode: RoundingMode, qsign: number, mq: BigInt, mr: BigInt
     ): boolean {
-        if (mr === 0n) throw new RangeError('Unexpected remainder');
-
         const cmpFracHalf = BigDecimal.compareHalf(mr, mdivisor);
-
         return BigDecimal.commonNeedIncrement(roundingMode, qsign, cmpFracHalf, mq.valueOf() % 2n === 1n);
     }
 
@@ -2261,8 +2190,6 @@ export class BigDecimal {
 
     /** @internal */
     private static needIncrement3(ldivisor: number, roundingMode: RoundingMode, qsign: number, mq: BigInt, r: number) {
-        if (r === 0) throw new RangeError('Unexpected remainder');
-
         let cmpFracHalf;
         if (r <= BigDecimal.HALF_NUMBER_MIN_VALUE || r > BigDecimal.HALF_NUMBER_MAX_VALUE) {
             cmpFracHalf = 1;
@@ -2530,8 +2457,6 @@ export class BigDecimal {
         const mcp = mc.precision;
         const roundingMode = mc.roundingMode;
 
-        if (!(xscale <= yscale) && (yscale < 15) && (mcp < 15))
-            throw new RangeError('Illegal State in divideSmallFastPath');
         const xraise = yscale - xscale;
         const scaledX = (xraise === 0) ? xs : BigDecimal.numberMultiplyPowerTen(xs, xraise);
         let quotient;
