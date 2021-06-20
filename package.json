@@ -33,9 +33,9 @@
     "url": "git+https://github.com/hazelcast/bigint-based-decimal.git"
   },
   "author": {
-    "name" : "Serkan Özel",
-    "email" : "serkanozel380@gmail.com",
-    "url" : "https://github.com/srknzl"
+    "name": "Serkan Özel",
+    "email": "serkanozel380@gmail.com",
+    "url": "https://github.com/srknzl"
   },
   "license": "Apache 2.0",
   "bugs": {
