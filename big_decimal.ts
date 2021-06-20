@@ -997,8 +997,7 @@ export class BigDecimal {
                     prec = BigDecimal.bigDigitLength(intVal!);
                     drop = prec - mcp;
                 }
-            }
-            if (compactVal !== BigDecimal.INFLATED) {
+            } else {
                 drop = prec - mcp;
                 while (drop > 0) {
                     scale = BigDecimal.checkScaleNonZero(scale - drop);
@@ -1151,11 +1150,11 @@ export class BigDecimal {
     }
 
     negate(mc?: MathContext): BigDecimal {
-        const result = this.intCompact === BigDecimal.INFLATED ?
+        let result = this.intCompact === BigDecimal.INFLATED ?
             new BigDecimal(-1n * this.intVal!.valueOf(), BigDecimal.INFLATED, this._scale, this.precision) :
             BigDecimal.fromNumber2(-this.intCompact, this._scale, this.precision);
         if (mc) {
-            result.plus(mc);
+            result = result.plus(mc);
         }
         return result;
     }
