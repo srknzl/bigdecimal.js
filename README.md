@@ -6,22 +6,37 @@ is faster than popular big decimal libraries. See [benchmarks section](https://g
 
 ## Features
 
-* todo
+* Faster than other BigDecimal libraries because of native BigInt usage(currently measured against `big.js` and `bigdecimal`, more to come)
+* Simple API that is exactly same with Java's [BigDecimal](https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/math/BigDecimal.html)
+* No dependencies
 
 ## Usage
 
-* todo
+* The example usage is given below:
+
+```javascript
+const { BigDecimal } = require('bigdecimal.js');
+const x = BigDecimal.fromValue('1.1111111111111111111111');
+const y = BigDecimal.fromValue(x);
+
+const z = x.add(y);
+console.log(z.toString()); // 2.2222222222222222222222
+```
+
+```javascript
+// You can also construct from number and BigInt
+const x = BigDecimal.fromValue(1.1);
+const y = BigDecimal.fromValue(2n);
+
+console.log(x.toString()); // 1.1
+console.log(y.toString()); // 2
+```
 
 ## Testing
 
 * Install dependencies: `npm i`
 * Compile: `npm run compile`
 * Run tests: `npm test`
-
-
-## Typescript support
-
-* todo 
 
 ## Running Benchmarks
 
@@ -31,4 +46,4 @@ There is a benchmark suite that compares
 * [big.js](https://github.com/MikeMcl/big.js)
 * [GWT based BigDecimal](https://github.com/iriscouch/bigdecimal.js)
 
-To run the benchmark use `npm run benchmark` after you install dependencies with `npm install`.
+To run the benchmark run `npm install` and then `npm run benchmark`.
