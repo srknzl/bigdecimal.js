@@ -723,7 +723,7 @@ export class BigDecimal {
             return BigDecimal.fromBigInt(value, 0, 0);
         }
          */
-        if(value instanceof BigDecimal){
+        if (value instanceof BigDecimal) {
             return new BigDecimal(value.intVal, value.intCompact, value.scale(), value.precision);
         }
         value = String(value);

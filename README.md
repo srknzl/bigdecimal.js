@@ -4,9 +4,11 @@
 This implementation is based on java BigDecimal class. Like java BigDecimal class, it uses big integers internally. This implementation 
 is faster than popular big decimal libraries. See [benchmarks section](https://github.com/srknzl/bigdecimal.js#running-benchmarks) for comparison.
 
+**Note: This release is a preview release, and the package is currently in active development. API can change in the near future. I appreciate your feedback, thanks.**
+
 ## Features
 
-* Faster than other BigDecimal libraries because of native BigInt usage(currently measured against `big.js` and `bigdecimal`, more to come)
+* Faster than other BigDecimal libraries because of native BigInt(for now, benchmarked against `big.js` and `bigdecimal` )
 * Simple API that is exactly same with Java's [BigDecimal](https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/math/BigDecimal.html)
 * No dependencies
 
