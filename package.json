@@ -21,8 +21,8 @@
     "type": "git",
     "url": "git+https://github.com/hazelcast/bigint-based-decimal.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Serkan Özel",
+  "license": "Apache 2.0",
   "bugs": {
     "url": "https://github.com/hazelcast/bigint-based-decimal/issues"
   },
