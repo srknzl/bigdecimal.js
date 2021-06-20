@@ -1,4 +1,4 @@
-const { BigDecimal, MathContext } = require('../lib/big_decimal');
+const { BigDecimal, MathContext } = require('../lib/bigdecimal');
 const chai = require('chai');
 const testCases = require('./testCases/additionTestCases.json');
 const invalidTests = require('./invalidTests');

@@ -1,6 +1,6 @@
 'use strict';
 const { Big } = require('big.js');
-const { BigDecimal, MathContext, RoundingMode } = require('../lib/big_decimal.js');
+const { BigDecimal, MathContext, RoundingMode } = require('../lib/bigdecimal.js');
 const { BigDecimal: GWTDecimal } = require('bigdecimal');
 const Benchmark = require('benchmark');
 const { bigDecimals, bigDecimalsBigjs, bigDecimalsGWT } = require('./test_numbers');

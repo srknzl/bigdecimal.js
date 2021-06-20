@@ -1,4 +1,4 @@
-const { BigDecimal } = require('../lib/big_decimal');
+const { BigDecimal } = require('../lib/bigdecimal');
 module.exports = [
     [BigDecimal.fromValue('12.345'), undefined],
     [BigDecimal.fromValue('12.345'), null],

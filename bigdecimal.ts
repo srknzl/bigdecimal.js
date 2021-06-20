@@ -378,12 +378,9 @@ export class BigDecimal {
     /** @internal */
     private static readonly HALF_NUMBER_MIN_VALUE = Number.MIN_SAFE_INTEGER / 2;
 
-    /** @internal */
-    private static readonly ZERO = BigDecimal.ZERO_THROUGH_TEN[0];
-    /** @internal */
-    private static readonly ONE = BigDecimal.ZERO_THROUGH_TEN[1];
-    /** @internal */
-    private static readonly TEN = BigDecimal.ZERO_THROUGH_TEN[10];
+    static readonly ZERO = BigDecimal.ZERO_THROUGH_TEN[0];
+    static readonly ONE = BigDecimal.ZERO_THROUGH_TEN[1];
+    static readonly TEN = BigDecimal.ZERO_THROUGH_TEN[10];
     /** @internal */
     private static readonly ONE_TENTH = BigDecimal.fromNumber2(1, 1, 0);
     /** @internal */
@@ -440,9 +437,6 @@ export class BigDecimal {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
     ];
-    /** @internal */
-    private static readonly LONG_MASK = 4294967295;
-
     /** @internal */
     private static adjustScale(scl: number, exp: number): number {
         const adjustedScale = scl - exp;
@@ -621,7 +615,7 @@ export class BigDecimal {
         return new BigDecimal(rb, rs, scl, prec);
     }
 
-    static fromBigInt(intVal: BigInt, scale: number, prec: number, mc?: MathContext): BigDecimal {
+    static fromBigInt(intVal: BigInt, scale: number, prec: number): BigDecimal {
         const val = BigDecimal.compactValFor(intVal);
         if (val === 0) {
             return BigDecimal.zeroValueOf(scale);
@@ -631,11 +625,11 @@ export class BigDecimal {
         return new BigDecimal(intVal, val, scale, prec);
     }
 
-    static fromDouble(double: number, mc?: MathContext): BigDecimal {
+    static fromDouble(double: number): BigDecimal {
         return BigDecimal.fromString(double.toString());
     }
 
-    static fromNumber(numberVal: number, scale: number, precision: number, mc?: MathContext): BigDecimal {
+    static fromNumber(numberVal: number, scale: number, precision: number): BigDecimal {
         if (typeof numberVal !== 'number')
             throw new TypeError('Expected a number');
         if (Number.isInteger(numberVal)) {
@@ -1707,7 +1701,7 @@ export class BigDecimal {
                 return result;
             }
 
-            let scaleAdjust = 0;
+            let scaleAdjust;
             const scale = stripped._scale - stripped.getPrecision() + 1;
             if (scale % 2 === 0) {
                 scaleAdjust = scale;
@@ -1937,11 +1931,6 @@ export class BigDecimal {
         if (mc.precision === 0)
             return this;
         return BigDecimal.doRound(this, mc);
-    }
-
-    /** @internal */
-    private squareRootZeroResultAssertions(result: any, mc: MathContext) {
-        return this.compareTo(BigDecimal.ZERO) === 0;
     }
 
     pow(n: number, mc?: MathContext): BigDecimal {

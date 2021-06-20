@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha tests/**/*.js",
     "compile": "tsc",
-    "clean": "rimraf docs lib node_modules",
+    "clean": "rimraf docs lib",
     "pregenerate-docs": "rimraf docs",
     "generate-docs": "typedoc --options typedoc.json",
     "generate-docs:watch": "typedoc --watch --options typedoc.json",
@@ -15,7 +15,7 @@
     "benchmark": "benchmarks/run_tests.sh"
   },
   "files": [
-    "lib/big_decimal.js"
+    "lib/bigdecimal.js"
   ],
   "repository": {
     "type": "git",

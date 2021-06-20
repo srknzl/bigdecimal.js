@@ -1,5 +1,5 @@
 const { Big } = require('big.js');
-const { BigDecimal } = require('../lib/big_decimal.js');
+const { BigDecimal } = require('../lib/bigdecimal.js');
 const { BigDecimal: GWTDecimal } = require('bigdecimal');
 
 const bigDecimalNumbers = [
