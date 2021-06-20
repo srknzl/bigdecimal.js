@@ -35,8 +35,9 @@ console.log(x.toString()); // 1.1
 console.log(y.toString()); // 2
 ```
 
-## Links
+## Documentation
 
+* [API Documentation](https://srknzl.github.io/bigdecimal.js/api/current/docs)
 
 ## Testing
 
