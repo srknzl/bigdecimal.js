@@ -994,7 +994,8 @@ export class BigDecimal {
                     prec = BigDecimal.bigDigitLength(intVal!);
                     drop = prec - mcp;
                 }
-            } else {
+            }
+            if (compactVal !== BigDecimal.INFLATED) {
                 drop = prec - mcp;
                 while (drop > 0) {
                     scale = BigDecimal.checkScaleNonZero(scale - drop);

@@ -57,7 +57,7 @@ async function run() {
     } else {
         console.log(`Generating ${absOutputName}..`);
         console.log(`Number of test cases are ${testNumbers.length}`);
-        const jobs = testNumbers.map(tuple => generateAbsTest(tuple, absTestCases));
+        const jobs = [...numberSet].map(number => generateAbsTest(number, absTestCases));
         await Promise.all(jobs);
         fs.writeFileSync(absOutputName, JSON.stringify(absTestCases));
     }
