@@ -1,7 +1,6 @@
 ## Test Generation Utilities
 
-* To test methods of Node.js BigDecimal library, auto-generated tests are used. The aim is to make Node.js implementation as 
-close as possible to the Java implementation of BigDecimal.
+* To test Node.js BigDecimal library, auto-generated tests are used. The goal is to make Node.js implementation behave exactly same with the Java implementation regarding arithmetic operations.
 
 
 ### Methodology 
@@ -21,3 +20,4 @@ openjdk version "16.0.1" 2021-04-20
 OpenJDK Runtime Environment (build 16.0.1+9-Ubuntu-120.04)
 OpenJDK 64-Bit Server VM (build 16.0.1+9-Ubuntu-120.04, mixed mode, sharing)
 ```
+7. Generated test cases are in [output](./output) folder as json files. For each method, there are thousands of tests generated.
