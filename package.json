@@ -1,7 +1,7 @@
 {
   "name": "bigdecimal.js",
   "version": "0.0.2",
-  "description": "BigInt based BigDecimal implementation",
+  "description": "A BigDecimal implementation with native BigInts",
   "main": "lib/bigdecimal.js",
   "scripts": {
     "test": "mocha -t 10000 tests/methods/**/*.js",
@@ -30,7 +30,7 @@
   "types": "lib/bigdecimal.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hazelcast/bigint-based-decimal.git"
+    "url": "git+https://github.com/srknzl/bigdecimal.js.git"
   },
   "author": {
     "name": "Serkan Özel",
@@ -39,12 +39,12 @@
   },
   "license": "Apache 2.0",
   "bugs": {
-    "url": "https://github.com/hazelcast/bigint-based-decimal/issues"
+    "url": "https://github.com/srknzl/bigdecimal.js/issues"
   },
   "engines": {
     "node": ">=10.4.0"
   },
-  "homepage": "https://github.com/hazelcast/bigint-based-decimal#readme",
+  "homepage": "https://github.com/srknzl/bigdecimal.js#readme",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "~4.27.0",
     "@typescript-eslint/parser": "~4.27.0",
