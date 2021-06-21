@@ -49,7 +49,7 @@ console.log(y.toString()); // 2
 
 There is a benchmark suite that compares 
 
-* BigDecimal.js
+* bigdecimal.js
 * [big.js](https://github.com/MikeMcl/big.js)
 * [GWT based BigDecimal](https://github.com/iriscouch/bigdecimal.js)
 
