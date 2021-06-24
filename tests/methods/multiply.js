@@ -9,8 +9,8 @@ describe('Multiplication test', function () {
     it('should be able to multiplication two decimals', function () {
         for (const test of testCases) {
             const multiplication = () => {
-                return BigDecimal.fromValue(test.arguments[0]).multiply(
-                    BigDecimal.fromValue(test.arguments[1]),
+                return BigDecimal(test.arguments[0]).multiply(
+                    BigDecimal(test.arguments[1]),
                     new MathContext(test.arguments[2], test.arguments[3])
                 ).toString();
             };

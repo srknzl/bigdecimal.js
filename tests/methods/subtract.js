@@ -9,8 +9,8 @@ describe('Subtraction test', function () {
     it('should be able to subtract two decimals', function () {
         for (const test of testCases) {
             const subtraction = () => {
-                return BigDecimal.fromValue(test.arguments[0]).subtract(
-                    BigDecimal.fromValue(test.arguments[1]),
+                return BigDecimal(test.arguments[0]).subtract(
+                    BigDecimal(test.arguments[1]),
                     new MathContext(test.arguments[2], test.arguments[3])
                 ).toString();
             };

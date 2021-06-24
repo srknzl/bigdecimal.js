@@ -8,7 +8,7 @@ describe('Absolute value test', function () {
     it('should calculate abs correctly', function () {
         for (const test of testCases) {
             const absOp = () => {
-                return BigDecimal.fromValue(test.arguments[0]).abs(
+                return BigDecimal(test.arguments[0]).abs(
                     new MathContext(test.arguments[1], test.arguments[2])
                 ).toString();
             };

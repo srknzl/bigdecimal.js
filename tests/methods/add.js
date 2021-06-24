@@ -9,8 +9,8 @@ describe('Addition test', function () {
     it('should be able to add two decimals', function () {
         for (const test of testCases) {
             const addition = () => {
-                return BigDecimal.fromValue(test.arguments[0]).add(
-                    BigDecimal.fromValue(test.arguments[1]),
+                return BigDecimal(test.arguments[0]).add(
+                    BigDecimal(test.arguments[1]),
                     new MathContext(test.arguments[2], test.arguments[3])
                 ).toString();
             };

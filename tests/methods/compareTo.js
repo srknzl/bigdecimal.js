@@ -9,8 +9,8 @@ describe('Compare test', function () {
     it('should calculate compareTo correctly', function () {
         for (const test of testCases) {
             const compareToOp = () => {
-                return BigDecimal.fromValue(test.arguments[0]).compareTo(
-                    BigDecimal.fromValue(test.arguments[1])
+                return BigDecimal(test.arguments[0]).compareTo(
+                    BigDecimal(test.arguments[1])
                 ).toString();
             };
             if (test.result === 'errorThrown') {

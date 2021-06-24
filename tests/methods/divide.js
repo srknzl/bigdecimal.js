@@ -9,8 +9,8 @@ describe('Division test', function () {
     it('should be able to divide two decimals', function () {
         for (const test of testCases) {
             const division = () => {
-                return BigDecimal.fromValue(test.arguments[0]).divide(
-                    BigDecimal.fromValue(test.arguments[1]),
+                return BigDecimal(test.arguments[0]).divide(
+                    BigDecimal(test.arguments[1]),
                     new MathContext(test.arguments[2], test.arguments[3])
                 ).toString();
             };
