@@ -1,5 +1,5 @@
 const { Big } = require('big.js');
-const { BigDecimal } = require('../lib/bigdecimal.js');
+const { Big: BigDecimal } = require('../lib/index.js');
 const { BigDecimal: GWTDecimal } = require('bigdecimal');
 
 const bigDecimalNumbers = [
@@ -28,7 +28,7 @@ const bigDecimalsBigjs = []; // for big.js
 const bigDecimalsGWT = []; // for gwt based bigdecimal
 
 for (const x of bigDecimalNumbers) {
-    bigDecimals.push(BigDecimal.fromValue(x));
+    bigDecimals.push(BigDecimal(x));
 }
 for (const x of bigDecimalNumbers) {
     bigDecimalsBigjs.push(new Big(x));
@@ -47,7 +47,7 @@ const smallDecimalsBigjs = []; // for big.js
 const smallDecimalsGWT = []; // for gwt based bigdecimal
 
 for (const x of smallDecimalNumbers) {
-    smallDecimals.push(BigDecimal.fromValue(x));
+    smallDecimals.push(BigDecimal(x));
 }
 for (const x of smallDecimalNumbers) {
     smallDecimalsBigjs.push(new Big(x));

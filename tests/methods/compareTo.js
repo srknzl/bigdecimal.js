@@ -1,4 +1,4 @@
-const { BigDecimal } = require('../../lib/bigdecimal');
+const { Big } = require('../../lib/bigdecimal');
 const chai = require('chai');
 const testCases = require('../util/output/compareToTestCases.json');
 const invalidTests = require('./invalidTests');
@@ -9,8 +9,8 @@ describe('Compare test', function () {
     it('should calculate compareTo correctly', function () {
         for (const test of testCases) {
             const compareToOp = () => {
-                return BigDecimal(test.arguments[0]).compareTo(
-                    BigDecimal(test.arguments[1])
+                return Big(test.arguments[0]).compareTo(
+                    Big(test.arguments[1])
                 ).toString();
             };
             if (test.result === 'errorThrown') {

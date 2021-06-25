@@ -17,22 +17,47 @@ is faster than popular big decimal libraries. See [benchmarks section](https://g
 * The example usage is given below:
 
 ```javascript
-const { BigDecimal } = require('bigdecimal.js');
-const x = BigDecimal.fromValue('1.1111111111111111111111');
-const y = BigDecimal.fromValue(x);
+const { Big } = require('bigdecimal.js');
+
+// Constructor accepts any value such as string and BigDecimal itself:
+
+const x = Big('1.1111111111111111111111');
+const y = Big(x);
 
 const z = x.add(y);
 console.log(z.toString()); // 2.2222222222222222222222
+
+
+const u = Big(1.1);
+const v = Big(2n);
+
+// You can also construct a BigDecimal from a number or a BigInt:
+
+console.log(u.toString()); // 1.1
+console.log(v.toString()); // 2
 ```
 
-* You can also construct a BigDecimal from a number or a BigInt:
+You can use MathContext object to set precision and rounding mode for a specific operation, or while creating a BigDecimal
+in case rounding is necessary:
 
 ```javascript
-const x = BigDecimal.fromValue(1.1);
-const y = BigDecimal.fromValue(2n);
+import { Big, MathContext, RoundingMode } from './index';
 
-console.log(x.toString()); // 1.1
-console.log(y.toString()); // 2
+const x = Big('1');
+const y = Big('3');
+
+const res1 = x.divide(y, new MathContext(3));
+console.log(res1.toString()); // 0.333
+
+const res2 = x.divide(y, new MathContext(3, RoundingMode.UP));
+console.log(res2.toString()); // 0.334
+
+try {
+    x.divide(y);
+    // throws since full precision is requested but it is not possible
+} catch (e) {
+    console.log(e); // RangeError: Non-terminating decimal expansion; no exact representable decimal result.
+}
 ```
 
 ## Documentation

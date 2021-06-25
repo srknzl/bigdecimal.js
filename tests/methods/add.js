@@ -1,4 +1,4 @@
-const { BigDecimal, MathContext } = require('../../lib/bigdecimal');
+const { Big, MathContext } = require('../../lib/bigdecimal');
 const chai = require('chai');
 const testCases = require('../util/output/additionTestCases.json');
 const invalidTests = require('./invalidTests');
@@ -9,8 +9,8 @@ describe('Addition test', function () {
     it('should be able to add two decimals', function () {
         for (const test of testCases) {
             const addition = () => {
-                return BigDecimal(test.arguments[0]).add(
-                    BigDecimal(test.arguments[1]),
+                return Big(test.arguments[0]).add(
+                    Big(test.arguments[1]),
                     new MathContext(test.arguments[2], test.arguments[3])
                 ).toString();
             };

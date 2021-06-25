@@ -1,4 +1,4 @@
-const { BigDecimal, MathContext } = require('../../lib/bigdecimal');
+const { Big, MathContext } = require('../../lib/bigdecimal');
 const chai = require('chai');
 const testCases = require('../util/output/divisionTestCases.json');
 const invalidTests = require('./invalidTests');
@@ -9,8 +9,8 @@ describe('Division test', function () {
     it('should be able to divide two decimals', function () {
         for (const test of testCases) {
             const division = () => {
-                return BigDecimal(test.arguments[0]).divide(
-                    BigDecimal(test.arguments[1]),
+                return Big(test.arguments[0]).divide(
+                    Big(test.arguments[1]),
                     new MathContext(test.arguments[2], test.arguments[3])
                 ).toString();
             };
