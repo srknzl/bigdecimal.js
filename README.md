@@ -37,8 +37,7 @@ console.log(u.toString()); // 1.1
 console.log(v.toString()); // 2
 ```
 
-You can use MathContext object to set precision and rounding mode for a specific operation, or while creating a BigDecimal
-in case rounding is necessary:
+You can use MathContext object to set precision and rounding mode for a specific operation:
 
 ```javascript
 import { Big, MathContext, RoundingMode } from './index';
@@ -59,7 +58,6 @@ try {
     console.log(e); // RangeError: Non-terminating decimal expansion; no exact representable decimal result.
 }
 ```
-
 ## Documentation
 
 * [API Documentation](https://srknzl.github.io/bigdecimal.js/api/current/docs)
