@@ -22,7 +22,7 @@ const { Big } = require('bigdecimal.js');
 // Constructor accepts any value such as string and BigDecimal itself:
 
 const x = Big('1.1111111111111111111111');
-const y = Big(x);
+const y = new Big(x); // you can also use with new
 
 const z = x.add(y);
 console.log(z.toString()); // 2.2222222222222222222222
