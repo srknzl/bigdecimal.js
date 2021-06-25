@@ -14,4 +14,4 @@ jobs:
           npm i
       - name: Generate docs
         run: |
-          npm run generate-docs
+          npm run docs
