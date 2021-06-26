@@ -66,15 +66,14 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>BigInt based BigDecimal implementation. This class is ported from java.math.BigDecimal. The following documentation is from
-						openjdk/jdk repository.</p>
+						<p>BigInt based BigDecimal implementation. This class is ported from java.math.BigDecimal. The following documentation is adapted from
+						openjdk/jdk repository. You can also check java apidoc documentation if you need to.</p>
 					</div>
 					<p>Immutable, arbitrary-precision signed decimal numbers.  A
-						<code>BigDecimal</code> consists of an arbitrary precision integer
-						<a href="bigdecimal.html#unscaledvalue">unscaled value</a> and a 32-bit
-						integer <a href="bigdecimal.html#scale">scale</a>.  If zero or positive,
-						the scale is the number of digits to the right of the decimal
-						point.  If negative, the unscaled value of the number is multiplied
+						<code>BigDecimal</code> consists of an arbitrary precision number
+						<a href="bigdecimal.html#unscaledvalue">unscaled value</a> and a <a href="bigdecimal.html#scale">scale</a>.
+						If zero or positive, the scale is the number of digits to the right of the decimal
+						point. If negative, the unscaled value of the number is multiplied
 						by ten to the power of the negation of the scale.  The value of the
 						number represented by the <code>BigDecimal</code> is therefore
 					<code>(unscaledValue &times; 10<sup>-scale</sup>)</code>.</p>
@@ -176,9 +175,9 @@
 						trailing zeros and decreasing the scale.  For example, rounding to
 						three digits using the <a href="../enums/roundingmode.html#floor">floor</a>
 					rounding mode, <br></p>
-					<p><code>19/100 = 0.19   // integer=19,  scale=2</code> <br></p>
+					<p><code>19/100 = 0.19   // number=19,  scale=2</code> <br></p>
 					<p>but<br></p>
-					<p><code>21/110 = 0.190  // integer=190, scale=3</code> <br></p>
+					<p><code>21/110 = 0.190  // number=190, scale=3</code> <br></p>
 					<p>Note that for add, subtract, and multiply, the reduction in
 						scale will equal the number of digit positions of the exact result
 						which are discarded. If the rounding causes a carry propagation to
@@ -200,9 +199,9 @@
 						<a href="bigdecimal.html#movepointright">movePointRight</a>) return a
 						<code>BigDecimal</code> created from the operand by moving the decimal
 					point a specified distance in the specified direction.</p>
-					<p>As a 32-bit integer, the set of values for the scale is large,
+					<p>As a number, the set of values for the scale is large,
 						but bounded. If the scale of a result would exceed the range of a
-						32-bit integer, either by overflow or underflow, the operation may
+						safe number, either by overflow or underflow, the operation may
 					throw a RangerError.</p>
 					<p>For the sake of brevity and clarity, pseudo-code is used
 						throughout the descriptions of <code>BigDecimal</code> methods.  The
@@ -282,14 +281,6 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Properties</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="bigdecimal.html#one" class="tsd-kind-icon">ONE</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="bigdecimal.html#ten" class="tsd-kind-icon">TEN</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="bigdecimal.html#zero" class="tsd-kind-icon">ZERO</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#abs" class="tsd-kind-icon">abs</a></li>
@@ -317,54 +308,16 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#sqrt" class="tsd-kind-icon">sqrt</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#striptrailingzeros" class="tsd-kind-icon">strip<wbr>Trailing<wbr>Zeros</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#subtract" class="tsd-kind-icon">subtract</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#tobiginteger" class="tsd-kind-icon">to<wbr>Big<wbr>Integer</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#tobigintegerexact" class="tsd-kind-icon">to<wbr>Big<wbr>Integer<wbr>Exact</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#tobigint" class="tsd-kind-icon">to<wbr>Big<wbr>Int</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#tobigintexact" class="tsd-kind-icon">to<wbr>Big<wbr>Int<wbr>Exact</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#toengineeringstring" class="tsd-kind-icon">to<wbr>Engineering<wbr>String</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#toplainstring" class="tsd-kind-icon">to<wbr>Plain<wbr>String</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#tostring" class="tsd-kind-icon">to<wbr>String</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#ulp" class="tsd-kind-icon">ulp</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="bigdecimal.html#unscaledvalue" class="tsd-kind-icon">unscaled<wbr>Value</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="bigdecimal.html#frombigint" class="tsd-kind-icon">from<wbr>Big<wbr>Int</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="bigdecimal.html#fromdouble" class="tsd-kind-icon">from<wbr>Double</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="bigdecimal.html#fromnumber" class="tsd-kind-icon">from<wbr>Number</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="bigdecimal.html#fromstring" class="tsd-kind-icon">from<wbr>String</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="bigdecimal.html#fromvalue" class="tsd-kind-icon">from<wbr>Value</a></li>
 							</ul>
 						</section>
 					</div>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
-					<a name="one" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> ONE</h3>
-					<div class="tsd-signature tsd-kind-icon">ONE<span class="tsd-signature-symbol">:</span> <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a><span class="tsd-signature-symbol"> = ...</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L382">bigdecimal.ts:382</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
-					<a name="ten" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> TEN</h3>
-					<div class="tsd-signature tsd-kind-icon">TEN<span class="tsd-signature-symbol">:</span> <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a><span class="tsd-signature-symbol"> = ...</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L383">bigdecimal.ts:383</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
-					<a name="zero" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagReadonly">Readonly</span> ZERO</h3>
-					<div class="tsd-signature tsd-kind-icon">ZERO<span class="tsd-signature-symbol">:</span> <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a><span class="tsd-signature-symbol"> = ...</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L381">bigdecimal.ts:381</a></li>
-						</ul>
-					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -379,16 +332,27 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1975">bigdecimal.ts:1975</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2624">bigdecimal.ts:2624</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> whose value is the absolute value
+										of this <code>BigDecimal</code>, with rounding according to the
+									context settings.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the context to use.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>absolute value, rounded as necessary.</p>
 						</li>
 					</ul>
 				</section>
@@ -402,19 +366,34 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1156">bigdecimal.ts:1156</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L1493">bigdecimal.ts:1493</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> whose value is <code>(this + augend)</code>,
+									with rounding according to the context settings.</p>
+								</div>
+								<p>If either number is zero and the precision setting is nonzero then
+								the other number, rounded if necessary, is used as the result.</p>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>augend: <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>value to be added to this <code>BigDecimal</code>.</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the context to use.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p><code>this + augend</code>, rounded as necessary.</p>
 						</li>
 					</ul>
 				</section>
@@ -428,16 +407,37 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1835">bigdecimal.ts:1835</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2382">bigdecimal.ts:2382</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compares this <code>BigDecimal</code> numerically with the specified
+										<code>BigDecimal</code>.  Two <code>BigDecimal</code> objects that are
+										equal in value but have a different scale (like 2.0 and 2.00)
+										are considered equal by this method. Such values are in the
+									same <i>cohort</i>.</p>
+								</div>
+								<p>This method is provided in preference to individual methods for
+									each of the six boolean comparison operators (<code>&lt;</code>, <code>==</code>,
+									<code>&gt;</code>, <code>&gt;=</code>, <code>!=</code>, <code>&lt;=</code>).  The suggested
+									idiom for performing these comparisons is:
+									(x.compareTo(y) &lt;<i>op</i>&gt; 0), where
+								&lt;<i>op</i>&gt; is one of the six comparison operators.</p>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>val: <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p><code>BigDecimal</code> to which this <code>BigDecimal</code> is
+										to be compared.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<p>-1, 0, or 1 as this <code>BigDecimal</code> is numerically
+							less than, equal to, or greater than <code>val</code>.</p>
 						</li>
 					</ul>
 				</section>
@@ -451,19 +451,36 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1262">bigdecimal.ts:1262</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L1630">bigdecimal.ts:1630</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> whose value is <code>(this / divisor)</code>, and whose preferred scale is <code>(this.scale() - divisor.scale())</code> if the exact quotient cannot be
+										represented (because it has a non-terminating decimal
+									expansion) an <code>RangeError</code> is thrown.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError if the exact quotient does not have a
+										terminating decimal expansion, including dividing by zero</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>divisor: <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>value by which this <code>BigDecimal</code> is to be divided.</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p><code>this / divisor</code></p>
 						</li>
 					</ul>
 				</section>
@@ -471,25 +488,64 @@
 					<a name="divideandremainder" class="tsd-anchor"></a>
 					<h3>divide<wbr>And<wbr>Remainder</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">divide<wbr>And<wbr>Remainder<span class="tsd-signature-symbol">(</span>divisor<span class="tsd-signature-symbol">: </span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a>, mc<span class="tsd-signature-symbol">?: </span><a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">divide<wbr>And<wbr>Remainder<span class="tsd-signature-symbol">(</span>divisor<span class="tsd-signature-symbol">: </span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a>, mc<span class="tsd-signature-symbol">?: </span><a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">[</span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a><span class="tsd-signature-symbol">, </span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a><span class="tsd-signature-symbol">]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1666">bigdecimal.ts:1666</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2120">bigdecimal.ts:2120</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a two-element <code>BigDecimal</code> array containing the
+										result of <code>divideToIntegralValue</code> followed by the result of
+										<code>remainder</code> on the two operands calculated with rounding
+									according to the context settings.</p>
+								</div>
+								<p>Note that if both the quotient and remainder are
+									needed, this method is faster than using the
+									<code>divideToIntegralValue</code> and <code>remainder</code> methods
+								separately because the division need only be carried out once.</p>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError if divisor is 0</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>RangeError if the result is inexact but the
+											rounding mode is <code>UNNECESSARY</code>, or <code>mc.precision &gt; 0</code>
+											and the result of <code>this.divideToIntegralValue(divisor)</code> would
+										require a precision of more than <code>mc.precision</code> digits.</p>
+									</dd>
+									<dt>see</dt>
+									<dd><p><a href="bigdecimal.html#dividetointegralvalue">divideToIntegralValue</a></p>
+									</dd>
+									<dt>see</dt>
+									<dd><p><a href="bigdecimal.html#remainder">remainder</a></p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>divisor: <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>value by which this <code>BigDecimal</code> is to be divided,
+										and the remainder computed.</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the context to use.</p>
+									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a><span class="tsd-signature-symbol">[]</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">[</span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a><span class="tsd-signature-symbol">, </span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a><span class="tsd-signature-symbol">]</span></h4>
+							<p>a two element <code>BigDecimal</code> array: the quotient
+								(the result of <code>divideToIntegralValue</code>) is the
+							initial element and the remainder is the final element.</p>
 						</li>
 					</ul>
 				</section>
@@ -503,19 +559,48 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1549">bigdecimal.ts:1549</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L1935">bigdecimal.ts:1935</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> whose value is the integer part
+										of <code>(this / divisor)</code>.  Since the integer part of the
+										exact quotient does not depend on the rounding mode, the
+										rounding mode does not affect the values returned by this
+										method.  The preferred scale of the result is
+										<code>(this.scale() - divisor.scale())</code>. A
+										<code>RangeError</code> is thrown if the integer part of
+										the exact quotient needs more than <code>mc.precision</code>
+									digits.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError if divisor is 0</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>RangeError if <code>mc.precision &gt; 0</code> and the result
+										requires a precision of more than <code>mc.precision</code> digits.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>divisor: <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>value by which this <code>BigDecimal</code> is to be divided.</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the context to use.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>The integer part of <code>this / divisor</code>.</p>
 						</li>
 					</ul>
 				</section>
@@ -523,22 +608,49 @@
 					<a name="equals" class="tsd-anchor"></a>
 					<h3>equals</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">equals<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">equals<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1647">bigdecimal.ts:1647</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2076">bigdecimal.ts:2076</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Compares this <code>BigDecimal</code> with the specified
+										object for equality.  Unlike <a href="bigdecimal.html#compareto">compareTo</a>,
+										this method considers two <code>BigDecimal</code>
+										objects equal only if they are equal in value and
+										scale. Therefore 2.0 is not equal to 2.00 when compared by this
+										method since the former has [<code>BigInt</code>, <code>scale</code>]
+										components equal to [20, 1] while the latter has components
+									equal to [200, 2].</p>
+								</div>
+								<p>One example that shows how 2.0 and 2.00 are <strong>not</strong>
+									substitutable for each other under some arithmetic operations
+								are the two expressions:</p>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="bigdecimal.html#compareto">compareTo</a></p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>value: <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h5>
+									<h5>value: <span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>to which this <code>BigDecimal</code> is
+										to be compared.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>true if and only if the specified value is a
+								BigDecimal whose value and scale are equal to this
+							BigDecimal&#39;s.</p>
 						</li>
 					</ul>
 				</section>
@@ -552,16 +664,33 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L2214">bigdecimal.ts:2214</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2913">bigdecimal.ts:2913</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the maximum of this <code>BigDecimal</code> and <code>val</code>.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="bigdecimal.html#compareto">compareTo</a></p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>val: <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>value with which the maximum is to be computed.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>the <code>BigDecimal</code> whose value is the greater of this
+								<code>BigDecimal</code> and <code>val</code>.  If they are equal,
+								as defined by the <a href="bigdecimal.html#compareto">compareTo</a>
+							method, <code>this</code> is returned.</p>
 						</li>
 					</ul>
 				</section>
@@ -575,16 +704,34 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L2210">bigdecimal.ts:2210</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2899">bigdecimal.ts:2899</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the minimum of this <code>BigDecimal</code> and
+									<code>val</code>.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="bigdecimal.html#compareto">compareTo</a></p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>val: <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>value with which the minimum is to be computed.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>the <code>BigDecimal</code> whose value is the lesser of this
+								<code>BigDecimal</code> and <code>val</code>.  If they are equal,
+								as defined by the <a href="bigdecimal.html#compareto">compareTo</a>
+							method, <code>this</code> is returned.</p>
 						</li>
 					</ul>
 				</section>
@@ -598,16 +745,37 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L2194">bigdecimal.ts:2194</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2858">bigdecimal.ts:2858</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> which is equivalent to this one
+										with the decimal point moved <code>n</code> places to the left.  If
+										<code>n</code> is non-negative, the call merely adds <code>n</code> to
+										the scale.  If <code>n</code> is negative, the call is equivalent
+										to <code>movePointRight(-n)</code>.  The <code>BigDecimal</code>
+										returned by this call has value <code>(this &times;
+10<sup>-n</sup>)</code> and scale <code>max(this.scale()+n, 0)</code>.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError if scale overflows.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>n: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>number of places to move the decimal point to the left.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>a <code>BigDecimal</code> which is equivalent to this one with the
+							decimal point moved <code>n</code> places to the left.</p>
 						</li>
 					</ul>
 				</section>
@@ -621,16 +789,37 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L2202">bigdecimal.ts:2202</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2880">bigdecimal.ts:2880</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> which is equivalent to this one
+										with the decimal point moved <code>n</code> places to the right.
+										If <code>n</code> is non-negative, the call merely subtracts
+										<code>n</code> from the scale.  If <code>n</code> is negative, the call
+										is equivalent to <code>movePointLeft(-n)</code>.  The
+										<code>BigDecimal</code> returned by this call has value <code>(this
+&times; 10<sup>n</sup>)</code> and scale <code>max(this.scale()-n, 0)</code>.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError if scale overflows.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>n: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>number of places to move the decimal point to the right.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>a <code>BigDecimal</code> which is equivalent to this one
+							with the decimal point moved <code>n</code> places to the right.</p>
 						</li>
 					</ul>
 				</section>
@@ -644,19 +833,32 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1228">bigdecimal.ts:1228</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L1584">bigdecimal.ts:1584</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> whose value is <code>(this &times;
+multiplicand)</code>, with rounding according to the context settings.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>multiplicand: <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>value to be multiplied by this <code>BigDecimal</code>.</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the context to use.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p><code>this * multiplicand</code>, rounded as necessary.</p>
 						</li>
 					</ul>
 				</section>
@@ -670,16 +872,26 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1146">bigdecimal.ts:1146</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L1472">bigdecimal.ts:1472</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> whose value is <code>(-this)</code>,
+									with rounding according to the context settings.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the context to use.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p><code>-this</code>, rounded as necessary.</p>
 						</li>
 					</ul>
 				</section>
@@ -693,10 +905,16 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1857">bigdecimal.ts:1857</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2408">bigdecimal.ts:2408</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Converts this BigDecimal to number.</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<p>number for of this BigDecimal</p>
 						</li>
 					</ul>
 				</section>
@@ -710,16 +928,33 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1931">bigdecimal.ts:1931</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2528">bigdecimal.ts:2528</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> whose value is <code>(+this)</code>,
+									with rounding according to the context settings.</p>
+								</div>
+								<p>The effect of this method is identical to that of the <a href="bigdecimal.html#round">round</a> method.</p>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="bigdecimal.html#round">round</a></p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the context to use.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p><code>this</code>, rounded as necessary.  A zero result will
+							have a scale of 0.</p>
 						</li>
 					</ul>
 				</section>
@@ -733,19 +968,77 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1938">bigdecimal.ts:1938</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2579">bigdecimal.ts:2579</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> whose value is
+										<code>(this<sup>n</sup>)</code>.  The current implementation uses
+										the core algorithm defined in ANSI standard X3.274-1996 with
+										rounding according to the context settings.  In general, the
+										returned numerical value is within two ulps of the exact
+										numerical value for the chosen precision.  Note that future
+										releases may use a different algorithm with a decreased
+									allowable error bound and increased allowable exponent range.</p>
+								</div>
+								<p>The X3.274-1996 algorithm is:
+									<ul>
+										<li><p>An <code>RangeError</code> exception is thrown if</p>
+											<ul>
+												<li><code>abs(n)</code> &gt; 999999999}</li>
+												<li><code>mc.precision == 0</code> and <code>n &lt; 0</code></li>
+												<li><code>mc.precision &gt; 0</code> and <code>n</code> has more than
+												<code>mc.precision</code> decimal digits</li>
+											</ul>
+										</li>
+										<li><p>if <code>n</code> is zero, a BigDecimal with value 1 is returned even if
+											<code>this</code> is zero, otherwise</p>
+											<ul>
+												<li><p>if <code>n</code> is positive, the result is calculated via
+														the repeated squaring technique into a single accumulator.
+														The individual multiplications with the accumulator use the
+														same math context settings as in <code>mc</code> except for a
+														precision increased to <code>mc.precision + elength + 1</code>
+														where <code>elength</code> is the number of decimal digits in
+													<code>n</code>.</p>
+												</li>
+												<li><p>if <code>n</code> is negative, the result is calculated as if
+														<code>n</code> were positive; this value is then divided into one
+													using the working precision specified above.</p>
+												</li>
+												<li><p>The final value from either the positive or negative case
+													is then rounded to the destination precision.</p>
+												</li>
+											</ul>
+										</li>
+									</ul>
+									<dl class="tsd-comment-tags">
+										<dt>throws</dt>
+										<dd><p>RangeError if the result is inexact but the
+												rounding mode is <code>UNNECESSARY</code>, or <code>n</code> is out
+											of range.</p>
+										</dd>
+									</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>n: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>power to raise this <code>BigDecimal</code> to.</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the context to use.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p><code>this<sup>n</sup></code> using the ANSI standard X3.274-1996
+							algorithm</p>
 						</li>
 					</ul>
 				</section>
@@ -759,19 +1052,52 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1599">bigdecimal.ts:1599</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2007">bigdecimal.ts:2007</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> whose value is <code>(this % divisor)</code>, with rounding according to the context settings.
+										The <code>MathContext</code> settings affect the implicit divide
+										used to compute the remainder.  The remainder computation
+										itself is by definition exact.  Therefore, the remainder may
+									contain more than <code>mc.getPrecision()</code> digits.</p>
+								</div>
+								<p>The remainder is given by
+									<code>this.subtract(this.divideToIntegralValue(divisor, mc).multiply(divisor))</code>.  Note that this is not the modulo
+								operation (the result can be negative).</p>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError if divisor is 0</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>RangeError if the result is inexact but the
+											rounding mode is <code>UNNECESSARY</code>, or <code>mc.precision</code>
+											&gt; 0 and the result of {<code>this.divideToIntegralValue(divisor)</code> would
+										require a precision of more than <code>mc.precision</code> digits.</p>
+									</dd>
+									<dt>see</dt>
+									<dd><p><a href="bigdecimal.html#dividetointegralvalue">divideToIntegralValue</a></p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>divisor: <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>value by which this <code>BigDecimal</code> is to be divided.</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the context to use.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p><code>this % divisor</code>, rounded as necessary.</p>
 						</li>
 					</ul>
 				</section>
@@ -785,16 +1111,35 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1874">bigdecimal.ts:1874</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2438">bigdecimal.ts:2438</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> rounded according to the
+										<code>MathContext</code> settings.  If the precision setting is 0 then
+									no rounding takes place.</p>
+								</div>
+								<p>The effect of this method is identical to that of the
+								<a href="bigdecimal.html#plus">plus</a> method.</p>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="bigdecimal.html#plus">plus</a></p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the context to use.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>a <code>BigDecimal</code> rounded according to the
+							<code>MathContext</code> settings.</p>
 						</li>
 					</ul>
 				</section>
@@ -808,10 +1153,21 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1827">bigdecimal.ts:1827</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2345">bigdecimal.ts:2345</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the <i>scale</i> of this <code>BigDecimal</code>.  If zero
+										or positive, the scale is the number of digits to the right of
+										the decimal point.  If negative, the unscaled value of the
+										number is multiplied by ten to the power of the negation of the
+										scale.  For example, a scale of <code>-3</code> means the unscaled
+									value is multiplied by 1000.</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<p>the scale of this <code>BigDecimal</code>.</p>
 						</li>
 					</ul>
 				</section>
@@ -825,16 +1181,33 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1831">bigdecimal.ts:1831</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2359">bigdecimal.ts:2359</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a BigDecimal whose numerical value is equal to
+										(<code>this</code> * 10<sup>n</sup>).  The scale of
+									the result is <code>(this.scale() - n)</code>.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError if the scale would be outside the range of a safe integer.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>n: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the exponent power of ten to scale by</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>a BigDecimal whose numerical value is equal to
+							(<code>this</code> * 10<sup>n</sup>)</p>
 						</li>
 					</ul>
 				</section>
@@ -848,19 +1221,51 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1878">bigdecimal.ts:1878</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2464">bigdecimal.ts:2464</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> whose scale is the specified
+										value, and whose unscaled value is determined by multiplying or
+										dividing this <code>BigDecimal</code>&#39;s unscaled value by the
+										appropriate power of ten to maintain its overall value.  If the
+										scale is reduced by the operation, the unscaled value must be
+										divided (rather than multiplied), and the value may be changed;
+										in this case, the specified rounding mode is applied to the
+									division.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError if roundingMode is <code>UNNECESSARY</code>
+											and the specified scaling operation would require
+										rounding.</p>
+									</dd>
+									<dt>see</dt>
+									<dd><p><a href="../enums/roundingmode.html">RoundingMode</a></p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>newScale: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>scale of the <code>BigDecimal</code> value to be returned.</p>
+									</div>
 								</li>
 								<li>
 									<h5>roundingMode: <a href="../enums/roundingmode.html" class="tsd-signature-type" data-tsd-kind="Enumeration">RoundingMode</a><span class="tsd-signature-symbol"> = ...</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The rounding mode to apply. By default it is set to <code>UNNECESSARY</code>.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>a <code>BigDecimal</code> whose scale is the specified value,
+								and whose unscaled value is determined by multiplying or
+								dividing this <code>BigDecimal</code>&#39;s unscaled value by the
+							appropriate power of ten to maintain its overall value.</p>
 						</li>
 					</ul>
 				</section>
@@ -874,10 +1279,17 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L842">bigdecimal.ts:842</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L1160">bigdecimal.ts:1160</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the signum function of this <code>BigDecimal</code>.</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<p>-1, 0, or 1 as the value of this <code>BigDecimal</code>
+							is negative, zero, or positive.</p>
 						</li>
 					</ul>
 				</section>
@@ -891,16 +1303,47 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1676">bigdecimal.ts:1676</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2152">bigdecimal.ts:2152</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns an approximation to the square root of <code>this</code>
+									with rounding according to the context settings.</p>
+								</div>
+								<p>The preferred scale of the returned result is equal to
+									<code>this.scale()/2</code>. The value of the returned result is
+									always within one ulp of the exact decimal value for the
+									precision in question.  If the rounding mode is <a href="../enums/roundingmode.html#half_up">RoundingMode.HALF_UP</a>, <a href="../enums/roundingmode.html#half_down">RoundingMode.HALF_DOWN</a>,
+									or <a href="../enums/roundingmode.html#half_even">RoundingMode.HALF_EVEN</a>, the
+								result is within one half an ulp of the exact decimal value.</p>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError if <code>this</code> is less than zero.</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>RangeError if an exact result is requested
+											mc.getPrecision() is 0 and there is no finite decimal
+										expansion of the exact result</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>RangeError if mc.getRoundingMode() is <code>RoundingMode.UNNECESSARY</code> and
+											the exact result cannot fit in <code>mc.getPrecision()</code>
+										digits.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the context to use.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>the square root of <code>this</code>.</p>
 						</li>
 					</ul>
 				</section>
@@ -914,10 +1357,28 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1808">bigdecimal.ts:1808</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2309">bigdecimal.ts:2309</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> which is numerically equal to
+										this one but with any trailing zeros removed from the
+										representation.  For example, stripping the trailing zeros from
+										the <code>BigDecimal</code> value <code>600.0</code>, which has
+										[<code>BigInt</code>, <code>scale</code>] components equal to
+										[6000n, 1], yields <code>6E2</code> with [<code>BigInt</code>, <code>scale</code>]
+									components equal to [6n, -2].</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError if scale from max or min safe integer range.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>a numerically equal <code>BigDecimal</code> with any
+							trailing zeros removed.</p>
 						</li>
 					</ul>
 				</section>
@@ -931,53 +1392,93 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1208">bigdecimal.ts:1208</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L1556">bigdecimal.ts:1556</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigDecimal</code> whose value is <code>(this - subtrahend)</code>,
+									with rounding according to the context settings.</p>
+								</div>
+								<p>If <code>subtrahend</code> is zero then this, rounded if necessary, is used as the
+								result.  If this is zero then the result is <code>subtrahend.negate(mc)</code>.</p>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>subtrahend: <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>value to be subtracted from this <code>BigDecimal</code>.</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the context to use.</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p><code>this - subtrahend</code>, rounded as necessary.</p>
 						</li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="tobiginteger" class="tsd-anchor"></a>
-					<h3>to<wbr>Big<wbr>Integer</h3>
+					<a name="tobigint" class="tsd-anchor"></a>
+					<h3>to<wbr>Big<wbr>Int</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">to<wbr>Big<wbr>Integer<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">BigInt</span></li>
+						<li class="tsd-signature tsd-kind-icon">to<wbr>Big<wbr>Int<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">BigInt</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L2380">bigdecimal.ts:2380</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L3226">bigdecimal.ts:3226</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Converts this <code>BigDecimal</code> to a <code>BigInt</code>.
+										Any fractional part of this will be discarded.  Note that this
+										conversion can lose information about the precision of the
+									<code>BigDecimal</code> value.</p>
+								</div>
+								<p>To have an exception thrown if the conversion is inexact (in
+									other words if a nonzero fractional part is discarded), use the
+								<a href="bigdecimal.html#tobigintexact">toBigIntExact</a> method.</p>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">BigInt</span></h4>
+							<p>this <code>BigDecimal</code> converted to a <code>BigInt</code>.</p>
 						</li>
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="tobigintegerexact" class="tsd-anchor"></a>
-					<h3>to<wbr>Big<wbr>Integer<wbr>Exact</h3>
+					<a name="tobigintexact" class="tsd-anchor"></a>
+					<h3>to<wbr>Big<wbr>Int<wbr>Exact</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">to<wbr>Big<wbr>Integer<wbr>Exact<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">BigInt</span></li>
+						<li class="tsd-signature tsd-kind-icon">to<wbr>Big<wbr>Int<wbr>Exact<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">BigInt</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L2384">bigdecimal.ts:2384</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L3238">bigdecimal.ts:3238</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Converts this <code>BigDecimal</code> to a <code>BigInt</code>,
+										checking for lost information.  An exception is thrown if this
+									<code>BigDecimal</code> has a nonzero fractional part.</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError if <code>this</code> has a nonzero fractional part.</p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">BigInt</span></h4>
+							<p>this <code>BigDecimal</code> converted to a <code>BigInt</code>.</p>
 						</li>
 					</ul>
 				</section>
@@ -991,10 +1492,32 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L2226">bigdecimal.ts:2226</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L3031">bigdecimal.ts:3031</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a string representation of this <code>BigDecimal</code>,
+									using engineering notation if an exponent is needed.</p>
+								</div>
+								<p>Returns a string that represents the <code>BigDecimal</code> as
+									described in the <a href="bigdecimal.html#tostring">toString</a> method, except that if
+									exponential notation is used, the power of ten is adjusted to
+									be a multiple of three (engineering notation) such that the
+									integer part of nonzero values will be in the range 1 through
+									999.  If exponential notation is used for zero values, a
+									decimal point and one or two fractional zero digits are used so
+									that the scale of the zero value is preserved.  Note that
+									unlike the output of <a href="bigdecimal.html#tostring">toString</a>, the output of this
+									method is <em>not</em> guaranteed to recover the same [number,
+									scale] pair of this <code>BigDecimal</code> if the output string is
+									converting back to a <code>BigDecimal</code> using the string constructor.
+									The result of this method meets the weaker constraint of always producing a numerically equal
+								result from applying the string constructor to the method&#39;s output.</p>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							<p>string representation of this <code>BigDecimal</code>, using
+							engineering notation if an exponent is needed.</p>
 						</li>
 					</ul>
 				</section>
@@ -1008,10 +1531,44 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L2326">bigdecimal.ts:2326</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L3160">bigdecimal.ts:3160</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a string representation of this <code>BigDecimal</code>
+										without an exponent field.  For values with a positive scale,
+										the number of digits to the right of the decimal point is used
+										to indicate scale.  For values with a zero or negative scale,
+										the resulting string is generated as if the value were
+										converted to a numerically equal value with zero scale and as
+										if all the trailing zeros of the zero scale value were present
+									in the result.</p>
+								</div>
+								<p>The entire string is prefixed by a minus sign character &#39;-&#39;
+									(<code>'&#92;u002D'</code>) if the unscaled value is less than
+									zero. No sign character is prefixed if the unscaled value is
+								zero or positive.</p>
+								<p>Note that if the result of this method is passed to the
+									string constructor, only the
+									numerical value of this <code>BigDecimal</code> will necessarily be
+									recovered; the representation of the new <code>BigDecimal</code>
+									may have a different scale.  In particular, if this
+									<code>BigDecimal</code> has a negative scale, the string resulting
+									from this method will have a scale of zero when processed by
+								the string constructor.</p>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="bigdecimal.html#tostring">toString</a></p>
+									</dd>
+									<dt>see</dt>
+									<dd><p><a href="bigdecimal.html#toengineeringstring">toEngineeringString</a></p>
+									</dd>
+								</dl>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							<p>a string representation of this <code>BigDecimal</code>
+							without an exponent field.</p>
 						</li>
 					</ul>
 				</section>
@@ -1025,10 +1582,90 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L2218">bigdecimal.ts:2218</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L3001">bigdecimal.ts:3001</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the string representation of this <code>BigDecimal</code>,
+									using scientific notation if an exponent is needed.</p>
+								</div>
+								<p>A standard canonical string form of the <code>BigDecimal</code>
+									is created as though by the following steps: first, the
+									absolute value of the unscaled value of the <code>BigDecimal</code>
+									is converted to a string in base ten using the characters
+									&#39;0&#39; through &#39;9&#39; with no leading zeros (except
+									if its value is zero, in which case a single &#39;0&#39;
+								character is used).</p>
+								<p>Next, an <i>adjusted exponent</i> is calculated; this is the
+									negated scale, plus the number of characters in the converted
+									unscaled value, less one.  That is,
+									<code>-scale+(ulength-1)</code>, where <code>ulength</code> is the
+									length of the absolute value of the unscaled value in decimal
+								digits (its <i>precision</i>).</p>
+								<p>If the scale is greater than or equal to zero and the
+									adjusted exponent is greater than or equal to <code>-6</code>, the
+									number will be converted to a character form without using
+									exponential notation.  In this case, if the scale is zero then
+									no decimal point is added and if the scale is positive a
+									decimal point will be inserted with the scale specifying the
+									number of characters to the right of the decimal point.
+									&#39;0&#39; characters are added to the left of the converted
+									unscaled value as necessary.  If no character precedes the
+									decimal point after this insertion then a conventional
+								&#39;0&#39; character is prefixed.</p>
+								<p>Otherwise (that is, if the scale is negative, or the
+									adjusted exponent is less than <code>-6</code>), the number will be
+									converted to a character form using exponential notation.  In
+									this case, if the converted <code>BigInt</code> has more than
+									one digit a decimal point is inserted after the first digit.
+									An exponent in character form is then suffixed to the converted
+									unscaled value (perhaps with inserted decimal point); this
+									comprises the letter &#39;E&#39; followed immediately by the
+									adjusted exponent converted to a character form.  The latter is
+									in base ten, using the characters &#39;0&#39; through
+									&#39;9&#39; with no leading zeros, and is always prefixed by a
+									sign character &#39;-&#39; (<code>'&#92;u002D'</code>) if the
+									adjusted exponent is negative, &#39;+&#39;
+								(<code>'&#92;u002B'</code>) otherwise).</p>
+								<p>Finally, the entire string is prefixed by a minus sign
+									character &#39;-&#39; (<code>'&#92;u002D'</code>) if the unscaled
+									value is less than zero.  No sign character is prefixed if the
+								unscaled value is zero or positive.</p>
+								<p><strong>Examples:</strong>
+									For each representation [<i>unscaled value</i>, <i>scale</i>]
+								on the left, the resulting string is shown on the right.</p>
+								<pre>
+[123,0]      "123"
+[-123,0]     "-123"
+[123,-1]     "1.23E+3"
+[123,-3]     "1.23E+5"
+[123,1]      "12.3"
+[123,5]      "0.00123"
+[123,10]     "1.23E-8"
+[-123,12]    "-1.23E-10"
+</pre>
+								<p><strong>Notes:</strong></p>
+								<ul>
+									<li><p>There is a one-to-one mapping between the distinguishable
+											<code>BigDecimal</code> values and the result of this conversion.
+											That is, every distinguishable <code>BigDecimal</code> value
+											(unscaled value and scale) has a unique string representation
+											as a result of using <code>toString</code>.  If that string
+											representation is converted back to a <code>BigDecimal</code> using
+											the string constructor, then the original
+										value will be recovered.</p>
+									</li>
+									<li><p>The <a href="bigdecimal.html#toengineeringstring">toEngineeringString</a> method may be used for
+											presenting numbers with exponents in engineering notation, and the
+											<a href="bigdecimal.html#setscale">setScale</a> method may be used for
+											rounding a <code>BigDecimal</code> so it has a known number of digits after
+										the decimal point.</p>
+									</li>
+								</ul>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							<p>string representation of this <code>BigDecimal</code>.</p>
 						</li>
 					</ul>
 				</section>
@@ -1042,10 +1679,23 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1799">bigdecimal.ts:1799</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2287">bigdecimal.ts:2287</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the size of an ulp, a unit in the last place, of this
+										<code>BigDecimal</code>.  An ulp of a nonzero <code>BigDecimal</code>
+										value is the positive distance between this value and the
+										<code>BigDecimal</code> value next larger in magnitude with the
+										same number of digits.  An ulp of a zero value is numerically
+										equal to 1 with the scale of <code>this</code>.  The result is
+										stored with the same scale as <code>this</code> so the result
+									for zero and nonzero values is equal to <code>[1, this.scale()]</code>.</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>the size of an ulp of <code>this</code></p>
 						</li>
 					</ul>
 				</section>
@@ -1059,143 +1709,18 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L1823">bigdecimal.ts:1823</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L2331">bigdecimal.ts:2331</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a <code>BigInt</code> whose value is the <i>unscaled
+										value</i> of this <code>BigDecimal</code>.  (Computes <code>(this *
+10<sup>this.scale()</sup>)</code>.)</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">BigInt</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="frombigint" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>Big<wbr>Int</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">from<wbr>Big<wbr>Int<span class="tsd-signature-symbol">(</span>intVal<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">BigInt</span>, scale<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, prec<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L618">bigdecimal.ts:618</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>intVal: <span class="tsd-signature-type">BigInt</span></h5>
-								</li>
-								<li>
-									<h5>scale: <span class="tsd-signature-type">number</span></h5>
-								</li>
-								<li>
-									<h5>prec: <span class="tsd-signature-type">number</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="fromdouble" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>Double</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">from<wbr>Double<span class="tsd-signature-symbol">(</span>double<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L628">bigdecimal.ts:628</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>double: <span class="tsd-signature-type">number</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="fromnumber" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>Number</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">from<wbr>Number<span class="tsd-signature-symbol">(</span>numberVal<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, scale<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, precision<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L632">bigdecimal.ts:632</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>numberVal: <span class="tsd-signature-type">number</span></h5>
-								</li>
-								<li>
-									<h5>scale: <span class="tsd-signature-type">number</span></h5>
-								</li>
-								<li>
-									<h5>precision: <span class="tsd-signature-type">number</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="fromstring" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>String</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">from<wbr>String<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, mc<span class="tsd-signature-symbol">?: </span><a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L713">bigdecimal.ts:713</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>value: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="fromvalue" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>Value</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">from<wbr>Value<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, mc<span class="tsd-signature-symbol">?: </span><a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L717">bigdecimal.ts:717</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>value: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+							<p>the unscaled value of this <code>BigDecimal</code>.</p>
 						</li>
 					</ul>
 				</section>
@@ -1219,15 +1744,6 @@
 					<li class="current tsd-kind-class">
 						<a href="bigdecimal.html" class="tsd-kind-icon">Big<wbr>Decimal</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
-								<a href="bigdecimal.html#one" class="tsd-kind-icon">ONE</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
-								<a href="bigdecimal.html#ten" class="tsd-kind-icon">TEN</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
-								<a href="bigdecimal.html#zero" class="tsd-kind-icon">ZERO</a>
-							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="bigdecimal.html#abs" class="tsd-kind-icon">abs</a>
 							</li>
@@ -1304,10 +1820,10 @@
 								<a href="bigdecimal.html#subtract" class="tsd-kind-icon">subtract</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="bigdecimal.html#tobiginteger" class="tsd-kind-icon">to<wbr>Big<wbr>Integer</a>
+								<a href="bigdecimal.html#tobigint" class="tsd-kind-icon">to<wbr>Big<wbr>Int</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="bigdecimal.html#tobigintegerexact" class="tsd-kind-icon">to<wbr>Big<wbr>Integer<wbr>Exact</a>
+								<a href="bigdecimal.html#tobigintexact" class="tsd-kind-icon">to<wbr>Big<wbr>Int<wbr>Exact</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="bigdecimal.html#toengineeringstring" class="tsd-kind-icon">to<wbr>Engineering<wbr>String</a>
@@ -1324,27 +1840,15 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="bigdecimal.html#unscaledvalue" class="tsd-kind-icon">unscaled<wbr>Value</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="bigdecimal.html#frombigint" class="tsd-kind-icon">from<wbr>Big<wbr>Int</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="bigdecimal.html#fromdouble" class="tsd-kind-icon">from<wbr>Double</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="bigdecimal.html#fromnumber" class="tsd-kind-icon">from<wbr>Number</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="bigdecimal.html#fromstring" class="tsd-kind-icon">from<wbr>String</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="bigdecimal.html#fromvalue" class="tsd-kind-icon">from<wbr>Value</a>
-							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-class">
 						<a href="mathcontext.html" class="tsd-kind-icon">Math<wbr>Context</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="../modules.html#big" class="tsd-kind-icon">Big</a>
 					</li>
 				</ul>
 			</nav>
@@ -1362,7 +1866,6 @@
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
 			</ul>
 		</div>
 	</div>

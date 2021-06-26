@@ -63,6 +63,41 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Immutable objects which encapsulate the context settings which
+							describe certain rules for numerical operators, such as those
+						implemented by the <a href="bigdecimal.html">BigDecimal</a> class.</p>
+					</div>
+					<p>The base-independent settings are:</p>
+					<ul>
+						<li>precision: the number of digits to be used for an operation; results are
+						rounded to this precision</li>
+						<li>roundingMode: a <a href="../enums/roundingmode.html">RoundingMode</a> object which specifies the algorithm to be
+						used for rounding.</li>
+					</ul>
+					<p>Sample Usage:</p>
+					<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Big</span><span style="color: #000000">, </span><span style="color: #001080">MathContext</span><span style="color: #000000">, </span><span style="color: #001080">RoundingMode</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;./index&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">x</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;1&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">y</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;3&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">res1</span><span style="color: #000000"> = </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">divide</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">MathContext</span><span style="color: #000000">(</span><span style="color: #098658">3</span><span style="color: #000000">));</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">res1</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 0.333</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">res2</span><span style="color: #000000"> = </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">divide</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">MathContext</span><span style="color: #000000">(</span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #001080">RoundingMode</span><span style="color: #000000">.</span><span style="color: #0070C1">UP</span><span style="color: #000000">));</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">res2</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 0.334</span>
+
+<span style="color: #AF00DB">try</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">divide</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #008000">// throws since full precision is requested but it is not possible</span>
+<span style="color: #000000">} </span><span style="color: #AF00DB">catch</span><span style="color: #000000"> (</span><span style="color: #001080">e</span><span style="color: #000000">) {</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">e</span><span style="color: #000000">); </span><span style="color: #008000">// RangeError: Non-terminating decimal expansion; no exact representable decimal result.</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -107,7 +142,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L29">bigdecimal.ts:29</a></li>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L178">bigdecimal.ts:178</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -132,9 +167,18 @@
 					<div class="tsd-signature tsd-kind-icon">precision<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L28">bigdecimal.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L172">bigdecimal.ts:172</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The number of digits to be used for an operation.  A value of 0
+								indicates that unlimited precision (as many digits as are
+								required) will be used.  Note that leading zeros (in the
+							coefficient of a number) are never significant.</p>
+						</div>
+						<p><code>precision</code> will always be non-negative.</p>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="roundingmode" class="tsd-anchor"></a>
@@ -142,9 +186,15 @@
 					<div class="tsd-signature tsd-kind-icon">rounding<wbr>Mode<span class="tsd-signature-symbol">:</span> <a href="../enums/roundingmode.html" class="tsd-signature-type" data-tsd-kind="Enumeration">RoundingMode</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L29">bigdecimal.ts:29</a></li>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L178">bigdecimal.ts:178</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The rounding algorithm to be used for an operation.</p>
+						</div>
+						<p>see <a href="../enums/roundingmode.html">RoundingMode</a></p>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
 					<a name="decimal128" class="tsd-anchor"></a>
@@ -152,9 +202,18 @@
 					<div class="tsd-signature tsd-kind-icon">DECIMAL128<span class="tsd-signature-symbol">:</span> <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L47">bigdecimal.ts:47</a></li>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L222">bigdecimal.ts:222</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A <code>MathContext</code> object with a precision setting
+								matching the precision of the IEEE 754-2019 decimal128 format, 34 digits, and a
+								rounding mode of <a href="../enums/roundingmode.html#half_even">HALF_EVEN</a>.
+								Note the exponent range of decimal64 is <strong>not</strong> used for
+							rounding.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
 					<a name="decimal32" class="tsd-anchor"></a>
@@ -162,9 +221,18 @@
 					<div class="tsd-signature tsd-kind-icon">DECIMAL32<span class="tsd-signature-symbol">:</span> <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L45">bigdecimal.ts:45</a></li>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L206">bigdecimal.ts:206</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A <code>MathContext</code> object with a precision setting
+								matching the precision of the IEEE 754-2019 decimal32 format, 7 digits, and a
+								rounding mode of <a href="../enums/roundingmode.html#half_even">HALF_EVEN</a>.
+								Note the exponent range of decimal32 is <strong>not</strong> used for
+							rounding.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
 					<a name="decimal64" class="tsd-anchor"></a>
@@ -172,9 +240,18 @@
 					<div class="tsd-signature tsd-kind-icon">DECIMAL64<span class="tsd-signature-symbol">:</span> <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L46">bigdecimal.ts:46</a></li>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L214">bigdecimal.ts:214</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A <code>MathContext</code> object with a precision setting
+								matching the precision of the IEEE 754-2019 decimal64 format, 16 digits, and a
+								rounding mode of <a href="../enums/roundingmode.html#half_even">HALF_EVEN</a>.
+								Note the exponent range of decimal64 is <strong>not</strong> used for
+							rounding.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
 					<a name="unlimited" class="tsd-anchor"></a>
@@ -182,9 +259,16 @@
 					<div class="tsd-signature tsd-kind-icon">UNLIMITED<span class="tsd-signature-symbol">:</span> <a href="mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a><span class="tsd-signature-symbol"> = ...</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/bd1659f/bigdecimal.ts#L44">bigdecimal.ts:44</a></li>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L198">bigdecimal.ts:198</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A <code>MathContext</code> object whose settings have the values
+								required for unlimited precision arithmetic.
+							The values of the settings are: <code>precision=0 roundingMode=HALF_UP</code></p>
+						</div>
+					</div>
 				</section>
 			</section>
 		</div>
@@ -234,6 +318,9 @@
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-function">
+						<a href="../modules.html#big" class="tsd-kind-icon">Big</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -250,7 +337,6 @@
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
 			</ul>
 		</div>
 	</div>

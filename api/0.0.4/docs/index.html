@@ -61,8 +61,8 @@
 				</a>
 				<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt">BigInt</a> based BigDecimal(arbitrary precision floats) implementation for Node.js.
 					This implementation is based on java BigDecimal class. Like java BigDecimal class, it uses big integers internally. This implementation
-				is faster than popular big decimal libraries. See <a href="https://github.com/srknzl/bigdecimal.js#running-benchmarks">benchmarks section</a> for comparison.</p>
-				<p><strong>Note: This release is a preview release, and the package is currently in active development. API can change in the near future. I appreciate your feedback, thanks.</strong></p>
+				is faster than popular big decimal libraries. See <a href="https://github.com/srknzl/bigdecimal.js#benchmark-results">benchmarks results part below</a> for comparison.</p>
+				<p><strong>Note: The library is currently in preview, v1.0.0 will be released soon. API can change in the near future. I appreciate your feedback, thanks.</strong></p>
 				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
 					<h2>Features</h2>
 				</a>
@@ -77,20 +77,50 @@
 				<ul>
 					<li>The example usage is given below:</li>
 				</ul>
-				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">BigDecimal</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;bigdecimal.js&#039;</span><span style="color: #000000">);</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">x</span><span style="color: #000000"> = </span><span style="color: #001080">BigDecimal</span><span style="color: #000000">.</span><span style="color: #795E26">fromValue</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;1.1111111111111111111111&#039;</span><span style="color: #000000">);</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">y</span><span style="color: #000000"> = </span><span style="color: #001080">BigDecimal</span><span style="color: #000000">.</span><span style="color: #795E26">fromValue</span><span style="color: #000000">(</span><span style="color: #001080">x</span><span style="color: #000000">);</span>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">Big</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;bigdecimal.js&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #008000">// Single constructor for all values</span>
+<span style="color: #008000">// Construct from a string and copy it</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">x</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;1.1111111111111111111111&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">y</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #001080">x</span><span style="color: #000000">); </span><span style="color: #008000">// you can also use &#039;new&#039;</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">z</span><span style="color: #000000"> = </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">add</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">);</span>
 <span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">z</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 2.2222222222222222222222</span>
-</code></pre>
-				<pre><code class="language-javascript"><span style="color: #008000">// You can also construct from number and BigInt</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">x</span><span style="color: #000000"> = </span><span style="color: #001080">BigDecimal</span><span style="color: #000000">.</span><span style="color: #795E26">fromValue</span><span style="color: #000000">(</span><span style="color: #098658">1.1</span><span style="color: #000000">);</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">y</span><span style="color: #000000"> = </span><span style="color: #001080">BigDecimal</span><span style="color: #000000">.</span><span style="color: #795E26">fromValue</span><span style="color: #000000">(</span><span style="color: #098658">2</span><span style="color: #0000FF">n</span><span style="color: #000000">);</span>
 
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 1.1</span>
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 2</span>
+<span style="color: #008000">// You can also construct from a number or BigInt:</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">u</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">1.1</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">v</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">2</span><span style="color: #0000FF">n</span><span style="color: #000000">);</span>
+
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">u</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 1.1</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">v</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 2</span>
 </code></pre>
+				<p>You can use MathContext object to set precision and rounding mode for a specific operation:</p>
+				<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Big</span><span style="color: #000000">, </span><span style="color: #001080">MathContext</span><span style="color: #000000">, </span><span style="color: #001080">RoundingMode</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;./index&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">x</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;1&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">y</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;3&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">res1</span><span style="color: #000000"> = </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">divide</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">MathContext</span><span style="color: #000000">(</span><span style="color: #098658">3</span><span style="color: #000000">));</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">res1</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 0.333</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">res2</span><span style="color: #000000"> = </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">divide</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">MathContext</span><span style="color: #000000">(</span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #001080">RoundingMode</span><span style="color: #000000">.</span><span style="color: #0070C1">UP</span><span style="color: #000000">));</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">res2</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 0.334</span>
+
+<span style="color: #AF00DB">try</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">divide</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #008000">// throws since full precision is requested but it is not possible</span>
+<span style="color: #000000">} </span><span style="color: #AF00DB">catch</span><span style="color: #000000"> (</span><span style="color: #001080">e</span><span style="color: #000000">) {</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">e</span><span style="color: #000000">); </span><span style="color: #008000">// RangeError: Non-terminating decimal expansion; no exact representable decimal result.</span>
+<span style="color: #000000">}</span>
+</code></pre>
+				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
+					<h2>Documentation</h2>
+				</a>
+				<ul>
+					<li><a href="https://srknzl.github.io/bigdecimal.js/api/current/docs">API Documentation</a></li>
+				</ul>
 				<a href="#testing" id="testing" style="color: inherit; text-decoration: none;">
 					<h2>Testing</h2>
 				</a>
@@ -104,11 +134,105 @@
 				</a>
 				<p>There is a benchmark suite that compares </p>
 				<ul>
-					<li>BigDecimal.js</li>
+					<li>bigdecimal.js</li>
 					<li><a href="https://github.com/MikeMcl/big.js">big.js</a></li>
 					<li><a href="https://github.com/iriscouch/bigdecimal.js">GWT based BigDecimal</a></li>
 				</ul>
 				<p>To run the benchmark run <code>npm install</code> and then <code>npm run benchmark</code>.</p>
+				<a href="#benchmark-results" id="benchmark-results" style="color: inherit; text-decoration: none;">
+					<h2>Benchmark Results</h2>
+				</a>
+				<ul>
+					<li>Update Date: 26 June 2021</li>
+					<li>Each operation is run with small numbers and with big numbers using benchmark.js.
+					Check out <a href="https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks">benchmarks folder</a> for source code of benchmarks.</li>
+					<li>Operations per second(op/s):</li>
+				</ul>
+				<table>
+					<thead>
+						<tr>
+							<th>Operation</th>
+							<th>Bigdecimal.js</th>
+							<th>Big.js</th>
+							<th>GWT</th>
+						</tr>
+					</thead>
+					<tbody><tr>
+							<td>Add</td>
+							<td>611777</td>
+							<td>415311</td>
+							<td>12775</td>
+						</tr>
+						<tr>
+							<td>Add with big numbers</td>
+							<td>113717</td>
+							<td>33673</td>
+							<td>148</td>
+						</tr>
+						<tr>
+							<td>Multiply</td>
+							<td>613562</td>
+							<td>73390</td>
+							<td>3720</td>
+						</tr>
+						<tr>
+							<td>Multiply with big numbers</td>
+							<td>231335</td>
+							<td>1651</td>
+							<td>80.09</td>
+						</tr>
+						<tr>
+							<td>Subtract</td>
+							<td>641597</td>
+							<td>348541</td>
+							<td>12959</td>
+						</tr>
+						<tr>
+							<td>Subtract with big numbers</td>
+							<td>98031</td>
+							<td>32729</td>
+							<td>158</td>
+						</tr>
+						<tr>
+							<td>Divide</td>
+							<td>6973</td>
+							<td>2202</td>
+							<td>382</td>
+						</tr>
+						<tr>
+							<td>Divide with big numbers</td>
+							<td>12258</td>
+							<td>822</td>
+							<td>486</td>
+						</tr>
+						<tr>
+							<td>Abs</td>
+							<td>1266382</td>
+							<td>3857749</td>
+							<td>61296</td>
+						</tr>
+						<tr>
+							<td>Abs with big numbers</td>
+							<td>1061946</td>
+							<td>1670200</td>
+							<td>8687</td>
+						</tr>
+						<tr>
+							<td>Compare</td>
+							<td>1126781</td>
+							<td>2317875</td>
+							<td>369511</td>
+						</tr>
+						<tr>
+							<td>Compare with big numbers</td>
+							<td>822355</td>
+							<td>1454145</td>
+							<td>552519</td>
+						</tr>
+				</tbody></table>
+				<ul>
+					<li>For more, check out <a href="https://docs.google.com/spreadsheets/d/1KdpW3NyIK5wD-P0f4H72CvizZ9u0B4qeIm2xBqzky-Q/edit?usp=sharing">https://docs.google.com/spreadsheets/d/1KdpW3NyIK5wD-P0f4H72CvizZ9u0B4qeIm2xBqzky-Q/edit?usp=sharing</a></li>
+				</ul>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -130,6 +254,9 @@
 					<li class=" tsd-kind-class">
 						<a href="classes/mathcontext.html" class="tsd-kind-icon">Math<wbr>Context</a>
 					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#big" class="tsd-kind-icon">Big</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -146,7 +273,6 @@
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
 			</ul>
 		</div>
 	</div>

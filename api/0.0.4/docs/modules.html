@@ -72,7 +72,94 @@
 								<li class="tsd-kind-class"><a href="classes/mathcontext.html" class="tsd-kind-icon">Math<wbr>Context</a></li>
 							</ul>
 						</section>
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function"><a href="modules.html#big" class="tsd-kind-icon">Big</a></li>
+							</ul>
+						</section>
 					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="big" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Big</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">Big<span class="tsd-signature-symbol">(</span>n<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, scale<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, mc<span class="tsd-signature-symbol">?: </span><a href="classes/mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="classes/bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/7344e91/bigdecimal.ts#L3518">bigdecimal.ts:3518</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Constructor function. Can be invoked with new or without new.</p>
+								</div>
+								<p>Sample Usage:</p>
+								<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">Big</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;bigdecimal.js&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #008000">// Constructor accepts any value such as string and BigDecimal itself:</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">x</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;1.1111111111111111111111&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">y</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #001080">x</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">z</span><span style="color: #000000"> = </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">add</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">);</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">z</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 2.2222222222222222222222</span>
+
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">u</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">1.1</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">v</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">2</span><span style="color: #0000FF">n</span><span style="color: #000000">);</span>
+
+<span style="color: #008000">// You can also construct a BigDecimal from a number or a BigInt:</span>
+
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">u</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 1.1</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">v</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 2</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError on following situations:</p>
+										<ul>
+											<li>If value is a number:<ul>
+													<li>Value is not a number</li>
+													<li>Value is not in the range [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)</li>
+													<li>A scale is not provided but a precision is provided</li>
+												</ul>
+											</li>
+											<li>If value is converted to string internally and the string format is invalid.</li>
+										</ul>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>n: <span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Any value to build a BigDecimal from. Types other than <code>Number</code>, <code>BigInt</code> and <code>BigDecimal</code> will be internally
+										converted to string and parsed.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> scale: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Scale to use, by default 0.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="classes/mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>MathContext object which allows you to set precision and rounding mode.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="classes/bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
@@ -95,6 +182,9 @@
 					<li class=" tsd-kind-class">
 						<a href="classes/mathcontext.html" class="tsd-kind-icon">Math<wbr>Context</a>
 					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#big" class="tsd-kind-icon">Big</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -111,7 +201,6 @@
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
 			</ul>
 		</div>
 	</div>
