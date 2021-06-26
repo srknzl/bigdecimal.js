@@ -46,15 +46,15 @@ console.log(v.toString()); // 2
 You can use MathContext object to set precision and rounding mode for a specific operation:
 
 ```javascript
-import { Big, MathContext, RoundingMode } from './index';
+import { Big, MC, RoundingMode } from './index';
 
 const x = Big('1');
 const y = Big('3');
 
-const res1 = x.divide(y, new MathContext(3));
+const res1 = x.divide(y, new MC(3));
 console.log(res1.toString()); // 0.333
 
-const res2 = x.divide(y, new MathContext(3, RoundingMode.UP));
+const res2 = x.divide(y, new MC(3, RoundingMode.UP));
 console.log(res2.toString()); // 0.334
 
 try {
