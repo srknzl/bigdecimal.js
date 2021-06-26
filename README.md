@@ -91,20 +91,20 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
 * Operations per second(op/s):
 
-| Operation | Bigdecimal.js | Big.js | GWT |
-| --- | --- | --- | --- |
-| Add | 611777 | 415311 | 12775 |
-| Add with big numbers | 113717 | 33673 | 148 |
-| Multiply | 613562 | 73390 | 3720 |
-| Multiply with big numbers | 231335 | 1651 | 80.09 |
-| Subtract | 641597 | 348541 | 12959 |
-| Subtract with big numbers | 98031 | 32729 | 158 |
-| Divide | 6973 | 2202 | 382 |
-| Divide with big numbers | 12258 | 822 | 486 |
-| Abs | 1266382 | 3857749 | 61296 |
-| Abs with big numbers | 1061946 | 1670200 | 8687 |
-| Compare | 1126781 | 2317875 | 369511 |
-| Compare with big numbers | 822355 | 1454145 | 552519 |
+| Operation | Bigdecimal.js | Big.js | GWT | Winner |
+| --- | --- | --- | --- | --- |
+| Add | 611,777 | 415,311 | 12,775 | Bigdecimal.js |
+| Add with big numbers | 113,717 | 33,673 | 148 | Bigdecimal.js |
+| Multiply | 613,562 | 73,390 | 3,720 | Bigdecimal.js |
+| Multiply with big numbers | 231,335 | 1,651 | 80.09 | Bigdecimal.js |
+| Subtract | 641,597 | 348,541 | 12,959 | Bigdecimal.js |
+| Subtract with big numbers | 98,031 | 32,729 | 158 | Bigdecimal.js |
+| Divide | 6,973 | 2,202 | 382 | Bigdecimal.js |
+| Divide with big numbers | 12,258 | 822 | 486 | Bigdecimal.js |
+| Abs | 1,266,382 | 3,857,749 | 61,296 | Big.js |
+| Abs with big numbers | 1,061,946 | 1,670,200 | 8,687 | Big.js |
+| Compare | 1,126,781 | 2,317,875 | 369,511 | Big.js |
+| Compare with big numbers | 822,355 | 1,454,145 | 552,519 | Big.js |
 
 
 * For more, check out https://docs.google.com/spreadsheets/d/1KdpW3NyIK5wD-P0f4H72CvizZ9u0B4qeIm2xBqzky-Q/edit?usp=sharing
