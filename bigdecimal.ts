@@ -893,7 +893,7 @@ export class BigDecimal {
 
         if (mc !== undefined) {
             if (scale !== undefined) {
-                return BigDecimal.fromNumber2(value, scale, mc.precision);
+                throw new RangeError('When constructing from a number, you cannot give both scale and MathContext.');
             } else {
                 return BigDecimal.fromNumber5(value, mc);
             }
@@ -3512,7 +3512,8 @@ function _Big(n: any, scale?: number, mc?: MathContext): BigDecimal {
  * * If value is a number:
  *     * Value is not a number
  *     * Value is not in the range [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
- *     * A scale is not provided but a precision is provided
+ *     * Both scale and precision is provided. You can only give one of scale and mc. Simply pass undefined to one of them, or
+ *     alternatively omit it.
  * * If value is converted to string internally and the string format is invalid.
  */
 export const Big: BigInterface = <BigInterface>_Big;
