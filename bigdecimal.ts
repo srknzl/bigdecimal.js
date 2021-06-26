@@ -223,8 +223,9 @@ export class MathContext {
 }
 
 /**
- * BigInt based BigDecimal implementation. This class is ported from java.math.BigDecimal. The following documentation is adapted from
- * openjdk/jdk repository. You can also check java apidoc documentation if you need to.
+ * BigInt based BigDecimal implementation. This class is ported from java.math.BigDecimal.
+ * The following documentation is adapted from openjdk/jdk repository.
+ * You can also check java apidoc documentation if you need to.
  *
  * Immutable, arbitrary-precision signed decimal numbers.  A
  * `BigDecimal` consists of an arbitrary precision number
