@@ -12,6 +12,12 @@ is faster than popular big decimal libraries. See [benchmarks results part below
 * Simple API that is exactly same with Java's [BigDecimal](https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/math/BigDecimal.html)
 * No dependencies
 
+## Installation
+
+```
+npm install bigdecimal.js
+```
+
 ## Usage
 
 * The example usage is given below:
