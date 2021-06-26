@@ -1,6 +1,6 @@
 {
   "name": "bigdecimal.js",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A BigDecimal implementation with native BigInts",
   "main": "lib/index.js",
   "scripts": {
