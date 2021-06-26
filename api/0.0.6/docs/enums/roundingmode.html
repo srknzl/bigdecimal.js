@@ -1,0 +1,480 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>RoundingMode | bigdecimal.js</title>
+	<meta name="description" content="Documentation for bigdecimal.js">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">bigdecimal.js</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">bigdecimal.js</a>
+				</li>
+				<li>
+					<a href="roundingmode.html">RoundingMode</a>
+				</li>
+			</ul>
+			<h1>Enumeration RoundingMode</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Specifies a <code>rounding policy</code> for numerical operations capable
+							of discarding precision. Each rounding mode indicates how the least
+							significant returned digit of a rounded result is to be calculated.
+							If fewer digits are returned than the digits needed to represent
+							the exact numerical result, the discarded digits will be referred
+							to as the <code>discarded fraction</code> regardless the digits&#39;
+							contribution to the value of the number.  In other words,
+							considered as a numerical value, the discarded fraction could have
+						an absolute value greater than one.</p>
+					</div>
+					<p>Each rounding mode description includes a table listing how
+						different two-digit decimal values would round to a one digit
+						decimal value under the rounding mode in question. The result
+						column in the tables could be gotten by creating a
+						<code>BigDecimal</code> number with the specified value, forming a
+						<a href="../classes/mathcontext.html">MathContext</a> object with the proper settings
+						(<code>precision</code> set to <code>1</code>, and the <code>roundingMode</code> set to the rounding
+						mode in question), and calling <a href="../classes/bigdecimal.html#round">round</a> on
+						this number with the proper <code>MathContext</code>.  A summary table showing the results
+					of these rounding operations for all rounding modes appears below.</p>
+					<table>
+						<thead>
+							<tr>
+								<th>Input</th>
+								<th>UP</th>
+								<th>DOWN</th>
+								<th>CEILING</th>
+								<th>FLOOR</th>
+								<th>HALF_UP</th>
+								<th>HALF_DOWN</th>
+								<th>HALF_EVEN</th>
+								<th>UNNECESSARY</th>
+							</tr>
+						</thead>
+						<tbody><tr>
+								<td>5.5</td>
+								<td>6</td>
+								<td>5</td>
+								<td>6</td>
+								<td>5</td>
+								<td>6</td>
+								<td>5</td>
+								<td>6</td>
+								<td>RangeError</td>
+							</tr>
+							<tr>
+								<td>2.5</td>
+								<td>3</td>
+								<td>2</td>
+								<td>3</td>
+								<td>2</td>
+								<td>3</td>
+								<td>2</td>
+								<td>2</td>
+								<td>RangeError</td>
+							</tr>
+							<tr>
+								<td>1.6</td>
+								<td>2</td>
+								<td>1</td>
+								<td>2</td>
+								<td>1</td>
+								<td>2</td>
+								<td>2</td>
+								<td>2</td>
+								<td>RangeError</td>
+							</tr>
+							<tr>
+								<td>1.1</td>
+								<td>2</td>
+								<td>1</td>
+								<td>2</td>
+								<td>1</td>
+								<td>1</td>
+								<td>1</td>
+								<td>1</td>
+								<td>RangeError</td>
+							</tr>
+							<tr>
+								<td>1.0</td>
+								<td>1</td>
+								<td>1</td>
+								<td>1</td>
+								<td>1</td>
+								<td>1</td>
+								<td>1</td>
+								<td>1</td>
+								<td>1</td>
+							</tr>
+							<tr>
+								<td>-1.0</td>
+								<td>-1</td>
+								<td>-1</td>
+								<td>-1</td>
+								<td>-1</td>
+								<td>-1</td>
+								<td>-1</td>
+								<td>-1</td>
+								<td>-1</td>
+							</tr>
+							<tr>
+								<td>-1.1</td>
+								<td>-2</td>
+								<td>-1</td>
+								<td>-1</td>
+								<td>-2</td>
+								<td>-1</td>
+								<td>-1</td>
+								<td>-1</td>
+								<td>RangeError</td>
+							</tr>
+							<tr>
+								<td>-1.6</td>
+								<td>-2</td>
+								<td>-1</td>
+								<td>-1</td>
+								<td>-2</td>
+								<td>-2</td>
+								<td>-2</td>
+								<td>-2</td>
+								<td>RangeError</td>
+							</tr>
+							<tr>
+								<td>-2.5</td>
+								<td>-3</td>
+								<td>-2</td>
+								<td>-2</td>
+								<td>-3</td>
+								<td>-3</td>
+								<td>-2</td>
+								<td>-2</td>
+								<td>RangeError</td>
+							</tr>
+							<tr>
+								<td>-5.5</td>
+								<td>-6</td>
+								<td>-5</td>
+								<td>-5</td>
+								<td>-6</td>
+								<td>-6</td>
+								<td>-5</td>
+								<td>-6</td>
+								<td>RangeError</td>
+							</tr>
+					</tbody></table>
+				</div>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Enumeration members</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="roundingmode.html#ceiling" class="tsd-kind-icon">CEILING</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="roundingmode.html#down" class="tsd-kind-icon">DOWN</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="roundingmode.html#floor" class="tsd-kind-icon">FLOOR</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="roundingmode.html#half_down" class="tsd-kind-icon">HALF_<wbr>DOWN</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="roundingmode.html#half_even" class="tsd-kind-icon">HALF_<wbr>EVEN</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="roundingmode.html#half_up" class="tsd-kind-icon">HALF_<wbr>UP</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="roundingmode.html#unnecessary" class="tsd-kind-icon">UNNECESSARY</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="roundingmode.html#up" class="tsd-kind-icon">UP</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Enumeration members</h2>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="ceiling" class="tsd-anchor"></a>
+					<h3>CEILING</h3>
+					<div class="tsd-signature tsd-kind-icon">CEILING<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 2</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/08744d0/bigdecimal.ts#L77">bigdecimal.ts:77</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Rounding mode to round towards positive infinity.  If the
+								result is positive, behaves as for <code>RoundingMode.UP</code>;
+								if negative, behaves as for <code>RoundingMode.DOWN</code>.  Note
+								that this rounding mode never decreases the calculated value.
+								This mode corresponds to the IEEE 754-2019 rounding-direction
+							attribute &quot;roundTowardPositive&quot;.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="down" class="tsd-anchor"></a>
+					<h3>DOWN</h3>
+					<div class="tsd-signature tsd-kind-icon">DOWN<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 1</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/08744d0/bigdecimal.ts#L68">bigdecimal.ts:68</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Rounding mode to round towards zero.  Never increments the digit
+								prior to a discarded fraction (i.e., truncates).  Note that this
+								rounding mode never increases the magnitude of the calculated value.
+								This mode corresponds to the IEEE 754-2019 rounding-direction
+							attribute &quot;roundTowardZero&quot;.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="floor" class="tsd-anchor"></a>
+					<h3>FLOOR</h3>
+					<div class="tsd-signature tsd-kind-icon">FLOOR<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 3</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/08744d0/bigdecimal.ts#L86">bigdecimal.ts:86</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Rounding mode to round towards negative infinity.  If the
+								result is positive, behave as for <code>RoundingMode.DOWN</code>;
+								if negative, behave as for <code>RoundingMode.UP</code>.  Note that
+								this rounding mode never increases the calculated value.
+								This mode corresponds to the IEEE 754-2019 rounding-direction
+							attribute &quot;roundTowardNegative&quot;.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="half_down" class="tsd-anchor"></a>
+					<h3>HALF_<wbr>DOWN</h3>
+					<div class="tsd-signature tsd-kind-icon">HALF_<wbr>DOWN<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 5</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/08744d0/bigdecimal.ts#L105">bigdecimal.ts:105</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Rounding mode to round towards &quot;nearest neighbor&quot;
+								unless both neighbors are equidistant, in which case round
+								down.  Behaves as for <code>RoundingMode.UP</code> if the discarded
+								fraction is &gt; 0.5; otherwise, behaves as for
+							<code>RoundingMode.DOWN</code>.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="half_even" class="tsd-anchor"></a>
+					<h3>HALF_<wbr>EVEN</h3>
+					<div class="tsd-signature tsd-kind-icon">HALF_<wbr>EVEN<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 6</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/08744d0/bigdecimal.ts#L120">bigdecimal.ts:120</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Rounding mode to round towards the &quot;nearest neighbor&quot;
+								unless both neighbors are equidistant, in which case, round
+								towards the even neighbor.  Behaves as for
+								<code>RoundingMode.HALF_UP</code> if the digit to the left of the
+								discarded fraction is odd; behaves as for
+								<code>RoundingMode.HALF_DOWN</code> if it&#39;s even.  Note that this
+								is the rounding mode that statistically minimizes cumulative
+								error when applied repeatedly over a sequence of calculations.
+								It is sometimes known as &quot;Banker&#39;s rounding,&quot; and is
+								chiefly used in the USA.
+								This mode corresponds to the IEEE 754-2019 rounding-direction
+							attribute &quot;roundTiesToEven&quot;.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="half_up" class="tsd-anchor"></a>
+					<h3>HALF_<wbr>UP</h3>
+					<div class="tsd-signature tsd-kind-icon">HALF_<wbr>UP<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 4</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/08744d0/bigdecimal.ts#L97">bigdecimal.ts:97</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Rounding mode to round towards &quot;nearest neighbor&quot;
+								unless both neighbors are equidistant, in which case round up.
+								Behaves as for <code>RoundingMode.UP</code> if the discarded
+								fraction is &ge; 0.5; otherwise, behaves as for
+								<code>RoundingMode.DOWN</code>.  Note that this is the rounding
+								mode commonly taught at school.
+								This mode corresponds to the IEEE 754-2019 rounding-direction
+							attribute &quot;roundTiesToAway&quot;.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="unnecessary" class="tsd-anchor"></a>
+					<h3>UNNECESSARY</h3>
+					<div class="tsd-signature tsd-kind-icon">UNNECESSARY<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 7</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/08744d0/bigdecimal.ts#L127">bigdecimal.ts:127</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Rounding mode to assert that the requested operation has an exact
+								result, hence no rounding is necessary.  If this rounding mode is
+								specified on an operation that yields an inexact result, an
+							<code>RangeError</code> is thrown.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="up" class="tsd-anchor"></a>
+					<h3>UP</h3>
+					<div class="tsd-signature tsd-kind-icon">UP<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = 0</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/08744d0/bigdecimal.ts#L60">bigdecimal.ts:60</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Rounding mode to round away from zero.  Always increments the
+								digit prior to a non-zero discarded fraction.  Note that this
+								rounding mode never decreases the magnitude of the calculated
+							value.</p>
+						</div>
+					</div>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Exports</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-enum">
+						<a href="roundingmode.html" class="tsd-kind-icon">Rounding<wbr>Mode</a>
+						<ul>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="roundingmode.html#ceiling" class="tsd-kind-icon">CEILING</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="roundingmode.html#down" class="tsd-kind-icon">DOWN</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="roundingmode.html#floor" class="tsd-kind-icon">FLOOR</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="roundingmode.html#half_down" class="tsd-kind-icon">HALF_<wbr>DOWN</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="roundingmode.html#half_even" class="tsd-kind-icon">HALF_<wbr>EVEN</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="roundingmode.html#half_up" class="tsd-kind-icon">HALF_<wbr>UP</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="roundingmode.html#unnecessary" class="tsd-kind-icon">UNNECESSARY</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="roundingmode.html#up" class="tsd-kind-icon">UP</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-class">
+						<a href="../classes/bigdecimal.html" class="tsd-kind-icon">Big<wbr>Decimal</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/mathcontext.html" class="tsd-kind-icon">Math<wbr>Context</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="../modules.html#big" class="tsd-kind-icon">Big</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
