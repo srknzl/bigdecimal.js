@@ -44,7 +44,7 @@
   "engines": {
     "node": ">=10.4.0"
   },
-  "homepage": "https://github.com/srknzl/bigdecimal.js#readme",
+  "homepage": "https://srknzl.github.io/bigdecimal.js/api/current/docs",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "~4.27.0",
     "@typescript-eslint/parser": "~4.27.0",
