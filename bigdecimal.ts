@@ -227,11 +227,10 @@ export class MathContext {
  * openjdk/jdk repository.
  *
  * Immutable, arbitrary-precision signed decimal numbers.  A
- * `BigDecimal` consists of an arbitrary precision integer
- * {@link unscaledValue | unscaled value} and a 32-bit
- * integer {@link scale | scale}.  If zero or positive,
- * the scale is the number of digits to the right of the decimal
- * point.  If negative, the unscaled value of the number is multiplied
+ * `BigDecimal` consists of an arbitrary precision number
+ * {@link unscaledValue | unscaled value} and a {@link scale | scale}.
+ * If zero or positive, the scale is the number of digits to the right of the decimal
+ * point. If negative, the unscaled value of the number is multiplied
  * by ten to the power of the negation of the scale.  The value of the
  * number represented by the `BigDecimal` is therefore
  * <code>(unscaledValue &times; 10<sup>-scale</sup>)</code>.
@@ -353,11 +352,11 @@ export class MathContext {
  * three digits using the {@link RoundingMode.FLOOR | floor}
  * rounding mode, <br>
  *
- * `19/100 = 0.19   // integer=19,  scale=2` <br>
+ * `19/100 = 0.19   // number=19,  scale=2` <br>
  *
  * but<br>
  *
- * `21/110 = 0.190  // integer=190, scale=3` <br>
+ * `21/110 = 0.190  // number=190, scale=3` <br>
  *
  * Note that for add, subtract, and multiply, the reduction in
  * scale will equal the number of digit positions of the exact result
@@ -384,9 +383,9 @@ export class MathContext {
  * `BigDecimal` created from the operand by moving the decimal
  * point a specified distance in the specified direction.
  *
- * As a 32-bit integer, the set of values for the scale is large,
+ * As a number, the set of values for the scale is large,
  * but bounded. If the scale of a result would exceed the range of a
- * 32-bit integer, either by overflow or underflow, the operation may
+ * safe number, either by overflow or underflow, the operation may
  * throw a RangerError.
  *
  * For the sake of brevity and clarity, pseudo-code is used
@@ -465,19 +464,19 @@ export class MathContext {
 export class BigDecimal {
 
     /** @internal */
-    readonly intVal: BigInt | null;
+    private readonly intVal: BigInt | null;
 
     /** @internal */
-    readonly _scale: number;
+    private readonly _scale: number;
 
     /** @internal */
-    precision: number;
+    private precision: number;
 
     /** @internal */
-    stringCache: string | undefined = undefined;
+    private stringCache: string | undefined = undefined;
 
     /** @internal */
-    readonly intCompact: number;
+    private readonly intCompact: number;
 
     /**
      * Sentinel value for {@link intCompact} indicating the
@@ -1152,6 +1151,12 @@ export class BigDecimal {
         return BigDecimal.INFLATED;
     }
 
+    /**
+     * Returns the signum function of this `BigDecimal`.
+     *
+     * @return -1, 0, or 1 as the value of this `BigDecimal`
+     *         is negative, zero, or positive.
+     */
     signum(): number {
         const intCompactSignum = this.intCompact > 0 ? 1 : (this.intCompact < 0 ? -1 : 0);
         const intValSignum = BigDecimal.bigIntSignum(this.intVal!);
@@ -1457,6 +1462,13 @@ export class BigDecimal {
         return [big, small];
     }
 
+    /**
+     * Returns a `BigDecimal` whose value is `(-this)`,
+     * with rounding according to the context settings.
+     *
+     * @param mc the context to use.
+     * @return `-this`, rounded as necessary.
+     */
     negate(mc?: MathContext): BigDecimal {
         let result = this.intCompact === BigDecimal.INFLATED ?
             new BigDecimal(-1n * this.intVal!.valueOf(), BigDecimal.INFLATED, this._scale, this.precision) :
@@ -1530,6 +1542,17 @@ export class BigDecimal {
         return BigDecimal.doRound2(lhs.inflated().valueOf() + augend.inflated().valueOf(), lhs._scale, mc);
     }
 
+    /**
+     * Returns a `BigDecimal` whose value is `(this - subtrahend)`,
+     * with rounding according to the context settings.
+     *
+     * If `subtrahend` is zero then this, rounded if necessary, is used as the
+     * result.  If this is zero then the result is `subtrahend.negate(mc)`.
+     *
+     * @param  subtrahend value to be subtracted from this `BigDecimal`.
+     * @param  mc the context to use.
+     * @return `this - subtrahend`, rounded as necessary.
+     */
     subtract(subtrahend: BigDecimal, mc?: MathContext): BigDecimal {
         subtrahend = BigDecimal.convertToBigDecimal(subtrahend);
         if (!mc || (mc && mc.precision === 0)) {
@@ -1550,6 +1573,14 @@ export class BigDecimal {
         return this.add(subtrahend.negate(), mc);
     }
 
+    /**
+     * Returns a `BigDecimal` whose value is <code>(this &times;
+     * multiplicand)</code>, with rounding according to the context settings.
+     *
+     * @param  multiplicand value to be multiplied by this `BigDecimal`.
+     * @param  mc the context to use.
+     * @return `this * multiplicand`, rounded as necessary.
+     */
     multiply(multiplicand: BigDecimal, mc?: MathContext): BigDecimal {
         multiplicand = BigDecimal.convertToBigDecimal(multiplicand);
         if (!mc || (mc && mc.precision === 0)) {
@@ -1951,6 +1982,28 @@ export class BigDecimal {
         }
     }
 
+    /**
+     * Returns a `BigDecimal` whose value is `(this % divisor)`, with rounding according to the context settings.
+     * The `MathContext` settings affect the implicit divide
+     * used to compute the remainder.  The remainder computation
+     * itself is by definition exact.  Therefore, the remainder may
+     * contain more than `mc.getPrecision()` digits.
+     *
+     * The remainder is given by
+     * `this.subtract(this.divideToIntegralValue(divisor,
+     * mc).multiply(divisor))`.  Note that this is not the modulo
+     * operation (the result can be negative).
+     *
+     * @param  divisor value by which this `BigDecimal` is to be divided.
+     * @param  mc the context to use.
+     * @return `this % divisor`, rounded as necessary.
+     * @throws RangeError if divisor is 0
+     * @throws RangeError if the result is inexact but the
+     *         rounding mode is `UNNECESSARY`, or `mc.precision`
+     *         > 0 and the result of {`this.divideToIntegralValue(divisor)` would
+     *         require a precision of more than `mc.precision` digits.
+     * @see    {@link divideToIntegralValue}
+     */
     remainder(divisor: BigDecimal, mc?: MathContext): BigDecimal {
         return this.divideAndRemainder(divisor, mc)[1];
     }
@@ -1999,7 +2052,28 @@ export class BigDecimal {
             return BigDecimal.bigIntCompareMagnitude(this.intVal!, val.intVal!);
     }
 
-    equals(value: BigDecimal): boolean {
+    /**
+     * Compares this `BigDecimal` with the specified
+     * object for equality.  Unlike {@link compareTo},
+     * this method considers two `BigDecimal`
+     * objects equal only if they are equal in value and
+     * scale. Therefore 2.0 is not equal to 2.00 when compared by this
+     * method since the former has [`BigInt`, `scale`]
+     * components equal to [20, 1] while the latter has components
+     * equal to [200, 2].
+     *
+     * One example that shows how 2.0 and 2.00 are **not**
+     * substitutable for each other under some arithmetic operations
+     * are the two expressions:
+     *
+     * @param  value to which this `BigDecimal` is
+     *         to be compared.
+     * @return true if and only if the specified value is a
+     *         BigDecimal whose value and scale are equal to this
+     *         BigDecimal's.
+     * @see    {@link compareTo}
+     */
+    equals(value: any): boolean {
         if (!(value instanceof BigDecimal))
             return false;
         if (value === this)
@@ -2024,7 +2098,7 @@ export class BigDecimal {
      * `remainder` on the two operands calculated with rounding
      * according to the context settings.
      *
-     * Note that if both the integer quotient and remainder are
+     * Note that if both the quotient and remainder are
      * needed, this method is faster than using the
      * `divideToIntegralValue` and `remainder` methods
      * separately because the division need only be carried out once.
@@ -2053,6 +2127,28 @@ export class BigDecimal {
 
     }
 
+    /**
+     * Returns an approximation to the square root of `this`
+     * with rounding according to the context settings.
+     *
+     * The preferred scale of the returned result is equal to
+     * `this.scale()/2`. The value of the returned result is
+     * always within one ulp of the exact decimal value for the
+     * precision in question.  If the rounding mode is {@link
+     * RoundingMode.HALF_UP}, {@link RoundingMode.HALF_DOWN},
+     * or {@link RoundingMode.HALF_EVEN}, the
+     * result is within one half an ulp of the exact decimal value.
+     *
+     * @param mc the context to use.
+     * @return the square root of `this`.
+     * @throws RangeError if `this` is less than zero.
+     * @throws RangeError if an exact result is requested
+     * mc.getPrecision() is 0 and there is no finite decimal
+     * expansion of the exact result
+     * @throws RangeError if mc.getRoundingMode() is `RoundingMode.UNNECESSARY` and
+     * the exact result cannot fit in `mc.getPrecision()`
+     * digits.
+     */
     sqrt(mc: MathContext): BigDecimal {
         const signum = this.signum();
         if (signum !== 1) {
@@ -2176,6 +2272,18 @@ export class BigDecimal {
         return this.multiply(this);
     }
 
+    /**
+     * Returns the size of an ulp, a unit in the last place, of this
+     * `BigDecimal`.  An ulp of a nonzero `BigDecimal`
+     * value is the positive distance between this value and the
+     * `BigDecimal` value next larger in magnitude with the
+     * same number of digits.  An ulp of a zero value is numerically
+     * equal to 1 with the scale of `this`.  The result is
+     * stored with the same scale as `this` so the result
+     * for zero and nonzero values is equal to `[1, this.scale()]`.
+     *
+     * @return the size of an ulp of `this`
+     */
     ulp(): BigDecimal {
         return BigDecimal.fromNumber2(1, this._scale, 1);
     }
@@ -2185,6 +2293,19 @@ export class BigDecimal {
         return val > 0n ? 1 : (val < 0n ? -1 : 0);
     }
 
+    /**
+     * Returns a `BigDecimal` which is numerically equal to
+     * this one but with any trailing zeros removed from the
+     * representation.  For example, stripping the trailing zeros from
+     * the `BigDecimal` value `600.0`, which has
+     * [`BigInt`, `scale`] components equal to
+     * [6000n, 1], yields `6E2` with [`BigInt`, `scale`]
+     * components equal to [6n, -2].
+     *
+     * @return a numerically equal `BigDecimal` with any
+     * trailing zeros removed.
+     * @throws RangeError if scale from max or min safe integer range.
+     */
     stripTrailingZeros(): BigDecimal {
         if (this.intCompact === 0 || (this.intVal !== null && BigDecimal.bigIntSignum(this.intVal!) === 0)) {
             return BigDecimal.ZERO;
@@ -2200,14 +2321,41 @@ export class BigDecimal {
         return this.unscaledValue() === 1n;
     }
 
+    /**
+     * Returns a `BigInt` whose value is the <i>unscaled
+     * value</i> of this `BigDecimal`.  (Computes <code>(this *
+     * 10<sup>this.scale()</sup>)</code>.)
+     *
+     * @return the unscaled value of this `BigDecimal`.
+     */
     unscaledValue(): BigInt {
         return this.inflated();
     }
 
+    /**
+     * Returns the <i>scale</i> of this `BigDecimal`.  If zero
+     * or positive, the scale is the number of digits to the right of
+     * the decimal point.  If negative, the unscaled value of the
+     * number is multiplied by ten to the power of the negation of the
+     * scale.  For example, a scale of `-3` means the unscaled
+     * value is multiplied by 1000.
+     *
+     * @return the scale of this `BigDecimal`.
+     */
     scale(): number {
         return this._scale;
     }
 
+    /**
+     * Returns a BigDecimal whose numerical value is equal to
+     * (`this` * 10<sup>n</sup>).  The scale of
+     * the result is `(this.scale() - n)`.
+     *
+     * @param n the exponent power of ten to scale by
+     * @return a BigDecimal whose numerical value is equal to
+     * (`this` * 10<sup>n</sup>)
+     * @throws RangeError if the scale would be outside the range of a safe integer.
+     */
     scaleByPowerOfTen(n: number): BigDecimal {
         return new BigDecimal(this.intVal, this.intCompact, this.checkScale(this._scale - n), this.precision);
     }
@@ -2253,6 +2401,10 @@ export class BigDecimal {
         }
     }
 
+    /**
+     * Converts this BigDecimal to number.
+     * @return number for of this BigDecimal
+     */
     numberValue(): number {
         if (this.intCompact !== BigDecimal.INFLATED) {
             if (this._scale === 0) {
@@ -2270,10 +2422,45 @@ export class BigDecimal {
         return Number(this.toString());
     }
 
+    /**
+     * Returns a `BigDecimal` rounded according to the
+     * `MathContext` settings.  If the precision setting is 0 then
+     * no rounding takes place.
+     *
+     * The effect of this method is identical to that of the
+     * {@link plus} method.
+     *
+     * @param mc the context to use.
+     * @return a `BigDecimal` rounded according to the
+     *         `MathContext` settings.
+     * @see    {@link plus}
+     */
     round(mc: MathContext): BigDecimal {
         return this.plus(mc);
     }
 
+    /**
+     * Returns a `BigDecimal` whose scale is the specified
+     * value, and whose unscaled value is determined by multiplying or
+     * dividing this `BigDecimal`'s unscaled value by the
+     * appropriate power of ten to maintain its overall value.  If the
+     * scale is reduced by the operation, the unscaled value must be
+     * divided (rather than multiplied), and the value may be changed;
+     * in this case, the specified rounding mode is applied to the
+     * division.
+     *
+     *
+     * @param  newScale scale of the `BigDecimal` value to be returned.
+     * @param  roundingMode The rounding mode to apply. By default it is set to `UNNECESSARY`.
+     * @return a `BigDecimal` whose scale is the specified value,
+     *         and whose unscaled value is determined by multiplying or
+     *         dividing this `BigDecimal`'s unscaled value by the
+     *         appropriate power of ten to maintain its overall value.
+     * @throws RangeError if roundingMode is `UNNECESSARY`
+     *         and the specified scaling operation would require
+     *         rounding.
+     * @see {@link RoundingMode}
+     */
     setScale(newScale: number, roundingMode: RoundingMode = RoundingMode.UNNECESSARY): BigDecimal {
         if (roundingMode < RoundingMode.UP || roundingMode > RoundingMode.UNNECESSARY)
             throw new RangeError('Invalid rounding mode');
@@ -2327,6 +2514,17 @@ export class BigDecimal {
         }
     }
 
+    /**
+     * Returns a `BigDecimal` whose value is `(+this)`,
+     * with rounding according to the context settings.
+     *
+     * The effect of this method is identical to that of the {@link round} method.
+     *
+     * @param mc the context to use.
+     * @return `this`, rounded as necessary.  A zero result will
+     *         have a scale of 0.
+     * @see    {@link round}
+     */
     plus(mc?: MathContext): BigDecimal {
         if (!mc) return this;
         if (mc.precision === 0)
@@ -2334,6 +2532,50 @@ export class BigDecimal {
         return BigDecimal.doRound(this, mc);
     }
 
+    /**
+     * Returns a `BigDecimal` whose value is
+     * <code>(this<sup>n</sup>)</code>.  The current implementation uses
+     * the core algorithm defined in ANSI standard X3.274-1996 with
+     * rounding according to the context settings.  In general, the
+     * returned numerical value is within two ulps of the exact
+     * numerical value for the chosen precision.  Note that future
+     * releases may use a different algorithm with a decreased
+     * allowable error bound and increased allowable exponent range.
+     *
+     * <p>The X3.274-1996 algorithm is:
+     *
+     * * An `RangeError` exception is thrown if
+     *     * `abs(n)` > 999999999}
+     *     * `mc.precision == 0` and `n < 0`
+     *     * `mc.precision > 0` and `n` has more than
+     *    `mc.precision` decimal digits
+     *
+     * * if `n` is zero, a BigDecimal with value 1 is returned even if
+     * `this` is zero, otherwise
+
+     *     * if `n` is positive, the result is calculated via
+     *   the repeated squaring technique into a single accumulator.
+     *   The individual multiplications with the accumulator use the
+     *   same math context settings as in `mc` except for a
+     *   precision increased to `mc.precision + elength + 1`
+     *   where `elength` is the number of decimal digits in
+     *   `n`.
+     *
+     *     * if `n` is negative, the result is calculated as if
+     *   `n` were positive; this value is then divided into one
+     *   using the working precision specified above.
+     *
+     *     * The final value from either the positive or negative case
+     *   is then rounded to the destination precision.
+     *
+     * @param  n power to raise this `BigDecimal` to.
+     * @param  mc the context to use.
+     * @return <code>this<sup>n</sup></code> using the ANSI standard X3.274-1996
+     *         algorithm
+     * @throws RangeError if the result is inexact but the
+     *         rounding mode is `UNNECESSARY`, or `n` is out
+     *         of range.
+     */
     pow(n: number, mc?: MathContext): BigDecimal {
         if (!mc || (mc && mc.precision === 0)) {
             if (n < 0 || n > 999999999)
@@ -2598,6 +2840,21 @@ export class BigDecimal {
         return BigDecimal.commonNeedIncrement(roundingMode, qsign, cmpFracHalf, mq.valueOf() % 2n === 1n);
     }
 
+    /**
+     * Returns a `BigDecimal` which is equivalent to this one
+     * with the decimal point moved `n` places to the left.  If
+     * `n` is non-negative, the call merely adds `n` to
+     * the scale.  If `n` is negative, the call is equivalent
+     * to `movePointRight(-n)`.  The `BigDecimal`
+     * returned by this call has value <code>(this &times;
+     * 10<sup>-n</sup>)</code> and scale `max(this.scale()+n,
+     * 0)`.
+     *
+     * @param  n number of places to move the decimal point to the left.
+     * @return a `BigDecimal` which is equivalent to this one with the
+     *         decimal point moved `n` places to the left.
+     * @throws RangeError if scale overflows.
+     */
     movePointLeft(n: number): BigDecimal {
         if (n === 0) return this;
 
@@ -2606,6 +2863,20 @@ export class BigDecimal {
         return num._scale < 0 ? num.setScale(0, RoundingMode.UNNECESSARY) : num;
     }
 
+    /**
+     * Returns a `BigDecimal` which is equivalent to this one
+     * with the decimal point moved `n` places to the right.
+     * If `n` is non-negative, the call merely subtracts
+     * `n` from the scale.  If `n` is negative, the call
+     * is equivalent to `movePointLeft(-n)`.  The
+     * `BigDecimal` returned by this call has value <code>(this
+     * &times; 10<sup>n</sup>)</code> and scale `max(this.scale()-n, 0)`.
+     *
+     * @param  n number of places to move the decimal point to the right.
+     * @return a `BigDecimal` which is equivalent to this one
+     *         with the decimal point moved `n` places to the right.
+     * @throws RangeError if scale overflows.
+     */
     movePointRight(n: number): BigDecimal {
         if (n === 0) return this;
 
@@ -2614,14 +2885,119 @@ export class BigDecimal {
         return num._scale < 0 ? num.setScale(0, RoundingMode.UNNECESSARY) : num;
     }
 
+    /**
+     * Returns the minimum of this `BigDecimal` and
+     * `val`.
+     *
+     * @param  val value with which the minimum is to be computed.
+     * @return the `BigDecimal` whose value is the lesser of this
+     *         `BigDecimal` and `val`.  If they are equal,
+     *         as defined by the {@link compareTo}
+     *         method, `this` is returned.
+     * @see    {@link compareTo}
+     */
     min(val: BigDecimal): BigDecimal {
         return (this.compareTo(val) <= 0 ? this : val);
     }
 
+    /**
+     * Returns the maximum of this `BigDecimal` and `val`.
+     *
+     * @param  val value with which the maximum is to be computed.
+     * @return the `BigDecimal` whose value is the greater of this
+     *         `BigDecimal` and `val`.  If they are equal,
+     *         as defined by the {@link compareTo}
+     *         method, `this` is returned.
+     * @see    {@link compareTo}
+     */
     max(val: BigDecimal): BigDecimal {
         return (this.compareTo(val) >= 0 ? this : val);
     }
 
+    /**
+     * Returns the string representation of this `BigDecimal`,
+     * using scientific notation if an exponent is needed.
+     *
+     * A standard canonical string form of the `BigDecimal`
+     * is created as though by the following steps: first, the
+     * absolute value of the unscaled value of the `BigDecimal`
+     * is converted to a string in base ten using the characters
+     * '0' through '9' with no leading zeros (except
+     * if its value is zero, in which case a single '0'
+     * character is used).
+     *
+     * Next, an <i>adjusted exponent</i> is calculated; this is the
+     * negated scale, plus the number of characters in the converted
+     * unscaled value, less one.  That is,
+     * `-scale+(ulength-1)`, where `ulength` is the
+     * length of the absolute value of the unscaled value in decimal
+     * digits (its <i>precision</i>).
+     *
+     * If the scale is greater than or equal to zero and the
+     * adjusted exponent is greater than or equal to `-6`, the
+     * number will be converted to a character form without using
+     * exponential notation.  In this case, if the scale is zero then
+     * no decimal point is added and if the scale is positive a
+     * decimal point will be inserted with the scale specifying the
+     * number of characters to the right of the decimal point.
+     * '0' characters are added to the left of the converted
+     * unscaled value as necessary.  If no character precedes the
+     * decimal point after this insertion then a conventional
+     * '0' character is prefixed.
+     *
+     * Otherwise (that is, if the scale is negative, or the
+     * adjusted exponent is less than `-6`), the number will be
+     * converted to a character form using exponential notation.  In
+     * this case, if the converted `BigInt` has more than
+     * one digit a decimal point is inserted after the first digit.
+     * An exponent in character form is then suffixed to the converted
+     * unscaled value (perhaps with inserted decimal point); this
+     * comprises the letter 'E' followed immediately by the
+     * adjusted exponent converted to a character form.  The latter is
+     * in base ten, using the characters '0' through
+     * '9' with no leading zeros, and is always prefixed by a
+     * sign character '-' (<code>'&#92;u002D'</code>) if the
+     * adjusted exponent is negative, '+'
+     * (<code>'&#92;u002B'</code>) otherwise).
+     *
+     * Finally, the entire string is prefixed by a minus sign
+     * character '-' (<code>'&#92;u002D'</code>) if the unscaled
+     * value is less than zero.  No sign character is prefixed if the
+     * unscaled value is zero or positive.
+     *
+     * **Examples:**
+     * For each representation [<i>unscaled value</i>, <i>scale</i>]
+     * on the left, the resulting string is shown on the right.
+     * <pre>
+     * [123,0]      "123"
+     * [-123,0]     "-123"
+     * [123,-1]     "1.23E+3"
+     * [123,-3]     "1.23E+5"
+     * [123,1]      "12.3"
+     * [123,5]      "0.00123"
+     * [123,10]     "1.23E-8"
+     * [-123,12]    "-1.23E-10"
+     * </pre>
+     *
+     * **Notes:**
+     *
+     * * There is a one-to-one mapping between the distinguishable
+     * `BigDecimal` values and the result of this conversion.
+     * That is, every distinguishable `BigDecimal` value
+     * (unscaled value and scale) has a unique string representation
+     * as a result of using `toString`.  If that string
+     * representation is converted back to a `BigDecimal` using
+     * the string constructor, then the original
+     * value will be recovered.
+     *
+     * * The {@link toEngineeringString} method may be used for
+     * presenting numbers with exponents in engineering notation, and the
+     * {@link setScale} method may be used for
+     * rounding a `BigDecimal` so it has a known number of digits after
+     * the decimal point.
+     *
+     * @return string representation of this `BigDecimal`.
+     */
     toString(): string {
         let sc = this.stringCache;
         if (sc === undefined) {
@@ -2630,6 +3006,28 @@ export class BigDecimal {
         return sc;
     }
 
+    /**
+     * Returns a string representation of this `BigDecimal`,
+     * using engineering notation if an exponent is needed.
+     *
+     * Returns a string that represents the `BigDecimal` as
+     * described in the {@link toString} method, except that if
+     * exponential notation is used, the power of ten is adjusted to
+     * be a multiple of three (engineering notation) such that the
+     * integer part of nonzero values will be in the range 1 through
+     * 999.  If exponential notation is used for zero values, a
+     * decimal point and one or two fractional zero digits are used so
+     * that the scale of the zero value is preserved.  Note that
+     * unlike the output of {@link toString}, the output of this
+     * method is <em>not</em> guaranteed to recover the same [number,
+     * scale] pair of this `BigDecimal` if the output string is
+     * converting back to a `BigDecimal` using the string constructor.
+     * The result of this method meets the weaker constraint of always producing a numerically equal
+     * result from applying the string constructor to the method's output.
+     *
+     * @return string representation of this `BigDecimal`, using
+     *         engineering notation if an exponent is needed.
+     */
     toEngineeringString(): string {
         return this.layoutChars(false);
     }
@@ -2730,6 +3128,35 @@ export class BigDecimal {
         return buf;
     }
 
+    /**
+     * Returns a string representation of this `BigDecimal`
+     * without an exponent field.  For values with a positive scale,
+     * the number of digits to the right of the decimal point is used
+     * to indicate scale.  For values with a zero or negative scale,
+     * the resulting string is generated as if the value were
+     * converted to a numerically equal value with zero scale and as
+     * if all the trailing zeros of the zero scale value were present
+     * in the result.
+     *
+     * The entire string is prefixed by a minus sign character '-'
+     * (<code>'&#92;u002D'</code>) if the unscaled value is less than
+     * zero. No sign character is prefixed if the unscaled value is
+     * zero or positive.
+     *
+     * Note that if the result of this method is passed to the
+     * string constructor, only the
+     * numerical value of this `BigDecimal` will necessarily be
+     * recovered; the representation of the new `BigDecimal`
+     * may have a different scale.  In particular, if this
+     * `BigDecimal` has a negative scale, the string resulting
+     * from this method will have a scale of zero when processed by
+     * the string constructor.
+     *
+     * @return a string representation of this `BigDecimal`
+     * without an exponent field.
+     * @see {@link toString}
+     * @see {@link toEngineeringString}
+     */
     toPlainString(): string {
         if (this._scale === 0) {
             if (this.intCompact !== BigDecimal.INFLATED) {
@@ -2784,10 +3211,30 @@ export class BigDecimal {
         return buf.toString();
     }
 
+    /**
+     * Converts this `BigDecimal` to a `BigInt`.
+     * Any fractional part of this will be discarded.  Note that this
+     * conversion can lose information about the precision of the
+     * `BigDecimal` value.
+     *
+     * To have an exception thrown if the conversion is inexact (in
+     * other words if a nonzero fractional part is discarded), use the
+     * {@link toBigIntExact} method.
+     *
+     * @return this `BigDecimal` converted to a `BigInt`.
+     */
     toBigInt(): BigInt {
         return this.setScale(0, RoundingMode.DOWN).inflated();
     }
 
+    /**
+     * Converts this `BigDecimal` to a `BigInt`,
+     * checking for lost information.  An exception is thrown if this
+     * `BigDecimal` has a nonzero fractional part.
+     *
+     * @return this `BigDecimal` converted to a `BigInt`.
+     * @throws RangeError if `this` has a nonzero fractional part.
+     */
     toBigIntExact(): BigInt {
         return this.setScale(0, RoundingMode.UNNECESSARY).inflated();
     }

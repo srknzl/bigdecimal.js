@@ -4,7 +4,7 @@
 This implementation is based on java BigDecimal class. Like java BigDecimal class, it uses big integers internally. This implementation 
 is faster than popular big decimal libraries. See [benchmarks results part below](https://github.com/srknzl/bigdecimal.js#benchmark-results) for comparison.
 
-**Note: This release is a preview release, and the package is currently in active development. API can change in the near future. I appreciate your feedback, thanks.**
+**Note: The library is currently in preview, v1.0.0 will be released soon. API can change in the near future. I appreciate your feedback, thanks.**
 
 ## Features
 
@@ -80,9 +80,9 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 
 ## Benchmark Results
 
-* Update Date: 26.06.2021
+* Update Date: 26 June 2021
 * Each operation is run with small numbers and with big numbers using benchmark.js. 
-Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source.
+Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
 * Operations per second(op/s):
 
 | Operation | Bigdecimal.js | Big.js | GWT |
