@@ -13,18 +13,131 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+
+/**
+ * Specifies a `rounding policy` for numerical operations capable
+ * of discarding precision. Each rounding mode indicates how the least
+ * significant returned digit of a rounded result is to be calculated.
+ * If fewer digits are returned than the digits needed to represent
+ * the exact numerical result, the discarded digits will be referred
+ * to as the `discarded fraction` regardless the digits'
+ * contribution to the value of the number.  In other words,
+ * considered as a numerical value, the discarded fraction could have
+ * an absolute value greater than one.
+ *
+ * Each rounding mode description includes a table listing how
+ * different two-digit decimal values would round to a one digit
+ * decimal value under the rounding mode in question. The result
+ * column in the tables could be gotten by creating a
+ * `BigDecimal` number with the specified value, forming a
+ * {@link MathContext} object with the proper settings
+ * (`precision` set to `1`, and the `roundingMode` set to the rounding
+ * mode in question), and calling {@link BigDecimal.round | round} on
+ * this number with the proper `MathContext`.  A summary table showing the results
+ * of these rounding operations for all rounding modes appears below.
+ *
+ * | Input | UP | DOWN | CEILING | FLOOR | HALF_UP | HALF_DOWN | HALF_EVEN | UNNECESSARY |
+ * | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+ * | 5.5 | 6 | 5 | 6 | 5 | 6 | 5 | 6 | RangeError |
+ * | 2.5 | 3 | 2 | 3 | 2 | 3 | 2 | 2 | RangeError |
+ * | 1.6 | 2 | 1 | 2 | 1 | 2 | 2 | 2 | RangeError |
+ * | 1.1 | 2 | 1 | 2 | 1 | 1 | 1 | 1 | RangeError |
+ * | 1.0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+ * | -1.0 | -1 | -1 | -1 | -1 | -1 | -1 | -1 | -1 |
+ * | -1.1 | -2 | -1 | -1 | -2 | -1 | -1 | -1 | RangeError |
+ * | -1.6 | -2 | -1 | -1 | -2 | -2 | -2 | -2 | RangeError |
+ * | -2.5 | -3 | -2 | -2 | -3 | -3 | -2 | -2 | RangeError |
+ * | -5.5 | -6 | -5 | -5 | -6 | -6 | -5 | -6 | RangeError |
+ *
+ */
 export enum RoundingMode {
+   /**
+    * Rounding mode to round away from zero.  Always increments the
+    * digit prior to a non-zero discarded fraction.  Note that this
+    * rounding mode never decreases the magnitude of the calculated
+    * value.
+    */
     UP,
+   /**
+    * Rounding mode to round towards zero.  Never increments the digit
+    * prior to a discarded fraction (i.e., truncates).  Note that this
+    * rounding mode never increases the magnitude of the calculated value.
+    * This mode corresponds to the IEEE 754-2019 rounding-direction
+    * attribute "roundTowardZero".
+    */
     DOWN,
+   /**
+    * Rounding mode to round towards positive infinity.  If the
+    * result is positive, behaves as for `RoundingMode.UP`;
+    * if negative, behaves as for `RoundingMode.DOWN`.  Note
+    * that this rounding mode never decreases the calculated value.
+    * This mode corresponds to the IEEE 754-2019 rounding-direction
+    * attribute "roundTowardPositive".
+    */
     CEILING,
+   /**
+    * Rounding mode to round towards negative infinity.  If the
+    * result is positive, behave as for `RoundingMode.DOWN`;
+    * if negative, behave as for `RoundingMode.UP`.  Note that
+    * this rounding mode never increases the calculated value.
+    * This mode corresponds to the IEEE 754-2019 rounding-direction
+    * attribute "roundTowardNegative".
+    */
     FLOOR,
+   /**
+    * Rounding mode to round towards "nearest neighbor"
+    * unless both neighbors are equidistant, in which case round up.
+    * Behaves as for `RoundingMode.UP` if the discarded
+    * fraction is &ge; 0.5; otherwise, behaves as for
+    * `RoundingMode.DOWN`.  Note that this is the rounding
+    * mode commonly taught at school.
+    * This mode corresponds to the IEEE 754-2019 rounding-direction
+    * attribute "roundTiesToAway".
+    */
     HALF_UP,
+   /**
+    * Rounding mode to round towards "nearest neighbor"
+    * unless both neighbors are equidistant, in which case round
+    * down.  Behaves as for `RoundingMode.UP` if the discarded
+    * fraction is &gt; 0.5; otherwise, behaves as for
+    * `RoundingMode.DOWN`.
+    */
     HALF_DOWN,
+   /**
+    * Rounding mode to round towards the "nearest neighbor"
+    * unless both neighbors are equidistant, in which case, round
+    * towards the even neighbor.  Behaves as for
+    * `RoundingMode.HALF_UP` if the digit to the left of the
+    * discarded fraction is odd; behaves as for
+    * `RoundingMode.HALF_DOWN` if it's even.  Note that this
+    * is the rounding mode that statistically minimizes cumulative
+    * error when applied repeatedly over a sequence of calculations.
+    * It is sometimes known as "Banker's rounding," and is
+    * chiefly used in the USA.
+    * This mode corresponds to the IEEE 754-2019 rounding-direction
+    * attribute "roundTiesToEven".
+    */
     HALF_EVEN,
+   /**
+    * Rounding mode to assert that the requested operation has an exact
+    * result, hence no rounding is necessary.  If this rounding mode is
+    * specified on an operation that yields an inexact result, an
+    * `RangeError` is thrown.
+    */
     UNNECESSARY
 }
 
 /**
+ * Immutable objects which encapsulate the context settings which
+ * describe certain rules for numerical operators, such as those
+ * implemented by the {@link BigDecimal} class.
+ *
+ * The base-independent settings are:
+ *
+ * * precision: the number of digits to be used for an operation; results are
+ * rounded to this precision
+ * * roundingMode: a {@link RoundingMode} object which specifies the algorithm to be
+ * used for rounding.
  *
  * Sample Usage:
  * ```javascript
@@ -48,7 +161,20 @@ export enum RoundingMode {
  * ```
  */
 export class MathContext {
+    /**
+     * The number of digits to be used for an operation.  A value of 0
+     * indicates that unlimited precision (as many digits as are
+     * required) will be used.  Note that leading zeros (in the
+     * coefficient of a number) are never significant.
+     *
+     * `precision` will always be non-negative.
+     */
     readonly precision: number;
+    /**
+     * The rounding algorithm to be used for an operation.
+     *
+     * see {@link RoundingMode}
+     */
     readonly roundingMode: RoundingMode;
 
     constructor(setPrecision: number, setRoundingMode: RoundingMode = MathContext.DEFAULT_ROUNDINGMODE) {
@@ -64,9 +190,35 @@ export class MathContext {
 
     /** @internal */
     private static DEFAULT_ROUNDINGMODE = RoundingMode.HALF_UP;
+    /**
+     * A `MathContext` object whose settings have the values
+     * required for unlimited precision arithmetic.
+     * The values of the settings are: `precision=0 roundingMode=HALF_UP`
+     */
     static UNLIMITED = new MathContext(0, RoundingMode.HALF_UP);
+    /**
+     * A `MathContext` object with a precision setting
+     * matching the precision of the IEEE 754-2019 decimal32 format, 7 digits, and a
+     * rounding mode of {@link RoundingMode.HALF_EVEN |  HALF_EVEN}.
+     * Note the exponent range of decimal32 is **not** used for
+     * rounding.
+     */
     static DECIMAL32 = new MathContext(7, RoundingMode.HALF_EVEN);
+    /**
+     * A `MathContext` object with a precision setting
+     * matching the precision of the IEEE 754-2019 decimal64 format, 16 digits, and a
+     * rounding mode of {@link RoundingMode.HALF_EVEN | HALF_EVEN}.
+     * Note the exponent range of decimal64 is **not** used for
+     * rounding.
+     */
     static DECIMAL64 = new MathContext(16, RoundingMode.HALF_EVEN);
+    /**
+     * A `MathContext` object with a precision setting
+     * matching the precision of the IEEE 754-2019 decimal128 format, 34 digits, and a
+     * rounding mode of {@link RoundingMode.HALF_EVEN | HALF_EVEN}.
+     * Note the exponent range of decimal64 is **not** used for
+     * rounding.
+     */
     static DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
 }
 
@@ -636,6 +788,7 @@ export class BigDecimal {
         }
         return new BigDecimal(rb, rs, scl, prec);
     }
+
     /** @internal */
     private static fromBigInt(value: BigInt, scale?: number, mc?: MathContext): BigDecimal {
         if (scale === undefined) {
@@ -655,7 +808,7 @@ export class BigDecimal {
 
     /** @internal */
     private static fromBigInt2(intVal: BigInt, scale: number, mc: MathContext): BigDecimal {
-        let unscaledVal : BigInt | null = intVal;
+        let unscaledVal: BigInt | null = intVal;
         let compactVal = BigDecimal.compactValFor(unscaledVal);
         const mcp = mc.precision;
         let prec = 0;
@@ -874,6 +1027,7 @@ export class BigDecimal {
             exp = -exp;
         return exp;
     }
+
     /** @internal */
     static fromValue(n: any, scale?: number, mc?: MathContext): BigDecimal {
         if (typeof n === 'number') {
@@ -2132,7 +2286,7 @@ export class BigDecimal {
         return BigDecimal.doRound(acc, mc);
     }
 
-    abs(mc?: MathContext) : BigDecimal {
+    abs(mc?: MathContext): BigDecimal {
         return this.signum() < 0 ? this.negate(mc) : this.plus(mc);
     }
 
@@ -2776,11 +2930,12 @@ export class BigDecimal {
 }
 
 interface BigInterface {
-    (n: any, scale?: number, mc?: MathContext) : BigDecimal;
-    new(n: any, scale?: number, mc?: MathContext) : BigDecimal;
+    (n: any, scale?: number, mc?: MathContext): BigDecimal;
+
+    new(n: any, scale?: number, mc?: MathContext): BigDecimal;
 }
 
-function _Big(n: any, scale?: number, mc?: MathContext) : BigDecimal {
+function _Big(n: any, scale?: number, mc?: MathContext): BigDecimal {
     return BigDecimal.fromValue(n, scale, mc);
 }
 
@@ -2827,4 +2982,4 @@ function _Big(n: any, scale?: number, mc?: MathContext) : BigDecimal {
  *     * A scale is not provided but a precision is provided
  * * If value is converted to string internally and the string format is invalid.
  */
-export const Big : BigInterface = <BigInterface>_Big;
+export const Big: BigInterface = <BigInterface>_Big;
