@@ -81,8 +81,9 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 ## Benchmark Results
 
 * Update Date: 26.06.2021
-
-* The given numbers are operations per second of different libraries for each arithmetic operation.
+* Each operation is run with small numbers and with big numbers using benchmark.js. 
+Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source.
+* Operations per second(op/s):
 
 | Operation | Bigdecimal.js | Big.js | GWT |
 | --- | --- | --- | --- |
