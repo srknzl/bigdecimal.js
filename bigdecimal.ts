@@ -2967,14 +2967,7 @@ function _Big(n: any, scale?: number, mc?: MathContext): BigDecimal {
  * @param n Any value to build a BigDecimal from. Types other than `Number`, `BigInt` and `BigDecimal` will be internally
  * converted to string and parsed.
  * @param scale Scale to use, by default 0.
- * @param mc MathContext object which allows you to set precision and rounding mode. If not provided, 0 precision will be used.
- * You can use MathContext object for sending precision and rounding mode. If rounding mode is not necessary it won't be used.
- * In the following call signatures, rounding mode will be necessary:
- * * (BigInt, scale, MathContext)
- * * (BigInt, undefined, MathContext)
- * * (BigInt, undefined, MathContext)
- * * (number, undefined, MathContext)
- * * (string, undefined, MathContext)
+ * @param mc MathContext object which allows you to set precision and rounding mode.
  * @throws RangeError on following situations:
  * * If value is a number:
  *     * Value is not a number
