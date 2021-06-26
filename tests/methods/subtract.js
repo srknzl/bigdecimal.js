@@ -11,7 +11,7 @@ describe('Subtraction test', function () {
             const subtraction = () => {
                 return Big(test.arguments[0]).subtract(
                     Big(test.arguments[1]),
-                    new MathContext(test.arguments[2], test.arguments[3])
+                    MathContext(test.arguments[2], test.arguments[3])
                 ).toString();
             };
             if (test.result === 'errorThrown') {
