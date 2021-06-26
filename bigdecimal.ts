@@ -141,7 +141,7 @@ export enum RoundingMode {
  *
  * Sample Usage:
  * ```javascript
- * import { Big, MathContext, RoundingMode } from './index';
+ * const { Big, MathContext, RoundingMode } = require('bigdecimal.js');
  *
  * const x = Big('1');
  * const y = Big('3');
@@ -171,21 +171,20 @@ export class MathContext {
      */
     readonly precision: number;
     /**
-     * The rounding algorithm to be used for an operation.
+     * The rounding algorithm to be used for an operation. By default it is `HALF_UP`.
      *
      * see {@link RoundingMode}
      */
     readonly roundingMode: RoundingMode;
 
-    constructor(setPrecision: number, setRoundingMode: RoundingMode = MathContext.DEFAULT_ROUNDINGMODE) {
-        if (setPrecision < 0) {
-            throw new RangeError('Digits < 0');
-        } else if (setRoundingMode === null) {
-            throw new TypeError('RoundingMode is null');
-        } else {
-            this.precision = setPrecision;
-            this.roundingMode = setRoundingMode;
+    constructor(precision: number, roundingMode: RoundingMode = MathContext.DEFAULT_ROUNDINGMODE) {
+        if (precision < 0) {
+            throw new RangeError('MathContext precision cannot be less than 0');
+        } else if (!RoundingMode[roundingMode]) {
+            throw new TypeError(`RoundingMode is invalid: ${roundingMode}`);
         }
+        this.precision = precision;
+        this.roundingMode = roundingMode;
     }
 
     /** @internal */
