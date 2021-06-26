@@ -1467,6 +1467,17 @@ export class BigDecimal {
         return result;
     }
 
+    /**
+     * Returns a `BigDecimal` whose value is `(this + augend)`,
+     * with rounding according to the context settings.
+     *
+     * If either number is zero and the precision setting is nonzero then
+     * the other number, rounded if necessary, is used as the result.
+     *
+     * @param  augend value to be added to this `BigDecimal`.
+     * @param  mc the context to use.
+     * @return `this + augend`, rounded as necessary.
+     */
     add(augend: BigDecimal, mc?: MathContext): BigDecimal {
         augend = BigDecimal.convertToBigDecimal(augend);
         if (!mc || (mc && mc.precision === 0)) {
@@ -1573,6 +1584,18 @@ export class BigDecimal {
         }
     }
 
+    /**
+     * Returns a `BigDecimal` whose value is `(this /
+     * divisor)`, and whose preferred scale is `(this.scale() -
+     * divisor.scale())` if the exact quotient cannot be
+     * represented (because it has a non-terminating decimal
+     * expansion) an `RangeError` is thrown.
+     *
+     * @param  divisor value by which this `BigDecimal` is to be divided.
+     * @throws RangeError if the exact quotient does not have a
+     *         terminating decimal expansion, including dividing by zero
+     * @return `this / divisor`
+     */
     divide(divisor: BigDecimal, mc?: MathContext): BigDecimal {
         divisor = BigDecimal.convertToBigDecimal(divisor);
         if (!mc || (mc && mc.precision === 0)) {
@@ -1860,6 +1883,24 @@ export class BigDecimal {
         return BigDecimal.doRound(quotient, mc);
     }
 
+    /**
+     * Returns a `BigDecimal` whose value is the integer part
+     * of `(this / divisor)`.  Since the integer part of the
+     * exact quotient does not depend on the rounding mode, the
+     * rounding mode does not affect the values returned by this
+     * method.  The preferred scale of the result is
+     * `(this.scale() - divisor.scale())`. A
+     * `RangeError` is thrown if the integer part of
+     * the exact quotient needs more than `mc.precision`
+     * digits.
+     *
+     * @param  divisor value by which this `BigDecimal` is to be divided.
+     * @param  mc the context to use.
+     * @return The integer part of `this / divisor`.
+     * @throws RangeError if divisor is 0
+     * @throws RangeError if `mc.precision > 0` and the result
+     *         requires a precision of more than `mc.precision` digits.
+     */
     divideToIntegralValue(divisor: BigDecimal, mc?: MathContext): BigDecimal {
         divisor = BigDecimal.convertToBigDecimal(divisor);
         if (!mc || (mc && (mc.precision === 0 || this.compareMagnitude(divisor) < 0))) {
@@ -1977,6 +2018,31 @@ export class BigDecimal {
         return this.inflated() === value.inflated();
     }
 
+    /**
+     * Returns a two-element `BigDecimal` array containing the
+     * result of `divideToIntegralValue` followed by the result of
+     * `remainder` on the two operands calculated with rounding
+     * according to the context settings.
+     *
+     * Note that if both the integer quotient and remainder are
+     * needed, this method is faster than using the
+     * `divideToIntegralValue` and `remainder` methods
+     * separately because the division need only be carried out once.
+     *
+     * @param  divisor value by which this `BigDecimal` is to be divided,
+     *         and the remainder computed.
+     * @param  mc the context to use.
+     * @return a two element `BigDecimal` array: the quotient
+     *         (the result of `divideToIntegralValue`) is the
+     *         initial element and the remainder is the final element.
+     * @throws RangeError if divisor is 0
+     * @throws RangeError if the result is inexact but the
+     *         rounding mode is `UNNECESSARY`, or `mc.precision > 0`
+     *         and the result of `this.divideToIntegralValue(divisor)` would
+     *         require a precision of more than `mc.precision` digits.
+     * @see    {@link divideToIntegralValue}
+     * @see    {@link remainder}
+     */
     divideAndRemainder(divisor: BigDecimal, mc?: MathContext): [BigDecimal, BigDecimal] {
         divisor = BigDecimal.convertToBigDecimal(divisor);
         const result = new Array<BigDecimal>(2);
@@ -2146,6 +2212,25 @@ export class BigDecimal {
         return new BigDecimal(this.intVal, this.intCompact, this.checkScale(this._scale - n), this.precision);
     }
 
+    /**
+     * Compares this `BigDecimal` numerically with the specified
+     * `BigDecimal`.  Two `BigDecimal` objects that are
+     * equal in value but have a different scale (like 2.0 and 2.00)
+     * are considered equal by this method. Such values are in the
+     * same <i>cohort</i>.
+     *
+     * This method is provided in preference to individual methods for
+     * each of the six boolean comparison operators (`<`, `==`,
+     * `>`, `>=`, `!=`, `<=`).  The suggested
+     * idiom for performing these comparisons is:
+     * (x.compareTo(y) &lt;<i>op</i>&gt; 0), where
+     * &lt;<i>op</i>&gt; is one of the six comparison operators.
+
+     * @param  val `BigDecimal` to which this `BigDecimal` is
+     *         to be compared.
+     * @return -1, 0, or 1 as this `BigDecimal` is numerically
+     *          less than, equal to, or greater than `val`.
+     */
     compareTo(val: BigDecimal): number {
         val = BigDecimal.convertToBigDecimal(val);
         if (this._scale === val._scale) {
@@ -2286,6 +2371,14 @@ export class BigDecimal {
         return BigDecimal.doRound(acc, mc);
     }
 
+    /**
+     * Returns a `BigDecimal` whose value is the absolute value
+     * of this `BigDecimal`, with rounding according to the
+     * context settings.
+     *
+     * @param mc the context to use.
+     * @return absolute value, rounded as necessary.
+     */
     abs(mc?: MathContext): BigDecimal {
         return this.signum() < 0 ? this.negate(mc) : this.plus(mc);
     }

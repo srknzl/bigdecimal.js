@@ -2,7 +2,7 @@
 
 [BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal(arbitrary precision floats) implementation for Node.js. 
 This implementation is based on java BigDecimal class. Like java BigDecimal class, it uses big integers internally. This implementation 
-is faster than popular big decimal libraries. See [benchmarks section](https://github.com/srknzl/bigdecimal.js#running-benchmarks) for comparison.
+is faster than popular big decimal libraries. See [benchmarks results part below](https://github.com/srknzl/bigdecimal.js#benchmark-results) for comparison.
 
 **Note: This release is a preview release, and the package is currently in active development. API can change in the near future. I appreciate your feedback, thanks.**
 
@@ -77,3 +77,27 @@ There is a benchmark suite that compares
 * [GWT based BigDecimal](https://github.com/iriscouch/bigdecimal.js)
 
 To run the benchmark run `npm install` and then `npm run benchmark`.
+
+## Benchmark Results
+
+* Update Date: 26.06.2021
+
+* The given numbers are operations per second of different libraries for each arithmetic operation.
+
+| Operation | Bigdecimal.js | Big.js | GWT |
+| --- | --- | --- | --- |
+| Add | 611777 | 415311 | 12775 |
+| Add with big numbers | 113717 | 33673 | 148 |
+| Multiply | 613562 | 73390 | 3720 |
+| Multiply with big numbers | 231335 | 1651 | 80.09 |
+| Subtract | 641597 | 348541 | 12959 |
+| Subtract with big numbers | 98031 | 32729 | 158 |
+| Divide | 6973 | 2202 | 382 |
+| Divide with big numbers | 12258 | 822 | 486 |
+| Abs | 1266382 | 3857749 | 61296 |
+| Abs with big numbers | 1061946 | 1670200 | 8687 |
+| Compare | 1126781 | 2317875 | 369511 |
+| Compare with big numbers | 822355 | 1454145 | 552519 |
+
+
+* For more, check out https://docs.google.com/spreadsheets/d/1KdpW3NyIK5wD-P0f4H72CvizZ9u0B4qeIm2xBqzky-Q/edit?usp=sharing
