@@ -53,6 +53,18 @@ async function runDivideJava(first, second, precision, roundingMode) {
     }
 }
 
+async function runDivideAndRemainderJava(first, second, precision, roundingMode) {
+    try {
+        const { stdout, stderr } = await exec(
+            `java -cp com/DivideAndRemainder Main ${first} ${second} ${precision} ${roundingMode}`
+        );
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim().split(' '); // the first is quotient, the second is remainder
+    } catch (e) {
+        return ['errorThrown', 'errorThrown'];
+    }
+}
+
 async function runCompareToJava(first, second) {
     try {
         const { stdout, stderr } = await exec(`java -cp com/CompareTo Main ${first} ${second}`);
@@ -73,11 +85,11 @@ async function generateAddTest(tuple, testCasesArray) {
         ];
         const result = await runAddJava(...args);
         testCasesArray.push({
-            arguments: args,
+            args: args,
             result: result.trim()
         });
         counter++;
-        if(counter % 100 === 0) console.log(counter);
+        if (counter % 100 === 0) console.log(counter);
     }
 }
 
@@ -91,11 +103,11 @@ async function generateSubtractTest(tuple, testCasesArray) {
         ];
         const result = await runSubtractJava(...args);
         testCasesArray.push({
-            arguments: args,
+            args: args,
             result: result.trim()
         });
         counter++;
-        if(counter % 100 === 0) console.log(counter);
+        if (counter % 100 === 0) console.log(counter);
     }
 }
 
@@ -109,11 +121,11 @@ async function generateMultiplyTest(tuple, testCasesArray) {
         ];
         const result = await runMultiplyJava(...args);
         testCasesArray.push({
-            arguments: args,
+            args: args,
             result: result.trim()
         });
         counter++;
-        if(counter % 100 === 0) console.log(counter);
+        if (counter % 100 === 0) console.log(counter);
     }
 }
 
@@ -127,11 +139,38 @@ async function generateDivideTest(tuple, testCasesArray) {
         ];
         const result = await runDivideJava(...args);
         testCasesArray.push({
-            arguments: args,
+            args: args,
             result: result.trim()
         });
         counter++;
-        if(counter % 100 === 0) console.log(counter);
+        if (counter % 100 === 0) console.log(counter);
+    }
+}
+
+async function generateDivideAndRemainderTest(tuple, testCasesArray) {
+    for (let i = 0; i < repeatCountForRandomTests; i++) {
+        const args = [
+            tuple[0],
+            tuple[1],
+            Math.floor(Math.random() * maxPrecision), // precision
+            Math.floor(Math.random() * maxRoundingMode) // rounding mode
+        ];
+        const result = await runDivideAndRemainderJava(...args);
+        if (result[0] === 'errorThrown') {
+            testCasesArray.push({
+                args: args,
+                quotient: 'errorThrown',
+                remainder: 'errorThrown'
+            });
+        } else {
+            testCasesArray.push({
+                args: args,
+                quotient: result[0],
+                remainder: result[1]
+            });
+        }
+        counter++;
+        if (counter % 100 === 0) console.log(counter);
     }
 }
 
@@ -142,11 +181,11 @@ async function generateCompareToTest(tuple, testCasesArray) {
     ];
     const result = await runCompareToJava(...args);
     testCasesArray.push({
-        arguments: args,
+        args: args,
         result: result.trim()
     });
     counter++;
-    if(counter % 100 === 0) console.log(counter);
+    if (counter % 100 === 0) console.log(counter);
 }
 
 async function run() {
@@ -155,12 +194,14 @@ async function run() {
     const multiplicationOutputName = path.join(outputDir, 'multiplicationTestCases.json');
     const divisionOutputName = path.join(outputDir, 'divisionTestCases.json');
     const compareToOutputName = path.join(outputDir, 'compareToTestCases.json');
+    const divideAndRemainderOutputName = path.join(outputDir, 'divideAndRemainderTestCases.json');
 
     const addTestCases = [];
     const subtractTestCases = [];
     const multiplyTestCases = [];
     const divideTestCases = [];
     const compareToTestCases = [];
+    const divideAndRemainderTestCases = [];
 
     if (fs.existsSync(additionOutputName)) {
         console.log(`${additionOutputName} exists, skipping generation.`);
@@ -200,6 +241,16 @@ async function run() {
         const jobs = testNumbers.map(tuple => generateDivideTest(tuple, divideTestCases));
         await Promise.all(jobs);
         fs.writeFileSync(divisionOutputName, JSON.stringify(divideTestCases));
+    }
+
+    if (fs.existsSync(divideAndRemainderOutputName)) {
+        console.log(`${divideAndRemainderOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${divideAndRemainderOutputName}..`);
+        console.log(`Number of test cases are ${testNumbers.length}`);
+        const jobs = testNumbers.map(tuple => generateDivideAndRemainderTest(tuple, divideAndRemainderTestCases));
+        await Promise.all(jobs);
+        fs.writeFileSync(divideAndRemainderOutputName, JSON.stringify(divideAndRemainderTestCases));
     }
 
     if (fs.existsSync(compareToOutputName)) {

@@ -71,6 +71,9 @@
     "skipLibCheck": true,                           /* Skip type checking of declaration files. */
     "forceConsistentCasingInFileNames": true        /* Disallow inconsistently-cased references to the same file. */
   },
-  "files": ["bigdecimal.ts", "index.ts"],
+  "files": [
+    "src/bigdecimal.ts",
+    "src/index.ts"
+  ],
   "exclude": ["lib", "node_modules"]
 }

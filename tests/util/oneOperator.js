@@ -32,11 +32,11 @@ async function generateAbsTest(number, absTestCases) {
         ];
         const absResult = await runAbsJava(...args);
         absTestCases.push({
-            arguments: args,
+            args: args,
             result: absResult.trim()
         });
         counter++;
-        if(counter % 100 === 0) console.log(counter);
+        if (counter % 100 === 0) console.log(counter);
     }
 }
 

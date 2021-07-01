@@ -1,0 +1,102 @@
+{
+  "env": {
+    "node": true,
+    "commonjs": true,
+    "mocha": true,
+    "es2020": true
+  },
+  "rules": {
+    "arrow-spacing": [
+      "error",
+      {
+        "after": true,
+        "before": true
+      }
+    ],
+    "strict": "error",
+    "block-spacing": "error",
+    "brace-style": [
+      "error",
+      "1tbs"
+    ],
+    "camelcase": "error",
+    "comma-spacing": [
+      "error",
+      {
+        "after": true,
+        "before": false
+      }
+    ],
+    "comma-style": [
+      "error",
+      "last"
+    ],
+    "eol-last": "error",
+    "func-call-spacing": "error",
+    "keyword-spacing": [
+      "error",
+      {
+        "after": true,
+        "before": true
+      }
+    ],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    "max-len": [
+      "error",
+      {
+        "code": 130
+      }
+    ],
+    "prefer-const": "error",
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "semi": "error",
+    "semi-style": [
+      "error",
+      "last"
+    ],
+    "space-before-blocks": "error",
+    "spaced-comment": [
+      "error",
+      "always"
+    ],
+    "no-trailing-spaces": "error",
+    "no-multi-spaces": "error",
+    "no-multiple-empty-lines": [
+      "error",
+      {
+        "max": 1
+      }
+    ],
+    "no-useless-concat": "error",
+    "indent": ["warn", 4, {
+      "CallExpression": {
+        "arguments": 1
+      },
+      "VariableDeclarator": "off",
+      "outerIIFEBody": "off",
+      "MemberExpression": "off",
+      "FunctionDeclaration": {
+        "parameters": "off"
+      },
+      "FunctionExpression": {
+        "parameters": "off"
+      },
+      "ArrayExpression": "off",
+      "ObjectExpression": "off",
+      "ImportDeclaration": "off",
+      "ignoredNodes": [
+        "SwitchCase",
+        "FunctionDeclaration > BlockStatement.body",
+        "FunctionExpression > BlockStatement.body"
+      ]
+    }],
+    "space-in-parens": "error",
+    "eqeqeq": "error"
+  }
+}

@@ -1,3 +1,4 @@
+'use strict';
 const { Big } = require('../../lib/bigdecimal');
 module.exports = [
     [Big('12.345'), undefined],

@@ -7,7 +7,7 @@ const oneOperatorRunner = require('./oneOperator');
 const twoOperatorRunner = require('./twoOperator');
 
 const outputDir = path.join('.', 'output');
-if(!fs.existsSync(outputDir)){
+if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
 }
 

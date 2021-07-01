@@ -1,3 +1,4 @@
+'use strict';
 const { Big, MathContext } = require('../../lib/bigdecimal');
 const chai = require('chai');
 const testCases = require('../util/output/additionTestCases.json');
@@ -9,18 +10,18 @@ describe('Addition test', function () {
     it('should be able to add two decimals', function () {
         for (const test of testCases) {
             const addition = () => {
-                return Big(test.arguments[0]).add(
-                    Big(test.arguments[1]),
-                    MathContext(test.arguments[2], test.arguments[3])
+                return Big(test.args[0]).add(
+                    Big(test.args[1]),
+                    MathContext(test.args[2], test.args[3])
                 ).toString();
             };
             if (test.result === 'errorThrown') {
-                addition.should.throw(undefined, undefined, `expected '${test.arguments[0]}' + '${test.arguments[1]}' to throw`);
+                addition.should.throw(undefined, undefined, `expected '${test.args[0]}' + '${test.args[1]}' to throw`);
                 continue;
             }
             const actual = addition();
             const expected = test.result;
-            actual.should.be.equal(expected, `expected '${test.arguments[0]}' + '${test.arguments[1]}' to be '${expected}'`);
+            actual.should.be.equal(expected, `expected '${test.args[0]}' + '${test.args[1]}' to be '${expected}'`);
         }
     });
 

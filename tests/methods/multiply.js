@@ -1,3 +1,4 @@
+'use strict';
 const { Big, MathContext } = require('../../lib/bigdecimal');
 const chai = require('chai');
 const testCases = require('../util/output/multiplicationTestCases.json');
@@ -9,18 +10,22 @@ describe('Multiplication test', function () {
     it('should be able to multiplication two decimals', function () {
         for (const test of testCases) {
             const multiplication = () => {
-                return Big(test.arguments[0]).multiply(
-                    Big(test.arguments[1]),
-                    new MathContext(test.arguments[2], test.arguments[3])
+                return Big(test.args[0]).multiply(
+                    Big(test.args[1]),
+                    new MathContext(test.args[2], test.args[3])
                 ).toString();
             };
             if (test.result === 'errorThrown') {
-                multiplication.should.throw(undefined, undefined, `expected '${test.arguments[0]}' * '${test.arguments[1]}' to throw`);
+                multiplication.should.throw(
+                    undefined,
+                    undefined,
+                    `expected '${test.args[0]}' * '${test.args[1]}' to throw`
+                );
                 continue;
             }
             const actual = multiplication();
             const expected = test.result;
-            actual.should.be.equal(expected, `expected '${test.arguments[0]}' * '${test.arguments[1]}' to be '${expected}'`);
+            actual.should.be.equal(expected, `expected '${test.args[0]}' * '${test.args[1]}' to be '${expected}'`);
         }
     });
 
