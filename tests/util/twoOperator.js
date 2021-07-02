@@ -86,6 +86,16 @@ async function runCompareToJava(first, second) {
     }
 }
 
+async function runEqualsJava(first, second) {
+    try {
+        const { stdout, stderr } = await exec(`java -cp com/Equals Main ${first} ${second}`);
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim();
+    } catch (e) {
+        return 'errorThrown';
+    }
+}
+
 async function generateAddTest(tuple, testCasesArray) {
     for (let i = 0; i < repeatCountForRandomTests; i++) {
         const args = [
@@ -97,7 +107,7 @@ async function generateAddTest(tuple, testCasesArray) {
         const result = await runAddJava(...args);
         testCasesArray.push({
             args: args,
-            result: result.trim()
+            result: result
         });
         counter++;
         if (counter % 100 === 0) console.log(counter);
@@ -115,7 +125,7 @@ async function generateSubtractTest(tuple, testCasesArray) {
         const result = await runSubtractJava(...args);
         testCasesArray.push({
             args: args,
-            result: result.trim()
+            result: result
         });
         counter++;
         if (counter % 100 === 0) console.log(counter);
@@ -133,7 +143,7 @@ async function generateMultiplyTest(tuple, testCasesArray) {
         const result = await runMultiplyJava(...args);
         testCasesArray.push({
             args: args,
-            result: result.trim()
+            result: result
         });
         counter++;
         if (counter % 100 === 0) console.log(counter);
@@ -151,7 +161,7 @@ async function generateDivideTest(tuple, testCasesArray) {
         const result = await runDivideJava(...args);
         testCasesArray.push({
             args: args,
-            result: result.trim()
+            result: result
         });
         counter++;
         if (counter % 100 === 0) console.log(counter);
@@ -211,7 +221,21 @@ async function generateCompareToTest(tuple, testCasesArray) {
     const result = await runCompareToJava(...args);
     testCasesArray.push({
         args: args,
-        result: result.trim()
+        result: result
+    });
+    counter++;
+    if (counter % 100 === 0) console.log(counter);
+}
+
+async function generateEqualsTest(tuple, testCasesArray) {
+    const args = [
+        tuple[0],
+        tuple[1]
+    ];
+    const result = await runEqualsJava(...args);
+    testCasesArray.push({
+        args: args,
+        result: result
     });
     counter++;
     if (counter % 100 === 0) console.log(counter);
@@ -225,6 +249,7 @@ async function run() {
     const compareToOutputName = path.join(outputDir, 'compareToTestCases.json');
     const divideAndRemainderOutputName = path.join(outputDir, 'divideAndRemainderTestCases.json');
     const divideToIntegralValueOutputName = path.join(outputDir, 'divideToIntegralValueTestCases.json');
+    const equalsOutputName = path.join(outputDir, 'equalsTestCases.json');
 
     const addTestCases = [];
     const subtractTestCases = [];
@@ -233,6 +258,7 @@ async function run() {
     const compareToTestCases = [];
     const divideAndRemainderTestCases = [];
     const divideToIntegralValueTestCases = [];
+    const equalsTestCases = [];
 
     if (fs.existsSync(additionOutputName)) {
         console.log(`${additionOutputName} exists, skipping generation.`);
@@ -302,6 +328,16 @@ async function run() {
         const jobs = testNumbers.map(tuple => generateCompareToTest(tuple, compareToTestCases));
         await Promise.all(jobs);
         fs.writeFileSync(compareToOutputName, JSON.stringify(compareToTestCases));
+    }
+
+    if (fs.existsSync(equalsOutputName)) {
+        console.log(`${equalsOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${equalsOutputName}..`);
+        console.log(`Number of test cases are ${testNumbers.length}`);
+        const jobs = testNumbers.map(tuple => generateEqualsTest(tuple, equalsTestCases));
+        await Promise.all(jobs);
+        fs.writeFileSync(equalsOutputName, JSON.stringify(equalsTestCases));
     }
 
 }
