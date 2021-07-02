@@ -875,9 +875,7 @@ export class BigDecimal {
      * @param scale
      * @param mc
      * @throws RangeError If:
-     * * Value is not a number
      * * Value is not in the range [Number.MIN_VALUE, Number.MAX_VALUE]
-     * * A scale is not provided but a precision is provided
      */
     /** @internal */
     private static fromNumber(value: number, scale?: number, mc?: MathContextClass): BigDecimal {
@@ -3515,11 +3513,10 @@ function _Big(n: any, scale?: number, mc?: MathContextClass): BigDecimal {
  * @param mc MathContext object which allows you to set precision and rounding mode.
  * @throws RangeError on following situations:
  * * If value is a number:
- *     * Value is not a number
- *     * Value is not in the range [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
- *     * Both scale and precision is provided. You can only give one of scale and mc. Simply pass undefined to one of them, or
- *     alternatively omit it.
- * * If value is converted to string internally and the string format is invalid.
+ *     * Value is not in the range [Number.MIN_VALUE, Number.MAX_VALUE]
+ *     * Both scale and precision is provided. You can only give one of scale and mc. Passing undefined is same as omitting.
+ * * If value is not a number, a BigInt or a BigDecimal, it will be converted to string.
+ *   An error will be thrown if the string format is invalid.
  */
 export const Big: BigInterface = <BigInterface>_Big;
 
