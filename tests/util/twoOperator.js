@@ -96,6 +96,26 @@ async function runEqualsJava(first, second) {
     }
 }
 
+async function runMaxJava(first, second) {
+    try {
+        const { stdout, stderr } = await exec(`java -cp com/Max Main ${first} ${second}`);
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim();
+    } catch (e) {
+        return 'errorThrown';
+    }
+}
+
+async function runMinJava(first, second) {
+    try {
+        const { stdout, stderr } = await exec(`java -cp com/Min Main ${first} ${second}`);
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim();
+    } catch (e) {
+        return 'errorThrown';
+    }
+}
+
 async function generateAddTest(tuple, testCasesArray) {
     for (let i = 0; i < repeatCountForRandomTests; i++) {
         const args = [
@@ -241,6 +261,34 @@ async function generateEqualsTest(tuple, testCasesArray) {
     if (counter % 100 === 0) console.log(counter);
 }
 
+async function generateMaxTest(tuple, testCasesArray) {
+    const args = [
+        tuple[0],
+        tuple[1]
+    ];
+    const result = await runMaxJava(...args);
+    testCasesArray.push({
+        args: args,
+        result: result
+    });
+    counter++;
+    if (counter % 100 === 0) console.log(counter);
+}
+
+async function generateMinTest(tuple, testCasesArray) {
+    const args = [
+        tuple[0],
+        tuple[1]
+    ];
+    const result = await runMinJava(...args);
+    testCasesArray.push({
+        args: args,
+        result: result
+    });
+    counter++;
+    if (counter % 100 === 0) console.log(counter);
+}
+
 async function run() {
     const additionOutputName = path.join(outputDir, 'additionTestCases.json');
     const subtractionOutputName = path.join(outputDir, 'subtractionTestCases.json');
@@ -250,6 +298,8 @@ async function run() {
     const divideAndRemainderOutputName = path.join(outputDir, 'divideAndRemainderTestCases.json');
     const divideToIntegralValueOutputName = path.join(outputDir, 'divideToIntegralValueTestCases.json');
     const equalsOutputName = path.join(outputDir, 'equalsTestCases.json');
+    const maxOutputName = path.join(outputDir, 'maxTestCases.json');
+    const minOutputName = path.join(outputDir, 'minTestCases.json');
 
     const addTestCases = [];
     const subtractTestCases = [];
@@ -259,6 +309,8 @@ async function run() {
     const divideAndRemainderTestCases = [];
     const divideToIntegralValueTestCases = [];
     const equalsTestCases = [];
+    const maxTestCases = [];
+    const minTestCases = [];
 
     if (fs.existsSync(additionOutputName)) {
         console.log(`${additionOutputName} exists, skipping generation.`);
@@ -338,6 +390,26 @@ async function run() {
         const jobs = testNumbers.map(tuple => generateEqualsTest(tuple, equalsTestCases));
         await Promise.all(jobs);
         fs.writeFileSync(equalsOutputName, JSON.stringify(equalsTestCases));
+    }
+
+    if (fs.existsSync(maxOutputName)) {
+        console.log(`${maxOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${maxOutputName}..`);
+        console.log(`Number of test cases are ${testNumbers.length}`);
+        const jobs = testNumbers.map(tuple => generateMaxTest(tuple, maxTestCases));
+        await Promise.all(jobs);
+        fs.writeFileSync(maxOutputName, JSON.stringify(maxTestCases));
+    }
+
+    if (fs.existsSync(minOutputName)) {
+        console.log(`${minOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${minOutputName}..`);
+        console.log(`Number of test cases are ${testNumbers.length}`);
+        const jobs = testNumbers.map(tuple => generateMinTest(tuple, minTestCases));
+        await Promise.all(jobs);
+        fs.writeFileSync(minOutputName, JSON.stringify(minTestCases));
     }
 
 }
