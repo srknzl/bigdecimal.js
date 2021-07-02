@@ -28,7 +28,7 @@ describe('Division test', function () {
     it('should throw on invalid argument', function () {
         for (const test of invalidTests) {
             (() => {
-                test[0].subtract(test[1]);
+                test[0].divide(test[1]);
             }).should.throw(undefined, undefined, `expected '${test[0]}' / '${test[1]}' to throw`);
         }
     });

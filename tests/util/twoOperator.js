@@ -64,6 +64,17 @@ async function runDivideAndRemainderJava(first, second, precision, roundingMode)
         return ['errorThrown', 'errorThrown'];
     }
 }
+async function runDivideToIntegralValueJava(first, second, precision, roundingMode) {
+    try {
+        const { stdout, stderr } = await exec(
+            `java -cp com/DivideToIntegralValue Main ${first} ${second} ${precision} ${roundingMode}`
+        );
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim();
+    } catch (e) {
+        return 'errorThrown';
+    }
+}
 
 async function runCompareToJava(first, second) {
     try {
@@ -174,6 +185,24 @@ async function generateDivideAndRemainderTest(tuple, testCasesArray) {
     }
 }
 
+async function generateDivideToIntegralValueTest(tuple, testCasesArray) {
+    for (let i = 0; i < repeatCountForRandomTests; i++) {
+        const args = [
+            tuple[0],
+            tuple[1],
+            Math.floor(Math.random() * maxPrecision), // precision
+            Math.floor(Math.random() * maxRoundingMode) // rounding mode
+        ];
+        const result = await runDivideToIntegralValueJava(...args);
+        testCasesArray.push({
+            args: args,
+            result: result
+        });
+        counter++;
+        if (counter % 100 === 0) console.log(counter);
+    }
+}
+
 async function generateCompareToTest(tuple, testCasesArray) {
     const args = [
         tuple[0],
@@ -195,6 +224,7 @@ async function run() {
     const divisionOutputName = path.join(outputDir, 'divisionTestCases.json');
     const compareToOutputName = path.join(outputDir, 'compareToTestCases.json');
     const divideAndRemainderOutputName = path.join(outputDir, 'divideAndRemainderTestCases.json');
+    const divideToIntegralValueOutputName = path.join(outputDir, 'divideToIntegralValueTestCases.json');
 
     const addTestCases = [];
     const subtractTestCases = [];
@@ -202,6 +232,7 @@ async function run() {
     const divideTestCases = [];
     const compareToTestCases = [];
     const divideAndRemainderTestCases = [];
+    const divideToIntegralValueTestCases = [];
 
     if (fs.existsSync(additionOutputName)) {
         console.log(`${additionOutputName} exists, skipping generation.`);
@@ -251,6 +282,16 @@ async function run() {
         const jobs = testNumbers.map(tuple => generateDivideAndRemainderTest(tuple, divideAndRemainderTestCases));
         await Promise.all(jobs);
         fs.writeFileSync(divideAndRemainderOutputName, JSON.stringify(divideAndRemainderTestCases));
+    }
+
+    if (fs.existsSync(divideToIntegralValueOutputName)) {
+        console.log(`${divideToIntegralValueOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${divideToIntegralValueOutputName}..`);
+        console.log(`Number of test cases are ${testNumbers.length}`);
+        const jobs = testNumbers.map(tuple => generateDivideToIntegralValueTest(tuple, divideToIntegralValueTestCases));
+        await Promise.all(jobs);
+        fs.writeFileSync(divideToIntegralValueOutputName, JSON.stringify(divideToIntegralValueTestCases));
     }
 
     if (fs.existsSync(compareToOutputName)) {
