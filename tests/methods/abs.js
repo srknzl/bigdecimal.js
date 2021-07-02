@@ -19,11 +19,7 @@ describe('Absolute value test', function () {
             }
             const actual = absOp();
             const expected = test.result;
-            try {
-                actual.should.be.equal(expected, `expected '${test.args[0]}'.abs() to be '${expected}'`);
-            } catch (e) {
-                console.log(e);
-            }
+            actual.should.be.equal(expected, `expected '${test.args[0]}'.abs() to be '${expected}'`);
         }
     });
 });

@@ -46,6 +46,16 @@ async function runMovePointLeftJava(number, point) {
     }
 }
 
+async function runNegateJava(number, precision, roundingMode) {
+    try {
+        const { stdout, stderr } = await exec(`java -cp com/Negate Main ${number} ${precision} ${roundingMode}`);
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim();
+    } catch (e) {
+        return 'errorThrown';
+    }
+}
+
 async function generateAbsTest(number, absTestCases) {
     for (let i = 0; i < repeatCountForRandomTests; i++) {
         const args = [
@@ -95,14 +105,33 @@ async function generateMovePointRightTest(number, testCasesArray) {
     }
 }
 
+async function generateNegateTest(number, testCasesArray) {
+    for (let i = 0; i < repeatCountForRandomTests; i++) {
+        const args = [
+            number,
+            Math.floor(Math.random() * maxPrecision), // precision
+            Math.floor(Math.random() * maxRoundingMode) // rounding mode
+        ];
+        const result = await runNegateJava(...args);
+        testCasesArray.push({
+            args: args,
+            result: result
+        });
+        counter++;
+        if (counter % 100 === 0) console.log(counter);
+    }
+}
+
 async function run() {
     const absOutputName = path.join(outputDir, 'absTestCases.json');
     const movePointLeftOutputName = path.join(outputDir, 'movePointLeftTestCases.json');
     const movePointRightOutputName = path.join(outputDir, 'movePointRightTestCases.json');
+    const negateOutputName = path.join(outputDir, 'negateTestCases.json');
 
     const absTestCases = [];
     const movePointLeftTestCases = [];
     const movePointRightTestCases = [];
+    const negateTestCases = [];
 
     const numberSet = new Set(); // Get unique set of numbers
 
@@ -139,6 +168,16 @@ async function run() {
         const jobs = [...numberSet].map(number => generateMovePointRightTest(number, movePointRightTestCases));
         await Promise.all(jobs);
         fs.writeFileSync(movePointRightOutputName, JSON.stringify(movePointRightTestCases));
+    }
+
+    if (fs.existsSync(negateOutputName)) {
+        console.log(`${negateOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${negateOutputName}..`);
+        console.log(`Number of test cases are ${testNumbers.length}`);
+        const jobs = [...numberSet].map(number => generateNegateTest(number, negateTestCases));
+        await Promise.all(jobs);
+        fs.writeFileSync(negateOutputName, JSON.stringify(negateTestCases));
     }
 }
 
