@@ -9,13 +9,36 @@ const testNumbers = require('./testNumbers');
 const repeatCountForRandomTests = 10;
 const maxPrecision = 1000;
 const maxRoundingMode = 8;
-const outputDir = path.join('.', 'output');
+const maxPoint = 1000;
+const minPoint = -1000;
+
+const outputDir = path.join(__dirname, 'output');
 
 let counter = 0; // to check progress
 
 async function runAbsJava(number, precision, roundingMode) {
     try {
         const { stdout, stderr } = await exec(`java -cp com/Abs Main ${number} ${precision} ${roundingMode}`);
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim();
+    } catch (e) {
+        return 'errorThrown';
+    }
+}
+
+async function runMovePointRightJava(number, point) {
+    try {
+        const { stdout, stderr } = await exec(`java -cp com/MovePointRight Main ${number} ${point}`);
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim();
+    } catch (e) {
+        return 'errorThrown';
+    }
+}
+
+async function runMovePointLeftJava(number, point) {
+    try {
+        const { stdout, stderr } = await exec(`java -cp com/MovePointLeft Main ${number} ${point}`);
         if (stderr !== '') return 'errorThrown';
         return stdout.trim();
     } catch (e) {
@@ -40,10 +63,46 @@ async function generateAbsTest(number, absTestCases) {
     }
 }
 
+async function generateMovePointLeftTest(number, testCasesArray) {
+    for (let i = 0; i < repeatCountForRandomTests; i++) {
+        const args = [
+            number,
+            Math.floor(Math.random() * (maxPoint - minPoint + 1) + minPoint) // point
+        ];
+        const result = await runMovePointLeftJava(...args);
+        testCasesArray.push({
+            args: args,
+            result: result
+        });
+        counter++;
+        if (counter % 100 === 0) console.log(counter);
+    }
+}
+
+async function generateMovePointRightTest(number, testCasesArray) {
+    for (let i = 0; i < repeatCountForRandomTests; i++) {
+        const args = [
+            number,
+            Math.floor(Math.random() * (maxPoint - minPoint + 1) + minPoint) // point
+        ];
+        const result = await runMovePointRightJava(...args);
+        testCasesArray.push({
+            args: args,
+            result: result
+        });
+        counter++;
+        if (counter % 100 === 0) console.log(counter);
+    }
+}
+
 async function run() {
     const absOutputName = path.join(outputDir, 'absTestCases.json');
+    const movePointLeftOutputName = path.join(outputDir, 'movePointLeftTestCases.json');
+    const movePointRightOutputName = path.join(outputDir, 'movePointRightTestCases.json');
 
     const absTestCases = [];
+    const movePointLeftTestCases = [];
+    const movePointRightTestCases = [];
 
     const numberSet = new Set(); // Get unique set of numbers
 
@@ -60,6 +119,26 @@ async function run() {
         const jobs = [...numberSet].map(number => generateAbsTest(number, absTestCases));
         await Promise.all(jobs);
         fs.writeFileSync(absOutputName, JSON.stringify(absTestCases));
+    }
+
+    if (fs.existsSync(movePointLeftOutputName)) {
+        console.log(`${movePointLeftOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${movePointLeftOutputName}..`);
+        console.log(`Number of test cases are ${testNumbers.length}`);
+        const jobs = [...numberSet].slice(1, 100).map(number => generateMovePointLeftTest(number, movePointLeftTestCases));
+        await Promise.all(jobs);
+        fs.writeFileSync(movePointLeftOutputName, JSON.stringify(movePointLeftTestCases));
+    }
+
+    if (fs.existsSync(movePointRightOutputName)) {
+        console.log(`${movePointRightOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${movePointRightOutputName}..`);
+        console.log(`Number of test cases are ${testNumbers.length}`);
+        const jobs = [...numberSet].map(number => generateMovePointRightTest(number, movePointRightTestCases));
+        await Promise.all(jobs);
+        fs.writeFileSync(movePointRightOutputName, JSON.stringify(movePointRightTestCases));
     }
 }
 

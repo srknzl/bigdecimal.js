@@ -9,7 +9,7 @@ const testNumbers = require('./testNumbers');
 const repeatCountForRandomTests = 10;
 const maxPrecision = 1000;
 const maxRoundingMode = 8;
-const outputDir = path.join('.', 'output');
+const outputDir = path.join(__dirname, 'output');
 
 let counter = 0;
 
