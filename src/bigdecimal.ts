@@ -876,16 +876,17 @@ export class BigDecimal {
      * @param mc
      * @throws RangeError If:
      * * Value is not a number
-     * * Value is not in the range [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+     * * Value is not in the range [Number.MIN_VALUE, Number.MAX_VALUE]
      * * A scale is not provided but a precision is provided
      */
     /** @internal */
     private static fromNumber(value: number, scale?: number, mc?: MathContextClass): BigDecimal {
-        if (!(value > Number.MIN_SAFE_INTEGER && value <= Number.MAX_SAFE_INTEGER)) {
-            throw new RangeError('Value must be a safe number');
+        if (value > Number.MAX_VALUE || value < Number.MIN_VALUE) {
+            throw new RangeError('Number must be in the range [Number.MIN_VALUE, Number.MAX_VALUE]');
         }
 
-        if (!Number.isInteger(value)) {
+        if (!(value > Number.MIN_SAFE_INTEGER && value <= Number.MAX_SAFE_INTEGER)) {
+            // Unsafe range, build from double
             return BigDecimal.fromDouble(value);
         }
 
@@ -932,7 +933,7 @@ export class BigDecimal {
 
     /** @internal */
     private static fromNumber4(value: number): BigDecimal {
-        if (value >= 0 && value < this.ZERO_THROUGH_TEN.length) {
+        if (this.ZERO_THROUGH_TEN[value]) {
             return this.ZERO_THROUGH_TEN[value];
         } else if (value !== BigDecimal.INFLATED) {
             return new BigDecimal(null, value, 0, 0);
