@@ -2405,7 +2405,16 @@ export class BigDecimal {
             if (this._scale === 0) {
                 return this.intCompact;
             } else {
+                /*
+                 * If both intCompact and the scale can be exactly
+                 * represented as double values, perform a single
+                 * double multiply or divide to compute the (properly
+                 * rounded) result.
+                 */
                 if (Math.abs(this.intCompact) < Number.MAX_SAFE_INTEGER) {
+                    // Don't have too guard against
+                    // Math.abs(MIN_VALUE) because of outer check
+                    // against INFLATED.
                     if (this._scale > 0 && this._scale <= BigDecimal.MAX_COMPACT_DIGITS) {
                         return this.intCompact / BigDecimal.NUMBER_10_POW[this._scale];
                     } else if (this._scale < 0 && this._scale >= -BigDecimal.MAX_COMPACT_DIGITS) {
@@ -2414,6 +2423,7 @@ export class BigDecimal {
                 }
             }
         }
+        // Somewhat inefficient, but guaranteed to work.
         return Number(this.toString());
     }
 

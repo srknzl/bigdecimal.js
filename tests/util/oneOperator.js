@@ -56,6 +56,16 @@ async function runNegateJava(number, precision, roundingMode) {
     }
 }
 
+async function runNumberValueJava(number) {
+    try {
+        const { stdout, stderr } = await exec(`java -cp com/NumberValue Main ${number}`);
+        if (stderr !== '') return 'errorThrown';
+        return stdout.trim();
+    } catch (e) {
+        return 'errorThrown';
+    }
+}
+
 async function generateAbsTest(number, absTestCases) {
     for (let i = 0; i < repeatCountForRandomTests; i++) {
         const args = [
@@ -122,16 +132,31 @@ async function generateNegateTest(number, testCasesArray) {
     }
 }
 
+async function generateNumberValueTest(number, testCasesArray) {
+    const args = [
+        number
+    ];
+    const result = await runNumberValueJava(...args);
+    testCasesArray.push({
+        args: args,
+        result: result
+    });
+    counter++;
+    if (counter % 100 === 0) console.log(counter);
+}
+
 async function run() {
     const absOutputName = path.join(outputDir, 'absTestCases.json');
     const movePointLeftOutputName = path.join(outputDir, 'movePointLeftTestCases.json');
     const movePointRightOutputName = path.join(outputDir, 'movePointRightTestCases.json');
     const negateOutputName = path.join(outputDir, 'negateTestCases.json');
+    const numberValueOutputName = path.join(outputDir, 'numberValueTestCases.json');
 
     const absTestCases = [];
     const movePointLeftTestCases = [];
     const movePointRightTestCases = [];
     const negateTestCases = [];
+    const numberValueTestCases = [];
 
     const numberSet = new Set(); // Get unique set of numbers
 
@@ -178,6 +203,16 @@ async function run() {
         const jobs = [...numberSet].map(number => generateNegateTest(number, negateTestCases));
         await Promise.all(jobs);
         fs.writeFileSync(negateOutputName, JSON.stringify(negateTestCases));
+    }
+
+    if (fs.existsSync(numberValueOutputName)) {
+        console.log(`${numberValueOutputName} exists, skipping generation.`);
+    } else {
+        console.log(`Generating ${numberValueOutputName}..`);
+        console.log(`Number of test cases are ${testNumbers.length}`);
+        const jobs = [...numberSet].map(number => generateNumberValueTest(number, numberValueTestCases));
+        await Promise.all(jobs);
+        fs.writeFileSync(numberValueOutputName, JSON.stringify(numberValueTestCases));
     }
 }
 
