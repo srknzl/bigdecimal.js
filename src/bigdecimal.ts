@@ -2542,11 +2542,9 @@ export class BigDecimal {
      * the core algorithm defined in ANSI standard X3.274-1996 with
      * rounding according to the context settings.  In general, the
      * returned numerical value is within two ulps of the exact
-     * numerical value for the chosen precision.  Note that future
-     * releases may use a different algorithm with a decreased
-     * allowable error bound and increased allowable exponent range.
+     * numerical value for the chosen precision.
      *
-     * <p>The X3.274-1996 algorithm is:
+     * The X3.274-1996 algorithm is:
      *
      * * An `RangeError` exception is thrown if
      *     * `abs(n)` > 999999999}
@@ -2589,31 +2587,35 @@ export class BigDecimal {
         }
         if (n < -999999999 || n > 999999999)
             throw new RangeError('Invalid operation');
-        if (n === 0)
+        if (n === 0) // x**0 == 1 in X3.274
             return BigDecimal.ONE;
-        let workmc = mc;
-        let mag = Math.abs(n);
+        let workmc = mc; // working settings
+        let mag = Math.abs(n); // magnitude of n
         if (mc.precision > 0) {
-            const elength = BigDecimal.numberDigitLength(mag);
-            if (elength > mc.precision)
+            const elength = BigDecimal.numberDigitLength(mag); // length of n in digits
+            if (elength > mc.precision) // X3.274 rule
                 throw new RangeError('Invalid operation');
             workmc = new MathContextClass(mc.precision + elength + 1, mc.roundingMode);
         }
-        let acc = BigDecimal.ONE;
-        let seenbit = false;
-        for (let i = 1; ; i++) {
-            mag += mag;
-            if (mag < 0) {
-                seenbit = true;
-                acc = acc.multiply(this, workmc);
+        // ready to carry out power calculation...
+        let acc = BigDecimal.ONE; // accumulator
+        let seenbit = false; // set once we've seen a 1-bit
+        for (let i = 1; ; i++) { // for each bit [top bit ignored]
+            mag <<= 1; // shift left 1 bit
+            if (mag < 0) { // top bit is set
+                seenbit = true; // OK, we're off
+                acc = acc.multiply(this, workmc); // acc=acc*x
             }
             if (i === 31)
-                break;
+                break; // that was the last bit
             if (seenbit)
-                acc = acc.multiply(acc, workmc);
+                acc = acc.multiply(acc, workmc); // acc=acc*acc [square]
+            // else (!seenbit) no point in squaring ONE
         }
-        if (n < 0)
+        // if negative n, calculate the reciprocal using working precision
+        if (n < 0) // [hence mc.precision>0]
             acc = BigDecimal.ONE.divide(acc, workmc);
+        // round to final precision and strip zeros
         return BigDecimal.doRound(acc, mc);
     }
 
