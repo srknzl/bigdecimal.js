@@ -1,5 +1,5 @@
 'use strict';
-const { Big, MathContext } = require('../lib/bigdecimal');
+const { Big, MC } = require('../lib/bigdecimal');
 const chai = require('chai');
 const testCases = require('../util/output/divideAndRemainderTestCases.json');
 const invalidTests = require('./invalidTests');
@@ -12,7 +12,7 @@ describe('DivideAndRemainder test', function () {
             const divideAndRemainderOp = () => {
                 const result = Big(test.args[0]).divideAndRemainder(
                     Big(test.args[1]),
-                    new MathContext(test.args[2], test.args[3])
+                    new MC(test.args[2], test.args[3])
                 );
                 return result;
             };

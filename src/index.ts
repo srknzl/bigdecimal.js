@@ -1,1 +1,1 @@
-export { Big, RoundingMode, MathContext } from './bigdecimal';
+export { Big, RoundingMode, MC } from './bigdecimal';

@@ -1,5 +1,5 @@
 'use strict';
-const { Big, MathContext } = require('../lib/bigdecimal');
+const { Big, MC } = require('../lib/bigdecimal');
 const chai = require('chai');
 const testCases = require('../util/output/multiplicationTestCases.json');
 const invalidTests = require('./invalidTests');
@@ -12,7 +12,7 @@ describe('Multiplication test', function () {
             const multiplication = () => {
                 return Big(test.args[0]).multiply(
                     Big(test.args[1]),
-                    new MathContext(test.args[2], test.args[3])
+                    new MC(test.args[2], test.args[3])
                 ).toString();
             };
             if (test.result === 'errorThrown') {

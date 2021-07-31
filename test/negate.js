@@ -1,5 +1,5 @@
 'use strict';
-const { Big, MathContext } = require('../lib/bigdecimal');
+const { Big, MC } = require('../lib/bigdecimal');
 const chai = require('chai');
 const testCases = require('../util/output/negateTestCases.json');
 chai.should();
@@ -10,7 +10,7 @@ describe('Negate test', function () {
         for (const test of testCases) {
             const negateOp = () => {
                 return Big(test.args[0]).negate(
-                    new MathContext(test.args[1], test.args[2])
+                    new MC(test.args[1], test.args[2])
                 ).toString();
             };
             if (test.result === 'errorThrown') {

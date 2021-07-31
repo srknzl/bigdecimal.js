@@ -1,5 +1,5 @@
 'use strict';
-const { Big, MathContext } = require('../lib/bigdecimal');
+const { Big, MC } = require('../lib/bigdecimal');
 const chai = require('chai');
 const testCases = require('../util/output/subtractionTestCases.json');
 const invalidTests = require('./invalidTests');
@@ -12,7 +12,7 @@ describe('Subtraction test', function () {
             const subtraction = () => {
                 return Big(test.args[0]).subtract(
                     Big(test.args[1]),
-                    MathContext(test.args[2], test.args[3])
+                    MC(test.args[2], test.args[3])
                 ).toString();
             };
             if (test.result === 'errorThrown') {

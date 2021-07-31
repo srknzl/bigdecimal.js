@@ -30,7 +30,7 @@
  * decimal value under the rounding mode in question. The result
  * column in the tables could be gotten by creating a
  * `BigDecimal` number with the specified value, forming a
- * {@link MathContextClass} object with the proper settings
+ * {@link MathContext} object with the proper settings
  * (`precision` set to `1`, and the `roundingMode` set to the rounding
  * mode in question), and calling {@link BigDecimal.round | round} on
  * this number with the proper `MathContext`.  A summary table showing the results
@@ -160,7 +160,7 @@ export enum RoundingMode {
  * }
  * ```
  */
-export class MathContextClass {
+export class MathContext {
     /**
      * The number of digits to be used for an operation.  A value of 0
      * indicates that unlimited precision (as many digits as are
@@ -177,7 +177,7 @@ export class MathContextClass {
      */
     readonly roundingMode: RoundingMode;
 
-    constructor(precision: number, roundingMode: RoundingMode = MathContextClass.DEFAULT_ROUNDINGMODE) {
+    constructor(precision: number, roundingMode: RoundingMode = MathContext.DEFAULT_ROUNDINGMODE) {
         if (precision < 0) {
             throw new RangeError('MathContext precision cannot be less than 0');
         } else if (!RoundingMode[roundingMode]) {
@@ -194,7 +194,7 @@ export class MathContextClass {
      * required for unlimited precision arithmetic.
      * The values of the settings are: `precision=0 roundingMode=HALF_UP`
      */
-    static UNLIMITED = new MathContextClass(0, RoundingMode.HALF_UP);
+    static UNLIMITED = new MathContext(0, RoundingMode.HALF_UP);
     /**
      * A `MathContext` object with a precision setting
      * matching the precision of the IEEE 754-2019 decimal32 format, 7 digits, and a
@@ -202,7 +202,7 @@ export class MathContextClass {
      * Note the exponent range of decimal32 is **not** used for
      * rounding.
      */
-    static DECIMAL32 = new MathContextClass(7, RoundingMode.HALF_EVEN);
+    static DECIMAL32 = new MathContext(7, RoundingMode.HALF_EVEN);
     /**
      * A `MathContext` object with a precision setting
      * matching the precision of the IEEE 754-2019 decimal64 format, 16 digits, and a
@@ -210,7 +210,7 @@ export class MathContextClass {
      * Note the exponent range of decimal64 is **not** used for
      * rounding.
      */
-    static DECIMAL64 = new MathContextClass(16, RoundingMode.HALF_EVEN);
+    static DECIMAL64 = new MathContext(16, RoundingMode.HALF_EVEN);
     /**
      * A `MathContext` object with a precision setting
      * matching the precision of the IEEE 754-2019 decimal128 format, 34 digits, and a
@@ -218,7 +218,7 @@ export class MathContextClass {
      * Note the exponent range of decimal64 is **not** used for
      * rounding.
      */
-    static DECIMAL128 = new MathContextClass(34, RoundingMode.HALF_EVEN);
+    static DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
 }
 
 /**
@@ -245,11 +245,11 @@ export class MathContextClass {
  * exact result cannot be represented, a `RangeError`
  * is thrown; otherwise, calculations can be carried out to a chosen
  * precision and rounding mode by supplying an appropriate {@link
-    * MathContextClass} object to the operation.  In either case, eight
+    * MathContext} object to the operation.  In either case, eight
  * <em>rounding modes</em> are provided for the control of rounding.
  *
  * When a `MathContext` object is supplied with a precision
- * setting of 0 (for example, {@link MathContextClass.UNLIMITED}),
+ * setting of 0 (for example, {@link MathContext.UNLIMITED}),
  * arithmetic operations are exact, as are the arithmetic methods
  * which take no `MathContext` object. As a corollary of
  * computing the exact result, the rounding mode setting of a `
@@ -450,8 +450,8 @@ export class MathContextClass {
 
  * `BigDecimal` arithmetic will most resemble IEEE 754
  * decimal arithmetic if a `MathContext` corresponding to an
- * IEEE 754 decimal format, such as {@link MathContextClass.DECIMAL64 |
- * decimal64} or {@link MathContextClass.DECIMAL128 | decimal128} is
+ * IEEE 754 decimal format, such as {@link MathContext.DECIMAL64 |
+ * decimal64} or {@link MathContext.DECIMAL128 | decimal128} is
  * used to round all starting values and intermediate operations. The
  * numerical values computed can differ if the exponent range of the
  * IEEE 754 format being approximated is exceeded since a
@@ -637,7 +637,7 @@ export class BigDecimal {
         input: string,
         offset: number,
         len: number,
-        mc: MathContextClass = MathContextClass.UNLIMITED
+        mc: MathContext = MathContext.UNLIMITED
     ): BigDecimal {
         let prec = 0;
         let scl = 0;
@@ -787,7 +787,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static fromBigInt(value: BigInt, scale?: number, mc?: MathContextClass): BigDecimal {
+    private static fromBigInt(value: BigInt, scale?: number, mc?: MathContext): BigDecimal {
         if (scale === undefined) {
             if (mc === undefined) {
                 return BigDecimal.fromBigInt3(value);
@@ -804,7 +804,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static fromBigInt2(intVal: BigInt, scale: number, mc: MathContextClass): BigDecimal {
+    private static fromBigInt2(intVal: BigInt, scale: number, mc: MathContext): BigDecimal {
         let unscaledVal: BigInt | null = intVal;
         let compactVal = BigDecimal.compactValFor(unscaledVal);
         const mcp = mc.precision;
@@ -878,7 +878,7 @@ export class BigDecimal {
      * * Value is not in the range [Number.MIN_VALUE, Number.MAX_VALUE]
      */
     /** @internal */
-    private static fromNumber(value: number, scale?: number, mc?: MathContextClass): BigDecimal {
+    private static fromNumber(value: number, scale?: number, mc?: MathContext): BigDecimal {
         if (value > Number.MAX_VALUE || value < Number.MIN_VALUE) {
             throw new RangeError('Number must be in the range [Number.MIN_VALUE, Number.MAX_VALUE]');
         }
@@ -941,7 +941,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static fromNumber5(value: number, mc: MathContextClass): BigDecimal {
+    private static fromNumber5(value: number, mc: MathContext): BigDecimal {
         const mcp = mc.precision;
         const mode = mc.roundingMode;
         let prec = 0;
@@ -1025,7 +1025,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    static fromValue(n: any, scale?: number, mc?: MathContextClass): BigDecimal {
+    static fromValue(n: any, scale?: number, mc?: MathContext): BigDecimal {
         if (typeof n === 'number') {
             return BigDecimal.fromNumber(n, scale, mc);
         }
@@ -1285,7 +1285,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static doRound(val: BigDecimal, mc: MathContextClass): BigDecimal {
+    private static doRound(val: BigDecimal, mc: MathContext): BigDecimal {
         const mcp = mc.precision;
         let wasDivided = false;
         if (mcp > 0) {
@@ -1333,7 +1333,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static doRound2(intVal: BigInt, scale: number, mc: MathContextClass): BigDecimal {
+    private static doRound2(intVal: BigInt, scale: number, mc: MathContext): BigDecimal {
         const mcp = mc.precision;
         let prec = 0;
         if (mcp > 0) {
@@ -1370,7 +1370,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static doRound3(compactVal: number, scale: number, mc: MathContextClass): BigDecimal {
+    private static doRound3(compactVal: number, scale: number, mc: MathContext): BigDecimal {
         const mcp = mc.precision;
         if (mcp > 0 && mcp < 19) {
             let prec = BigDecimal.numberDigitLength(compactVal);
@@ -1437,7 +1437,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private preAlign(augend: BigDecimal, padding: number, mc: MathContextClass): BigDecimal[] {
+    private preAlign(augend: BigDecimal, padding: number, mc: MathContext): BigDecimal[] {
         let big: BigDecimal;
         let small: BigDecimal;
 
@@ -1466,7 +1466,7 @@ export class BigDecimal {
      * @param mc the context to use.
      * @return `-this`, rounded as necessary.
      */
-    negate(mc?: MathContextClass): BigDecimal {
+    negate(mc?: MathContext): BigDecimal {
         let result = this.intCompact === BigDecimal.INFLATED ?
             new BigDecimal(-1n * this.intVal!.valueOf(), BigDecimal.INFLATED, this._scale, this.precision) :
             BigDecimal.fromNumber2(-this.intCompact, this._scale, this.precision);
@@ -1487,7 +1487,7 @@ export class BigDecimal {
      * @param  mc the context to use.
      * @return `this + augend`, rounded as necessary.
      */
-    add(augend: BigDecimal, mc?: MathContextClass): BigDecimal {
+    add(augend: BigDecimal, mc?: MathContext): BigDecimal {
         augend = BigDecimal.convertToBigDecimal(augend);
         if (!mc || (mc && mc.precision === 0)) {
             if (this.intCompact !== BigDecimal.INFLATED) {
@@ -1550,7 +1550,7 @@ export class BigDecimal {
      * @param  mc the context to use.
      * @return `this - subtrahend`, rounded as necessary.
      */
-    subtract(subtrahend: BigDecimal, mc?: MathContextClass): BigDecimal {
+    subtract(subtrahend: BigDecimal, mc?: MathContext): BigDecimal {
         subtrahend = BigDecimal.convertToBigDecimal(subtrahend);
         if (!mc || (mc && mc.precision === 0)) {
             if (this.intCompact !== BigDecimal.INFLATED) {
@@ -1578,7 +1578,7 @@ export class BigDecimal {
      * @param  mc the context to use.
      * @return `this * multiplicand`, rounded as necessary.
      */
-    multiply(multiplicand: BigDecimal, mc?: MathContextClass): BigDecimal {
+    multiply(multiplicand: BigDecimal, mc?: MathContext): BigDecimal {
         multiplicand = BigDecimal.convertToBigDecimal(multiplicand);
         if (!mc || (mc && mc.precision === 0)) {
             const productScale = this.checkScale(this._scale + multiplicand._scale);
@@ -1622,7 +1622,7 @@ export class BigDecimal {
      *         terminating decimal expansion, including dividing by zero
      * @return `this / divisor`
      */
-    divide(divisor: BigDecimal, mc?: MathContextClass): BigDecimal {
+    divide(divisor: BigDecimal, mc?: MathContext): BigDecimal {
         divisor = BigDecimal.convertToBigDecimal(divisor);
         if (!mc || (mc && mc.precision === 0)) {
             if (divisor.signum() === 0) {
@@ -1636,7 +1636,7 @@ export class BigDecimal {
             if (this.signum() === 0)
                 return BigDecimal.zeroValueOf(preferredScale);
             else {
-                const mc = new MathContextClass(
+                const mc = new MathContext(
                     Math.min(this.getPrecision() + Math.ceil(10.0 * divisor.getPrecision() / 3.0), Number.MAX_SAFE_INTEGER),
                     RoundingMode.UNNECESSARY
                 );
@@ -1711,7 +1711,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static multiplyAndRound1(x: number, y: number, scale: number, mc: MathContextClass): BigDecimal {
+    private static multiplyAndRound1(x: number, y: number, scale: number, mc: MathContext): BigDecimal {
         const product = BigDecimal.multiply1(x, y);
         if (product !== BigDecimal.INFLATED) {
             return BigDecimal.doRound3(product, scale, mc);
@@ -1730,7 +1730,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static multiplyAndRound2(x: number, y: BigInt, scale: number, mc: MathContextClass): BigDecimal {
+    private static multiplyAndRound2(x: number, y: BigInt, scale: number, mc: MathContext): BigDecimal {
         if (x === 0) {
             return BigDecimal.zeroValueOf(scale);
         }
@@ -1738,7 +1738,7 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static multiplyAndRound3(x: BigInt, y: BigInt, scale: number, mc: MathContextClass): BigDecimal {
+    private static multiplyAndRound3(x: BigInt, y: BigInt, scale: number, mc: MathContext): BigDecimal {
         return BigDecimal.doRound2(x!.valueOf() * y!.valueOf(), scale, mc);
     }
 
@@ -1755,7 +1755,7 @@ export class BigDecimal {
 
     /** @internal */
     private static divide2(
-        xs: number, xscale: number, ys: number, yscale: number, preferredScale: number, mc: MathContextClass
+        xs: number, xscale: number, ys: number, yscale: number, preferredScale: number, mc: MathContext
     ): BigDecimal {
         const mcp = mc.precision;
         if (xscale <= yscale && yscale < 15 && mcp < 15) {
@@ -1808,7 +1808,7 @@ export class BigDecimal {
 
     /** @internal */
     private static divide3(
-        xs: number, xscale: number, ys: BigInt, yscale: number, preferredScale: number, mc: MathContextClass
+        xs: number, xscale: number, ys: BigInt, yscale: number, preferredScale: number, mc: MathContext
     ): BigDecimal {
         if (BigDecimal.compareMagnitudeNormalized2(xs, xscale, ys, yscale) > 0) {
             yscale -= 1;
@@ -1838,7 +1838,7 @@ export class BigDecimal {
 
     /** @internal */
     private static divide4(
-        xs: BigInt, xscale: number, ys: number, yscale: number, preferredScale: number, mc: MathContextClass
+        xs: BigInt, xscale: number, ys: number, yscale: number, preferredScale: number, mc: MathContext
     ): BigDecimal {
         if ((-BigDecimal.compareMagnitudeNormalized2(ys, yscale, xs, xscale)) > 0) {
             yscale -= 1;
@@ -1880,7 +1880,7 @@ export class BigDecimal {
 
     /** @internal */
     private static divide5(
-        xs: BigInt, xscale: number, ys: BigInt, yscale: number, preferredScale: number, mc: MathContextClass
+        xs: BigInt, xscale: number, ys: BigInt, yscale: number, preferredScale: number, mc: MathContext
     ): BigDecimal {
 
         if (BigDecimal.compareMagnitudeNormalized3(xs, xscale, ys, yscale) > 0) {
@@ -1927,7 +1927,7 @@ export class BigDecimal {
      * @throws RangeError if `mc.precision > 0` and the result
      *         requires a precision of more than `mc.precision` digits.
      */
-    divideToIntegralValue(divisor: BigDecimal, mc?: MathContextClass): BigDecimal {
+    divideToIntegralValue(divisor: BigDecimal, mc?: MathContext): BigDecimal {
         divisor = BigDecimal.convertToBigDecimal(divisor);
         if (!mc || (mc && (mc.precision === 0 || this.compareMagnitude(divisor) < 0))) {
             const preferredScale = BigDecimal.saturateScale(this._scale - divisor._scale);
@@ -1942,7 +1942,7 @@ export class BigDecimal {
                 this.getPrecision() + Math.ceil(10.0 * divisor.getPrecision() / 3.0) + Math.abs(this._scale - divisor._scale) + 2,
                 Number.MAX_SAFE_INTEGER
             );
-            let quotient = this.divide(divisor, new MathContextClass(maxDigits, RoundingMode.DOWN));
+            let quotient = this.divide(divisor, new MathContext(maxDigits, RoundingMode.DOWN));
             if (quotient._scale > 0) {
                 quotient = quotient.setScale(0, RoundingMode.DOWN);
                 quotient = BigDecimal.stripZerosToMatchScale(
@@ -1958,7 +1958,7 @@ export class BigDecimal {
         }
         const preferredScale = BigDecimal.saturateScale(this._scale - divisor._scale);
 
-        let result = this.divide(divisor, new MathContextClass(mc.precision, RoundingMode.DOWN));
+        let result = this.divide(divisor, new MathContext(mc.precision, RoundingMode.DOWN));
 
         if (result._scale < 0) {
             const product = result.multiply(divisor);
@@ -1999,7 +1999,7 @@ export class BigDecimal {
      *         require a precision of more than `mc.precision` digits.
      * @see    {@link divideToIntegralValue}
      */
-    remainder(divisor: BigDecimal, mc?: MathContextClass): BigDecimal {
+    remainder(divisor: BigDecimal, mc?: MathContext): BigDecimal {
         return this.divideAndRemainder(divisor, mc)[1];
     }
 
@@ -2112,7 +2112,7 @@ export class BigDecimal {
      * @see    {@link divideToIntegralValue}
      * @see    {@link remainder}
      */
-    divideAndRemainder(divisor: BigDecimal, mc?: MathContextClass): [BigDecimal, BigDecimal] {
+    divideAndRemainder(divisor: BigDecimal, mc?: MathContext): [BigDecimal, BigDecimal] {
         divisor = BigDecimal.convertToBigDecimal(divisor);
         const result = new Array<BigDecimal>(2);
 
@@ -2143,7 +2143,7 @@ export class BigDecimal {
      * the exact result cannot fit in `mc.getPrecision()`
      * digits.
      */
-    sqrt(mc: MathContextClass): BigDecimal {
+    sqrt(mc: MathContext): BigDecimal {
         const signum = this.signum();
         if (signum !== 1) {
             let result = null;
@@ -2210,7 +2210,7 @@ export class BigDecimal {
             const workingPrecision = working.getPrecision();
             do {
                 const tmpPrecision = Math.max(Math.max(guessPrecision, targetPrecision + 2), workingPrecision);
-                const mcTmp = new MathContextClass(tmpPrecision, RoundingMode.HALF_EVEN);
+                const mcTmp = new MathContext(tmpPrecision, RoundingMode.HALF_EVEN);
 
                 approx = BigDecimal.ONE_HALF.multiply(approx.add(working.divide(approx, mcTmp), mcTmp));
                 guessPrecision *= 2;
@@ -2220,7 +2220,7 @@ export class BigDecimal {
             const targetRm = mc.roundingMode;
             if (targetRm === RoundingMode.UNNECESSARY || originalPrecision === 0) {
                 const tmpRm = (targetRm === RoundingMode.UNNECESSARY) ? RoundingMode.DOWN : targetRm;
-                const mcTmp = new MathContextClass(targetPrecision, tmpRm);
+                const mcTmp = new MathContext(targetPrecision, tmpRm);
                 result = approx.scaleByPowerOfTen(Math.trunc(-scaleAdjust / 2)).round(mcTmp);
 
                 if (this.subtract(result.square()).compareTo(BigDecimal.ZERO) !== 0) {
@@ -2255,7 +2255,7 @@ export class BigDecimal {
             }
             if (result._scale !== preferredScale) {
                 result = result.stripTrailingZeros().add(zeroWithFinalPreferredScale,
-                    new MathContextClass(originalPrecision, RoundingMode.UNNECESSARY));
+                    new MathContext(originalPrecision, RoundingMode.UNNECESSARY));
             }
             return result;
         }
@@ -2439,7 +2439,7 @@ export class BigDecimal {
      *         `MathContext` settings.
      * @see    {@link plus}
      */
-    round(mc: MathContextClass): BigDecimal {
+    round(mc: MathContext): BigDecimal {
         return this.plus(mc);
     }
 
@@ -2529,7 +2529,7 @@ export class BigDecimal {
      *         have a scale of 0.
      * @see    {@link round}
      */
-    plus(mc?: MathContextClass): BigDecimal {
+    plus(mc?: MathContext): BigDecimal {
         if (!mc) return this;
         if (mc.precision === 0)
             return this;
@@ -2578,7 +2578,7 @@ export class BigDecimal {
      *         rounding mode is `UNNECESSARY`, or `n` is out
      *         of range.
      */
-    pow(n: number, mc?: MathContextClass): BigDecimal {
+    pow(n: number, mc?: MathContext): BigDecimal {
         if (!mc || (mc && mc.precision === 0)) {
             if (n < 0 || n > 999999999)
                 throw new RangeError('Invalid operation');
@@ -2595,7 +2595,7 @@ export class BigDecimal {
             const elength = BigDecimal.numberDigitLength(mag); // length of n in digits
             if (elength > mc.precision) // X3.274 rule
                 throw new RangeError('Invalid operation');
-            workmc = new MathContextClass(mc.precision + elength + 1, mc.roundingMode);
+            workmc = new MathContext(mc.precision + elength + 1, mc.roundingMode);
         }
         // ready to carry out power calculation...
         let acc = BigDecimal.ONE; // accumulator
@@ -2627,7 +2627,7 @@ export class BigDecimal {
      * @param mc the context to use.
      * @return absolute value, rounded as necessary.
      */
-    abs(mc?: MathContextClass): BigDecimal {
+    abs(mc?: MathContext): BigDecimal {
         return this.signum() < 0 ? this.negate(mc) : this.plus(mc);
     }
 
@@ -3302,7 +3302,7 @@ export class BigDecimal {
         ys: number,
         yscale: number,
         preferredScale: number,
-        mc: MathContextClass
+        mc: MathContext
     ) {
         const mcp = mc.precision;
         const roundingMode = mc.roundingMode;
@@ -3475,12 +3475,12 @@ export class BigDecimal {
 }
 
 interface BigInterface {
-    (n: any, scale?: number, mc?: MathContextClass): BigDecimal;
+    (n: any, scale?: number, mc?: MathContext): BigDecimal;
 
-    new(n: any, scale?: number, mc?: MathContextClass): BigDecimal;
+    new(n: any, scale?: number, mc?: MathContext): BigDecimal;
 }
 
-function _Big(n: any, scale?: number, mc?: MathContextClass): BigDecimal {
+function _Big(n: any, scale?: number, mc?: MathContext): BigDecimal {
     return BigDecimal.fromValue(n, scale, mc);
 }
 
@@ -3523,17 +3523,17 @@ function _Big(n: any, scale?: number, mc?: MathContextClass): BigDecimal {
 export const Big: BigInterface = <BigInterface>_Big;
 
 interface MCInterface {
-    (precision: number, roundingMode: RoundingMode): MathContextClass;
+    (precision: number, roundingMode: RoundingMode): MathContext;
 
-    new(precision: number, roundingMode: RoundingMode): MathContextClass;
+    new(precision: number, roundingMode: RoundingMode): MathContext;
 }
 
-function _MC(precision: number, roundingMode: RoundingMode): MathContextClass {
-    return new MathContextClass(precision, roundingMode);
+function _MC(precision: number, roundingMode: RoundingMode): MathContext {
+    return new MathContext(precision, roundingMode);
 }
 
 /**
- * Constructor function for {@link MathContextClass}. Can be invoked with new or without new.
+ * Constructor function for {@link MathContext}. Can be invoked with new or without new.
  *
  * Sample Usage:
  * ```javascript
@@ -3559,4 +3559,4 @@ function _MC(precision: number, roundingMode: RoundingMode): MathContextClass {
  * @param precision Precision value
  * @param roundingMode Rounding Mode
  */
-export const MathContext: MCInterface = <MCInterface>_MC;
+export const MC: MCInterface = <MCInterface>_MC;
