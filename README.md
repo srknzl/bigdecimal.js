@@ -1,10 +1,10 @@
 # BigDecimal.js
 
-  [![NPM Version][npm-image]][npm-url]
-  [![NPM Downloads][downloads-image]][downloads-url]
-  
-[BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal(arbitrary precision floats) implementation for Node.js. 
-This implementation is based on java BigDecimal class. Like java BigDecimal class, it uses big integers internally. This implementation 
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
+
+[BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal(arbitrary precision floats) implementation for Node.js.
+This implementation is based on java BigDecimal class. Like java BigDecimal class, it uses big integers internally. This implementation
 is faster than popular big decimal libraries. See [benchmarks results part below](https://github.com/srknzl/bigdecimal.js#benchmark-results) for comparison.
 
 **Note: The library is currently in preview, v1.0.0 will be released soon. API can change in the near future. I appreciate your feedback, thanks.**
@@ -46,7 +46,7 @@ console.log(u.toString()); // 1.1
 console.log(v.toString()); // 2
 ```
 
-You can use MathContext object to set precision and rounding mode for a specific operation:
+You can use MathContext to set precision and rounding mode for a specific operation:
 
 ```javascript
 const { Big, MC, RoundingMode } = require('bigdecimal.js');
@@ -54,7 +54,7 @@ const { Big, MC, RoundingMode } = require('bigdecimal.js');
 const x = Big('1');
 const y = Big('3');
 
-const res1 = x.divide(y, MC(3)); // can be used without `new`
+const res1 = x.divide(y, MC(3)); // MC is MathContext constructor that can be used without `new`
 console.log(res1.toString()); // 0.333
 
 const res2 = x.divide(y, new MC(3, RoundingMode.UP));
@@ -79,7 +79,7 @@ try {
 
 ## Running Benchmarks
 
-There is a benchmark suite that compares 
+There is a benchmark suite that compares
 
 * bigdecimal.js
 * [big.js](https://github.com/MikeMcl/big.js)
@@ -90,8 +90,8 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 ## Benchmark Results
 
 * Update Date: 26 June 2021
-* Each operation is run with small numbers and with big numbers using benchmark.js. 
-Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
+* Each operation is run with small numbers and with big numbers using benchmark.js.
+  Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
 * Operations per second(op/s):
 
 | Operation | Bigdecimal.js | Big.js | GWT | Winner |
