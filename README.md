@@ -109,9 +109,6 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 | Compare | 1,126,781 | 2,317,875 | 369,511 | Big.js |
 | Compare with big numbers | 822,355 | 1,454,145 | 552,519 | Big.js |
 
-
-* For more, check out https://docs.google.com/spreadsheets/d/1KdpW3NyIK5wD-P0f4H72CvizZ9u0B4qeIm2xBqzky-Q/edit?usp=sharing
-
 [npm-image]: https://img.shields.io/npm/v/bigdecimal.js.svg
 [npm-url]: https://npmjs.org/package/bigdecimal.js
 [downloads-image]: https://img.shields.io/npm/dm/bigdecimal.js.svg
