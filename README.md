@@ -1,5 +1,8 @@
 # BigDecimal.js
 
+  [![NPM Version][npm-image]][npm-url]
+  [![NPM Downloads][downloads-image]][downloads-url]
+  
 [BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal(arbitrary precision floats) implementation for Node.js. 
 This implementation is based on java BigDecimal class. Like java BigDecimal class, it uses big integers internally. This implementation 
 is faster than popular big decimal libraries. See [benchmarks results part below](https://github.com/srknzl/bigdecimal.js#benchmark-results) for comparison.
@@ -108,3 +111,8 @@ Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/
 
 
 * For more, check out https://docs.google.com/spreadsheets/d/1KdpW3NyIK5wD-P0f4H72CvizZ9u0B4qeIm2xBqzky-Q/edit?usp=sharing
+
+[npm-image]: https://img.shields.io/npm/v/bigdecimal.js.svg
+[npm-url]: https://npmjs.org/package/bigdecimal.js
+[downloads-image]: https://img.shields.io/npm/dm/bigdecimal.js.svg
+[downloads-url]: https://npmcharts.com/compare/bigdecimal.js?minimal=true
