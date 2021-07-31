@@ -1,8 +1,0 @@
-{
-  "out": "docs/",
-  "entryPoints": ["bigdecimal.ts"],
-  "excludeExternals": true,
-  "excludeInternal": true,
-  "excludePrivate": true,
-  "excludeProtected": true
-}
