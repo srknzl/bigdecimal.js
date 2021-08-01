@@ -11,7 +11,7 @@ describe('SetScale test', function () {
             const setScaleOp = () => {
                 return Big(test.args[0]).setScale(
                     test.args[1],
-                    RoundingMode[test.args[2]]
+                    test.args[2]
                 ).toString();
             };
             if (test.result === 'errorThrown') {

@@ -9,7 +9,7 @@ describe('StripTrailingZeros test', function () {
     it('should calculate StripTrailingZeros correctly', function () {
         for (const test of testCases) {
             const stripTrailingZerosOp = () => {
-                return Big(test.args[0]).stripTrailingZeros();
+                return Big(test.args[0]).stripTrailingZeros().toString();
             };
             if (test.result === 'errorThrown') {
                 stripTrailingZerosOp.should.throw(

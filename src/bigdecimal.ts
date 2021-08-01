@@ -883,8 +883,8 @@ export class BigDecimal {
             throw new RangeError('Number must be in the range [Number.MIN_VALUE, Number.MAX_VALUE]');
         }
 
-        if (!(value > Number.MIN_SAFE_INTEGER && value <= Number.MAX_SAFE_INTEGER)) {
-            // Unsafe range, build from double
+        if (!Number.isInteger(value) || !(value > Number.MIN_SAFE_INTEGER && value <= Number.MAX_SAFE_INTEGER)) {
+            // Unsafe range or non integer, build from double
             return BigDecimal.fromDouble(value);
         }
 
