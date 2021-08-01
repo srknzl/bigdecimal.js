@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const exec = util.promisify(require('child_process').exec);
 
+const { generateBatches } = require('./util');
 const testNumbers = require('./testNumbers');
 
 const repeatCountForRandomTests = 10;
@@ -91,23 +92,6 @@ async function generateTest(name, args, testCasesArray, twoResult) {
     if (counter % maxPromiseSize === 0) console.log(counter);
 }
 
-/**
- * Generates batches for better parallel execution
- */
-function generateBatches(testArgs) {
-    const batches = new Array(Math.ceil(testArgs.length / maxPromiseSize));
-
-    for (let testCounter = 0, batchCounter = 0; testCounter < testArgs.length; batchCounter++) {
-        const jobs = new Array(Math.min(1000, testArgs.length - testCounter)); // at most 1000 sized array
-        for (let j = 0; j < jobs.length; j++, testCounter++) {
-            jobs[j] = testArgs[testCounter];
-        }
-        batches[batchCounter] = jobs;
-    }
-
-    return batches;
-}
-
 async function generateJsonFile(name, outputDir, withPrecAndRM, twoResult) {
     const testCases = [];
     const fileName = path.join(outputDir, `${name[0].toLowerCase()}${name.slice(1)}TestCases.json`);
@@ -141,7 +125,7 @@ async function generateJsonFile(name, outputDir, withPrecAndRM, twoResult) {
             }
         }
 
-        const batches = generateBatches(testArgs);
+        const batches = generateBatches(testArgs, maxPromiseSize);
 
         for (const batch of batches) {
             let indexCounter = 0;
