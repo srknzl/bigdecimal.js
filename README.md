@@ -101,7 +101,7 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 | Operation | Bigdecimal.js | Big.js | GWT | Winner |
 | --- | --- | --- | --- | --- |
 | Add | 47,477 | 12,340 | 55.58 | BigDecimal.js |
-| Multiply | 362,610 | 362,610 | 1,404 | BigDecimal.js |
+| Multiply | 336,782 | 31,950 | 1,451 | BigDecimal.js |
 | Subtract | 43,147 | 11,678 | 54.10 | BigDecimal.js |
 | Divide | 9,536 | 1,053 | 341 | BigDecimal.js |
 | Abs | 506,144 | 937,951 | 7,992 | Big.js |
