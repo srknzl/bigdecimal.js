@@ -6,11 +6,11 @@ const path = require('path');
 const oneOperatorRunner = require('./oneOperator');
 const twoOperatorRunner = require('./twoOperator');
 
-const outputDir = path.join('.', 'output');
+const outputDir = path.join(__dirname, 'output');
 if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir);
 }
 
-oneOperatorRunner().then(() => {
-    return twoOperatorRunner();
+oneOperatorRunner(outputDir).then(() => {
+    return twoOperatorRunner(outputDir);
 }).catch(console.log);

@@ -1,7 +1,7 @@
 'use strict';
 const { Big, MC } = require('../lib/bigdecimal');
 const chai = require('chai');
-const testCases = require('../util/output/subtractionTestCases.json');
+const testCases = require('../util/output/subtractTestCases.json');
 const invalidTests = require('./invalidTests');
 chai.should();
 

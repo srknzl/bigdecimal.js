@@ -16,8 +16,6 @@ const maxScale = 2147483647;
 const minScale = 2147483648;
 const numberOfToStringTests = 2000;
 
-const outputDir = path.join(__dirname, 'output');
-
 let counter = 0; // to check progress
 
 async function runAbsJava(number, precision, roundingMode) {
@@ -245,7 +243,7 @@ function generateRandomBigInt() {
 
 }
 
-async function run() {
+async function run(outputDir) {
     const absOutputName = path.join(outputDir, 'absTestCases.json');
     const movePointLeftOutputName = path.join(outputDir, 'movePointLeftTestCases.json');
     const movePointRightOutputName = path.join(outputDir, 'movePointRightTestCases.json');

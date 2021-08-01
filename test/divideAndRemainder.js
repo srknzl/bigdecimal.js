@@ -16,7 +16,7 @@ describe('DivideAndRemainder test', function () {
                 );
                 return result;
             };
-            if (test.quotient === 'errorThrown') {
+            if (test.result[0] === 'errorThrown') {
                 divideAndRemainderOp.should.throw(
                     undefined,
                     undefined,
@@ -26,11 +26,11 @@ describe('DivideAndRemainder test', function () {
             }
             const [quotient, remainder] = divideAndRemainderOp();
             quotient.toString().should.be.equal(
-                test.quotient,
-                `expected quotient of '${test.args[0]}' divided by '${test.args[1]}' to be '${test.quotient}'`
+                test.result[0],
+                `expected quotient of '${test.args[0]}' divided by '${test.args[1]}' to be '${test.result[0]}'`
             );
-            remainder.toString().should.be.equal(test.remainder,
-                `expected remainder of '${test.args[0]}' divided by '${test.args[1]}' to be '${test.remainder}'`
+            remainder.toString().should.be.equal(test.result[1],
+                `expected remainder of '${test.args[0]}' divided by '${test.args[1]}' to be '${test.result[1]}'`
             );
         }
     });

@@ -12,7 +12,8 @@
     "docs:w": "typedoc --watch --options typedoc.json",
     "lint:ci": "eslint --ext .ts .",
     "lint": "eslint --cache --fix .",
-    "benchmark": "node benchmarks/runBench.js"
+    "benchmark": "node benchmarks/runBench.js",
+    "generate-tests": "node util/runThis.js"
   },
   "keywords": [
     "bigdecimal",
