@@ -9,6 +9,7 @@ const testNumbers = require('./testNumbers');
 
 const repeatCountForRandomTests = 10;
 const maxPrecision = 1000;
+const smallScale = 1000;
 const maxRoundingMode = 8;
 const maxPromiseSize = 1000; // defines concurrency, repeatCountForRandomTests should divide this number
 const maxPowNumber = 9999; // too big pow is not good for BigInt
@@ -279,7 +280,7 @@ const testCaseMethods = {
     ScaleByPowerOfTen: {
         argsFn: (f) => [
             f,
-            Math.floor(Math.random() * maxScale) - minScale
+            Math.floor(Math.random() * smallScale) - smallScale
         ],
         twoOp: false,
         twoResult: false,
@@ -288,7 +289,7 @@ const testCaseMethods = {
     SetScale: {
         argsFn: (f) => [
             f,
-            Math.floor(Math.random() * maxScale) - minScale,
+            Math.floor(Math.random() * smallScale) - smallScale,
             Math.floor(Math.random() * maxRoundingMode),
         ],
         twoOp: false,
