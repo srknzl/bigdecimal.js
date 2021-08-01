@@ -13,7 +13,7 @@
     "lint:ci": "eslint --ext .ts .",
     "lint": "eslint --cache --fix .",
     "benchmark": "node benchmarks/runBench.js",
-    "generate-tests": "node util/runThis.js"
+    "generate-test-files": "node util/generateTestFiles.js"
   },
   "keywords": [
     "bigdecimal",
