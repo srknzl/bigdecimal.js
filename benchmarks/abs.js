@@ -1,19 +1,19 @@
 'use strict';
 const Benchmark = require('benchmark');
-const { smallDecimals, smallDecimalsBigjs, smallDecimalsGWT } = require('./test_numbers');
+const { bigDecimals, bigDecimalsBigjs, bigDecimalsGWT } = require('./test_numbers');
 
 const suite = new Benchmark.Suite;
 
 suite.add('AbsTest#Bigdecimal.js', function () {
-    for (const x of smallDecimals) {
+    for (const x of bigDecimals) {
         x.abs();
     }
 }).add('AbsTest#Big.js', function () {
-    for (const x of smallDecimalsBigjs) {
+    for (const x of bigDecimalsBigjs) {
         x.abs();
     }
 }).add('AbsTest#GWTBased', function () {
-    for (const x of smallDecimalsGWT) {
+    for (const x of bigDecimalsGWT) {
         x.abs();
     }
 }).on('cycle', function (event) {

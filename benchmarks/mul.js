@@ -1,26 +1,20 @@
 'use strict';
-const { Big } = require('big.js');
-const { BigDecimal } = require('../lib/bigdecimal.js');
-const { BigDecimal: GWTDecimal } = require('bigdecimal');
 const Benchmark = require('benchmark');
-const { smallDecimals, smallDecimalsBigjs, smallDecimalsGWT } = require('./test_numbers');
+const { bigDecimals, bigDecimalsBigjs, bigDecimalsGWT } = require('./test_numbers');
 
 const suite = new Benchmark.Suite;
 
 suite.add('MultiplyTest#Bigdecimal.js', function () {
-    let res2 = BigDecimal.fromValue('1');
-    for (const x of smallDecimals) {
-        res2 = res2.multiply(x);
+    for (let i = 0; i < bigDecimals.length - 1; i++) {
+        bigDecimals[i].multiply(bigDecimals[i+1]);
     }
 }).add('MultiplyTest#Big.js', function () {
-    let res = new Big('1');
-    for (const x of smallDecimalsBigjs) {
-        res = res.mul(x);
+    for (let i = 0; i < bigDecimalsBigjs.length - 1; i++) {
+        bigDecimalsBigjs[i].mul(bigDecimalsBigjs[i+1]);
     }
 }).add('MultiplyTest#GWTBased', function () {
-    let res2 = GWTDecimal('1');
-    for (const x of smallDecimalsGWT) {
-        res2 = res2.multiply(x);
+    for (let i = 0; i < bigDecimalsGWT.length - 1; i++) {
+        bigDecimalsGWT[i].multiply(bigDecimalsGWT[i+1]);
     }
 }).on('cycle', function (event) {
     console.log(String(event.target));

@@ -89,25 +89,24 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 
 ## Benchmark Results
 
-* Update Date: 26 June 2021
-* Each operation is run with small numbers and with big numbers using benchmark.js.
-  Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
+* Test Machine:
+  * AMD Ryzen 5 3600
+  * 16 GB 3600 Mhz Ram
+  * Ubuntu 20.04
+* Update Date: 01 August 2021
+* Each operation is run with fixed numbers that is a mix of small and big decimal numbers.
+* Micro benchmark framework: benchmark.js. Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
 * Operations per second(op/s):
 
 | Operation | Bigdecimal.js | Big.js | GWT | Winner |
 | --- | --- | --- | --- | --- |
-| Add | 611,777 | 415,311 | 12,775 | Bigdecimal.js |
-| Add with big numbers | 113,717 | 33,673 | 148 | Bigdecimal.js |
-| Multiply | 613,562 | 73,390 | 3,720 | Bigdecimal.js |
-| Multiply with big numbers | 231,335 | 1,651 | 80.09 | Bigdecimal.js |
-| Subtract | 641,597 | 348,541 | 12,959 | Bigdecimal.js |
-| Subtract with big numbers | 98,031 | 32,729 | 158 | Bigdecimal.js |
-| Divide | 6,973 | 2,202 | 382 | Bigdecimal.js |
-| Divide with big numbers | 12,258 | 822 | 486 | Bigdecimal.js |
-| Abs | 1,266,382 | 3,857,749 | 61,296 | Big.js |
-| Abs with big numbers | 1,061,946 | 1,670,200 | 8,687 | Big.js |
-| Compare | 1,126,781 | 2,317,875 | 369,511 | Big.js |
-| Compare with big numbers | 822,355 | 1,454,145 | 552,519 | Big.js |
+| Add | 47,477 | 12,340 | 55.58 | BigDecimal.js |
+| Multiply | 362,610 | 362,610 | 1,404 | BigDecimal.js |
+| Subtract | 43,147 | 11,678 | 54.10 | BigDecimal.js |
+| Divide | 9,536 | 1,053 | 341 | BigDecimal.js |
+| Abs | 506,144 | 937,951 | 7,992 | Big.js |
+| Compare | 401,047 | 935,592 | 632,812 | Big.js |
+| Remainder | 5,511 | 4,275 | 1,316 | BigDecimal.js |
 
 [npm-image]: https://img.shields.io/npm/v/bigdecimal.js.svg
 [npm-url]: https://npmjs.org/package/bigdecimal.js

@@ -1,28 +1,29 @@
 'use strict';
-const { Big } = require('big.js');
-const { BigDecimal } = require('../lib/bigdecimal.js');
+const { Big: BigJs } = require('big.js');
+const { Big } = require('../lib/bigdecimal.js');
 const { BigDecimal: GWTDecimal } = require('bigdecimal');
 const Benchmark = require('benchmark');
-const { smallDecimals, smallDecimalsBigjs, smallDecimalsGWT } = require('./test_numbers');
+const { bigDecimals, bigDecimalsBigjs, bigDecimalsGWT } = require('./test_numbers');
 
 const suite = new Benchmark.Suite;
 
-const initialValue = '0';
+const initialValue = '123033';
+
+let resBigDec = Big(initialValue);
+let resBigJs = BigJs(initialValue);
+let resGWT = GWTDecimal(initialValue);
 
 suite.add('SubtractTest#Bigdecimal.js', function () {
-    let res2 = BigDecimal.fromValue(initialValue);
-    for (const x of smallDecimals) {
-        res2 = res2.subtract(x);
+    for (const x of bigDecimals) {
+        resBigDec = resBigDec.subtract(x);
     }
 }).add('SubtractTest#Big.js', function () {
-    let res = new Big(initialValue);
-    for (const x of smallDecimalsBigjs) {
-        res = res.sub(x);
+    for (const x of bigDecimalsBigjs) {
+        resBigJs = resBigJs.sub(x);
     }
 }).add('SubtractTest#GWTBased', function () {
-    let res2 = GWTDecimal(initialValue);
-    for (const x of smallDecimalsGWT) {
-        res2 = res2.subtract(x);
+    for (const x of bigDecimalsGWT) {
+        resGWT = resGWT.subtract(x);
     }
 }).on('cycle', function (event) {
     console.log(String(event.target));
