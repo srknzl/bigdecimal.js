@@ -875,7 +875,7 @@ export class BigDecimal {
      * @param scale
      * @param mc
      * @throws RangeError If:
-     * * Value is not in the range [Number.MIN_VALUE, Number.MAX_VALUE]
+     * * Value is not in the range [-Number.MAX_VALUE, Number.MAX_VALUE]
      */
     /** @internal */
     private static fromNumber(value: number, scale?: number, mc?: MathContext): BigDecimal {
@@ -1014,8 +1014,8 @@ export class BigDecimal {
     /** @internal */
     static fromValue(value: any, scale?: number, mc?: MathContext): BigDecimal {
         if (typeof value === 'number') {
-            if (value > Number.MAX_VALUE || value < Number.MIN_VALUE) {
-                throw new RangeError('Number must be in the range [Number.MIN_VALUE, Number.MAX_VALUE]');
+            if (value > Number.MAX_VALUE || value < -Number.MAX_VALUE) {
+                throw new RangeError('Number must be in the range [-Number.MAX_VALUE, Number.MAX_VALUE]');
             }
 
             if (scale !== undefined && mc !== undefined) {
@@ -3539,7 +3539,7 @@ function _Big(n: any, scale?: number, mc?: MathContext): BigDecimal {
  * @param mc MathContext object which allows you to set precision and rounding mode.
  * @throws RangeError on following situations:
  * * If value is a number:
- *     * Value is not in the range [Number.MIN_VALUE, Number.MAX_VALUE]
+ *     * Value is not in the range [-Number.MAX_VALUE, Number.MAX_VALUE]
  *     * Both scale and precision is provided. You can only give one of scale and mc. Passing undefined is same as omitting.
  *     * If value is a double and scale is given.
  * * If value is not a number, a BigInt or a BigDecimal, it will be converted to string.
