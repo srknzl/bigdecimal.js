@@ -51,79 +51,79 @@
  *
  */
 export enum RoundingMode {
-   /**
-    * Rounding mode to round away from zero.  Always increments the
-    * digit prior to a non-zero discarded fraction.  Note that this
-    * rounding mode never decreases the magnitude of the calculated
-    * value.
-    */
+    /**
+     * Rounding mode to round away from zero.  Always increments the
+     * digit prior to a non-zero discarded fraction.  Note that this
+     * rounding mode never decreases the magnitude of the calculated
+     * value.
+     */
     UP,
-   /**
-    * Rounding mode to round towards zero.  Never increments the digit
-    * prior to a discarded fraction (i.e., truncates).  Note that this
-    * rounding mode never increases the magnitude of the calculated value.
-    * This mode corresponds to the IEEE 754-2019 rounding-direction
-    * attribute "roundTowardZero".
-    */
+    /**
+     * Rounding mode to round towards zero.  Never increments the digit
+     * prior to a discarded fraction (i.e., truncates).  Note that this
+     * rounding mode never increases the magnitude of the calculated value.
+     * This mode corresponds to the IEEE 754-2019 rounding-direction
+     * attribute "roundTowardZero".
+     */
     DOWN,
-   /**
-    * Rounding mode to round towards positive infinity.  If the
-    * result is positive, behaves as for `RoundingMode.UP`;
-    * if negative, behaves as for `RoundingMode.DOWN`.  Note
-    * that this rounding mode never decreases the calculated value.
-    * This mode corresponds to the IEEE 754-2019 rounding-direction
-    * attribute "roundTowardPositive".
-    */
+    /**
+     * Rounding mode to round towards positive infinity.  If the
+     * result is positive, behaves as for `RoundingMode.UP`;
+     * if negative, behaves as for `RoundingMode.DOWN`.  Note
+     * that this rounding mode never decreases the calculated value.
+     * This mode corresponds to the IEEE 754-2019 rounding-direction
+     * attribute "roundTowardPositive".
+     */
     CEILING,
-   /**
-    * Rounding mode to round towards negative infinity.  If the
-    * result is positive, behave as for `RoundingMode.DOWN`;
-    * if negative, behave as for `RoundingMode.UP`.  Note that
-    * this rounding mode never increases the calculated value.
-    * This mode corresponds to the IEEE 754-2019 rounding-direction
-    * attribute "roundTowardNegative".
-    */
+    /**
+     * Rounding mode to round towards negative infinity.  If the
+     * result is positive, behave as for `RoundingMode.DOWN`;
+     * if negative, behave as for `RoundingMode.UP`.  Note that
+     * this rounding mode never increases the calculated value.
+     * This mode corresponds to the IEEE 754-2019 rounding-direction
+     * attribute "roundTowardNegative".
+     */
     FLOOR,
-   /**
-    * Rounding mode to round towards "nearest neighbor"
-    * unless both neighbors are equidistant, in which case round up.
-    * Behaves as for `RoundingMode.UP` if the discarded
-    * fraction is &ge; 0.5; otherwise, behaves as for
-    * `RoundingMode.DOWN`.  Note that this is the rounding
-    * mode commonly taught at school.
-    * This mode corresponds to the IEEE 754-2019 rounding-direction
-    * attribute "roundTiesToAway".
-    */
+    /**
+     * Rounding mode to round towards "nearest neighbor"
+     * unless both neighbors are equidistant, in which case round up.
+     * Behaves as for `RoundingMode.UP` if the discarded
+     * fraction is &ge; 0.5; otherwise, behaves as for
+     * `RoundingMode.DOWN`.  Note that this is the rounding
+     * mode commonly taught at school.
+     * This mode corresponds to the IEEE 754-2019 rounding-direction
+     * attribute "roundTiesToAway".
+     */
     HALF_UP,
-   /**
-    * Rounding mode to round towards "nearest neighbor"
-    * unless both neighbors are equidistant, in which case round
-    * down.  Behaves as for `RoundingMode.UP` if the discarded
-    * fraction is &gt; 0.5; otherwise, behaves as for
-    * `RoundingMode.DOWN`.
-    */
+    /**
+     * Rounding mode to round towards "nearest neighbor"
+     * unless both neighbors are equidistant, in which case round
+     * down.  Behaves as for `RoundingMode.UP` if the discarded
+     * fraction is &gt; 0.5; otherwise, behaves as for
+     * `RoundingMode.DOWN`.
+     */
     HALF_DOWN,
-   /**
-    * Rounding mode to round towards the "nearest neighbor"
-    * unless both neighbors are equidistant, in which case, round
-    * towards the even neighbor.  Behaves as for
-    * `RoundingMode.HALF_UP` if the digit to the left of the
-    * discarded fraction is odd; behaves as for
-    * `RoundingMode.HALF_DOWN` if it's even.  Note that this
-    * is the rounding mode that statistically minimizes cumulative
-    * error when applied repeatedly over a sequence of calculations.
-    * It is sometimes known as "Banker's rounding," and is
-    * chiefly used in the USA.
-    * This mode corresponds to the IEEE 754-2019 rounding-direction
-    * attribute "roundTiesToEven".
-    */
+    /**
+     * Rounding mode to round towards the "nearest neighbor"
+     * unless both neighbors are equidistant, in which case, round
+     * towards the even neighbor.  Behaves as for
+     * `RoundingMode.HALF_UP` if the digit to the left of the
+     * discarded fraction is odd; behaves as for
+     * `RoundingMode.HALF_DOWN` if it's even.  Note that this
+     * is the rounding mode that statistically minimizes cumulative
+     * error when applied repeatedly over a sequence of calculations.
+     * It is sometimes known as "Banker's rounding," and is
+     * chiefly used in the USA.
+     * This mode corresponds to the IEEE 754-2019 rounding-direction
+     * attribute "roundTiesToEven".
+     */
     HALF_EVEN,
-   /**
-    * Rounding mode to assert that the requested operation has an exact
-    * result, hence no rounding is necessary.  If this rounding mode is
-    * specified on an operation that yields an inexact result, an
-    * `RangeError` is thrown.
-    */
+    /**
+     * Rounding mode to assert that the requested operation has an exact
+     * result, hence no rounding is necessary.  If this rounding mode is
+     * specified on an operation that yields an inexact result, an
+     * `RangeError` is thrown.
+     */
     UNNECESSARY
 }
 
@@ -1622,6 +1622,113 @@ export class BigDecimal {
     }
 
     /**
+     * Returns a `BigDecimal` whose value is `(this / divisor)`,
+     * and whose scale is as specified.  If rounding must
+     * be performed to generate a result with the specified scale, the
+     * specified rounding mode is applied.
+     *
+     * @param  divisor value by which this `BigDecimal` is to be divided.
+     * @param  scale scale of the `BigDecimal` quotient to be returned.
+     * @param  roundingMode rounding mode to apply.
+     * @return `this / divisor`
+     * @throws RangeError
+     * * If `divisor` is zero
+     * * If `roundingMode==RoundingMode.UNNECESSARY` and the specified scale is insufficient to represent the result
+     *   of the division exactly.
+     * * If scale is given but rounding mode is not given.
+     */
+    divide(divisor: BigDecimal, scale?: number, roundingMode?: RoundingMode): BigDecimal {
+        if (roundingMode === undefined) {
+            if (scale !== undefined) {
+                throw new RangeError('Rounding mode is necessary if scale is given.');
+            } else {
+                return this.divide6(divisor);
+            }
+        } else {
+            if (scale === undefined) {
+                scale = this._scale;
+            }
+            if (roundingMode < RoundingMode.UP || roundingMode > RoundingMode.UNNECESSARY)
+                throw new RangeError('Invalid rounding mode');
+            if (this.intCompact !== BigDecimal.INFLATED) {
+                if ((divisor.intCompact !== BigDecimal.INFLATED)) {
+                    return BigDecimal.divide7(
+                        this.intCompact, this._scale, divisor.intCompact, divisor._scale, scale, roundingMode
+                    );
+                } else {
+                    return BigDecimal.divide8(this.intCompact, this._scale, divisor.intVal, divisor._scale, scale, roundingMode);
+                }
+            } else {
+                if ((divisor.intCompact !== BigDecimal.INFLATED)) {
+                    return BigDecimal.divide9(this.intVal, this._scale, divisor.intCompact, divisor._scale, scale, roundingMode);
+                } else {
+                    return BigDecimal.divide10(this.intVal, this._scale, divisor.intVal, divisor._scale, scale, roundingMode);
+                }
+            }
+        }
+    }
+
+    /** @internal */
+    private static saturateScale(scale: number): number {
+        if (scale <= BigDecimal.MAX_INT_VALUE && scale >= BigDecimal.MIN_INT_VALUE) {
+            return scale;
+        } else {
+            return (scale < 0 ? BigDecimal.MIN_INT_VALUE : BigDecimal.MAX_INT_VALUE);
+        }
+    }
+
+    /** @internal */
+    private divide6(divisor: BigDecimal): BigDecimal {
+        /*
+         * Handle zero cases first.
+         */
+        if (divisor.signum() === 0) { // x/0
+            if (this.signum() === 0) // 0/0
+                throw new RangeError('Division undefined'); // NaN
+            throw new RangeError('Division by zero');
+        }
+
+        // Calculate preferred scale
+        const preferredScale = BigDecimal.saturateScale(this._scale - divisor._scale);
+
+        if (this.signum() === 0) // 0/y
+            return BigDecimal.zeroValueOf(preferredScale);
+        else {
+            /*
+             * If the quotient this/divisor has a terminating decimal
+             * expansion, the expansion can have no more than
+             * (a.precision() + ceil(10*b.precision)/3) digits.
+             * Therefore, create a MathContext object with this
+             * precision and do a divide with the UNNECESSARY rounding
+             * mode.
+             */
+            const mc = new MathContext(
+                Math.min(this.precision() + Math.ceil(10.0 * divisor.precision() / 3.0), BigDecimal.MAX_INT_VALUE),
+                RoundingMode.UNNECESSARY
+            );
+
+            let quotient;
+            try {
+                quotient = this.divideWithMathContext(divisor, mc);
+            } catch (e) {
+                throw new RangeError('Non-terminating decimal expansion; ' +
+                    'no exact representable decimal result.');
+            }
+
+            const quotientScale = quotient.scale();
+
+            // divide(BigDecimal, mc) tries to adjust the quotient to
+            // the desired one by removing trailing zeros; since the
+            // exact divide method does not have an explicit digit
+            // limit, we can add zeros too.
+            if (preferredScale > quotientScale)
+                return quotient.setScale(preferredScale, RoundingMode.UNNECESSARY);
+
+            return quotient;
+        }
+    }
+
+    /**
      * Returns a `BigDecimal` whose value is `(this /
      * divisor)`, with rounding according to the context settings.
      *
@@ -1631,7 +1738,7 @@ export class BigDecimal {
      *         terminating decimal expansion, including dividing by zero
      * @return `this / divisor`
      */
-    divide(divisor: BigDecimal, mc?: MathContext): BigDecimal {
+    divideWithMathContext(divisor: BigDecimal, mc?: MathContext): BigDecimal {
         divisor = BigDecimal.convertToBigDecimal(divisor);
         if (!mc || (mc && mc._precision === 0)) {
             if (divisor.signum() === 0) {
@@ -1651,7 +1758,7 @@ export class BigDecimal {
                 );
                 let quotient: BigDecimal;
                 try {
-                    quotient = this.divide(divisor, mc);
+                    quotient = this.divideWithMathContext(divisor, mc);
                 } catch (e) {
                     throw new RangeError('Non-terminating decimal expansion; no exact representable decimal result.');
                 }
@@ -1749,17 +1856,6 @@ export class BigDecimal {
     /** @internal */
     private static multiplyAndRound3(x: BigInt, y: BigInt, scale: number, mc: MathContext): BigDecimal {
         return BigDecimal.doRound2(x!.valueOf() * y!.valueOf(), scale, mc);
-    }
-
-    /** @internal */
-    private static saturateScale(s: number) {
-        if (s > Number.MAX_SAFE_INTEGER) {
-            return Number.MAX_SAFE_INTEGER;
-        }
-        if (s < Number.MIN_SAFE_INTEGER) {
-            return Number.MIN_SAFE_INTEGER;
-        }
-        return s;
     }
 
     /** @internal */
@@ -1951,7 +2047,7 @@ export class BigDecimal {
                 this.precision() + Math.ceil(10.0 * divisor.precision() / 3.0) + Math.abs(this._scale - divisor._scale) + 2,
                 Number.MAX_SAFE_INTEGER
             );
-            let quotient = this.divide(divisor, new MathContext(maxDigits, RoundingMode.DOWN));
+            let quotient = this.divideWithMathContext(divisor, new MathContext(maxDigits, RoundingMode.DOWN));
             if (quotient._scale > 0) {
                 quotient = quotient.setScale(0, RoundingMode.DOWN);
                 quotient = BigDecimal.stripZerosToMatchScale(
@@ -1967,7 +2063,7 @@ export class BigDecimal {
         }
         const preferredScale = BigDecimal.saturateScale(this._scale - divisor._scale);
 
-        let result = this.divide(divisor, new MathContext(mc._precision, RoundingMode.DOWN));
+        let result = this.divideWithMathContext(divisor, new MathContext(mc._precision, RoundingMode.DOWN));
 
         if (result._scale < 0) {
             const product = result.multiply(divisor);
@@ -2138,7 +2234,7 @@ export class BigDecimal {
      * `this.scale()/2`. The value of the returned result is
      * always within one ulp of the exact decimal value for the
      * precision in question.  If the rounding mode is {@link
-     * RoundingMode.HALF_UP}, {@link RoundingMode.HALF_DOWN},
+        * RoundingMode.HALF_UP}, {@link RoundingMode.HALF_DOWN},
      * or {@link RoundingMode.HALF_EVEN}, the
      * result is within one half an ulp of the exact decimal value.
      *
@@ -2221,7 +2317,7 @@ export class BigDecimal {
                 const tmpPrecision = Math.max(Math.max(guessPrecision, targetPrecision + 2), workingPrecision);
                 const mcTmp = new MathContext(tmpPrecision, RoundingMode.HALF_EVEN);
 
-                approx = BigDecimal.ONE_HALF.multiply(approx.add(working.divide(approx, mcTmp), mcTmp));
+                approx = BigDecimal.ONE_HALF.multiply(approx.add(working.divideWithMathContext(approx, mcTmp), mcTmp));
                 guessPrecision *= 2;
             } while (guessPrecision < targetPrecision + 2);
 
@@ -2623,7 +2719,7 @@ export class BigDecimal {
         }
         // if negative n, calculate the reciprocal using working precision
         if (n < 0) // [hence mc.precision>0]
-            acc = BigDecimal.ONE.divide(acc, workmc);
+            acc = BigDecimal.ONE.divideWithMathContext(acc, workmc);
         // round to final precision and strip zeros
         return BigDecimal.doRound(acc, mc);
     }
@@ -3480,6 +3576,32 @@ export class BigDecimal {
         } else {
             return BigDecimal.bigIntCompareMagnitude(xs, BigDecimal.bigMultiplyPowerTen3(ys, sdiff));
         }
+    }
+
+    /** @internal */
+    private static divide7(xs: number, _scale: number, ys: number, _scale2: number, scale: number, rm: RoundingMode): BigDecimal {
+        return BigDecimal.fromValue(1);
+    }
+
+    /** @internal */
+    private static divide8(
+        xs: number, _scale: number, intVal: BigInt | null, _scale2: number, scale: number, rm: RoundingMode
+    ): BigDecimal {
+        return BigDecimal.fromValue(1);
+    }
+
+    /** @internal */
+    private static divide9(
+        intVal: BigInt | null, _scale: number, ys: number, _scale2: number, scale: number, rm: RoundingMode
+    ): BigDecimal {
+        return BigDecimal.fromValue(1);
+    }
+
+    /** @internal */
+    private static divide10(
+        intVal: BigInt | null, _scale: number, intVal2: BigInt | null, _scale2: number, scale: number, rm: RoundingMode
+    ): BigDecimal {
+        return BigDecimal.fromValue(1);
     }
 }
 
