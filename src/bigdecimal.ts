@@ -3496,6 +3496,21 @@ function _Big(n: any, scale?: number, mc?: MathContext): BigDecimal {
 /**
  * Constructor function for {@link BigDecimal}. Can be invoked with new or without new.
  *
+ * The values passed must match one of Java BigDecimal's constructors, so the valid usages of this function is listed below:
+ * ```javascript
+ * const { Big, MC, RoundingMode } = require('bigdecimal.js');
+ *
+ * Big(123n); // bigint
+ * Big(123n, 3); // bigint and scale
+ * Big(123n, 3, MC(5, RoundingMode.HALF_DOWN)); // bigint, scale and math context
+ * Big(123n, undefined, MC(5, RoundingMode.HALF_DOWN)); // bigint and math context
+ * Big('1.13e12'); // string
+ * Big('1.11e11', undefined, MC(5, RoundingMode.HALF_DOWN)); // string and math context
+ * Big(10000); // number
+ * Big(123, 5); // integer and scale
+ * Big(1.1233, undefined, MC(5, RoundingMode.HALF_DOWN)); // number and scale
+ * ```
+ *
  * Sample Usage:
  *```javascript
  * const { Big } = require('bigdecimal.js');
@@ -3526,8 +3541,10 @@ function _Big(n: any, scale?: number, mc?: MathContext): BigDecimal {
  * * If value is a number:
  *     * Value is not in the range [Number.MIN_VALUE, Number.MAX_VALUE]
  *     * Both scale and precision is provided. You can only give one of scale and mc. Passing undefined is same as omitting.
+ *     * If value is a double and scale is given.
  * * If value is not a number, a BigInt or a BigDecimal, it will be converted to string.
  *   An error will be thrown if the string format is invalid.
+ * * If value is not a BigInt or number, and scale is given.
  */
 export const Big: BigInterface = <BigInterface>_Big;
 
