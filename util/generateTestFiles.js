@@ -267,6 +267,12 @@ const testCaseMethods = {
         twoResult: false,
         randomize: true
     },
+    Precision: {
+        argsFn: (f) => [f],
+        twoOp: false,
+        twoResult: false,
+        randomize: false
+    },
     Round: {
         argsFn: (f) => [
             f,

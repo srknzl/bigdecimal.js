@@ -1,4 +1,4 @@
-// These test cases are taken from https://github.com/MikeMcl/big.js
+// These test numbers are taken from https://github.com/MikeMcl/big.js
 /*
 The MIT License (MIT)
 =====================
