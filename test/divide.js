@@ -124,7 +124,7 @@ describe('Division test', function () {
         }
     });
 
-    it.skip('scale rounded divide tests', function () {
+    it('scale rounded divide tests', function () {
         // Tests of the traditional scaled divide under different
         // rounding modes.
 
@@ -188,7 +188,7 @@ describe('Division test', function () {
         ];
 
         for (const test of testCases2) {
-            const quo = test[0].divide(test[1], RoundingMode.HALF_UP);
+            const quo = test[0].divide(test[1], undefined, RoundingMode.HALF_UP);
             quo.equals(test[2]).should.be.true;
         }
     });

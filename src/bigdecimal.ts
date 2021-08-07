@@ -1656,13 +1656,13 @@ export class BigDecimal {
                         this.intCompact, this._scale, divisor.intCompact, divisor._scale, scale, roundingMode
                     );
                 } else {
-                    return BigDecimal.divide8(this.intCompact, this._scale, divisor.intVal, divisor._scale, scale, roundingMode);
+                    return BigDecimal.divide8(this.intCompact, this._scale, divisor.intVal!, divisor._scale, scale, roundingMode);
                 }
             } else {
                 if ((divisor.intCompact !== BigDecimal.INFLATED)) {
-                    return BigDecimal.divide9(this.intVal, this._scale, divisor.intCompact, divisor._scale, scale, roundingMode);
+                    return BigDecimal.divide9(this.intVal!, this._scale, divisor.intCompact, divisor._scale, scale, roundingMode);
                 } else {
-                    return BigDecimal.divide10(this.intVal, this._scale, divisor.intVal, divisor._scale, scale, roundingMode);
+                    return BigDecimal.divide10(this.intVal!, this._scale, divisor.intVal!, divisor._scale, scale, roundingMode);
                 }
             }
         }
@@ -3579,29 +3579,89 @@ export class BigDecimal {
     }
 
     /** @internal */
-    private static divide7(xs: number, _scale: number, ys: number, _scale2: number, scale: number, rm: RoundingMode): BigDecimal {
-        return BigDecimal.fromValue(1);
+    private static divide7(
+        dividend: number, dividendScale: number, divisor: number, divisorScale: number, scale: number, roundingMode: RoundingMode
+    ): BigDecimal {
+        if (BigDecimal.checkScale2(dividend, scale + divisorScale) > dividendScale) {
+            const newScale = scale + divisorScale;
+            const raise = newScale - dividendScale;
+            if (raise < BigDecimal.TEN_POWERS_TABLE.length) {
+                let xs = dividend;
+                if ((xs = BigDecimal.numberMultiplyPowerTen(xs, raise)) !== BigDecimal.INFLATED) {
+                    return BigDecimal.divideAndRound2(xs, divisor, scale, roundingMode, scale);
+                }
+            }
+            const scaledDividend = BigDecimal.bigMultiplyPowerTen2(dividend, raise);
+            return BigDecimal.divideAndRound4(scaledDividend, divisor, scale, roundingMode, scale);
+        } else {
+            const newScale = BigDecimal.checkScale2(divisor, dividendScale - scale);
+            const raise = newScale - divisorScale;
+            if (raise < BigDecimal.TEN_POWERS_TABLE.length) {
+                let ys = divisor;
+                if ((ys = BigDecimal.numberMultiplyPowerTen(ys, raise)) !== BigDecimal.INFLATED) {
+                    return BigDecimal.divideAndRound2(dividend, ys, scale, roundingMode, scale);
+                }
+            }
+            const scaledDivisor = BigDecimal.bigMultiplyPowerTen2(divisor, raise);
+            return BigDecimal.divideAndRound3(BigInt(dividend), scaledDivisor, scale, roundingMode, scale);
+        }
     }
 
     /** @internal */
     private static divide8(
-        xs: number, _scale: number, intVal: BigInt | null, _scale2: number, scale: number, rm: RoundingMode
+        dividend: number, dividendScale: number, divisor: BigInt, divisorScale: number, scale: number, roundingMode: RoundingMode
     ): BigDecimal {
-        return BigDecimal.fromValue(1);
+        if (BigDecimal.checkScale2(dividend, scale + divisorScale) > dividendScale) {
+            const newScale = scale + divisorScale;
+            const raise = newScale - dividendScale;
+            const scaledDividend = BigDecimal.bigMultiplyPowerTen2(dividend, raise);
+            return BigDecimal.divideAndRound3(scaledDividend, divisor, scale, roundingMode, scale);
+        } else {
+            const newScale = BigDecimal.checkScale3(divisor, dividendScale - scale);
+            const raise = newScale - divisorScale;
+            const scaledDivisor = BigDecimal.bigMultiplyPowerTen3(divisor, raise);
+            return BigDecimal.divideAndRound3(BigInt(dividend), scaledDivisor, scale, roundingMode, scale);
+        }
     }
 
     /** @internal */
     private static divide9(
-        intVal: BigInt | null, _scale: number, ys: number, _scale2: number, scale: number, rm: RoundingMode
+        dividend: BigInt, dividendScale: number, divisor: number, divisorScale: number, scale: number, roundingMode: RoundingMode
     ): BigDecimal {
-        return BigDecimal.fromValue(1);
+        if (BigDecimal.checkScale3(dividend, scale + divisorScale) > dividendScale) {
+            const newScale = scale + divisorScale;
+            const raise = newScale - dividendScale;
+            const scaledDividend = BigDecimal.bigMultiplyPowerTen3(dividend, raise);
+            return BigDecimal.divideAndRound4(scaledDividend, divisor, scale, roundingMode, scale);
+        } else {
+            const newScale = BigDecimal.checkScale2(divisor, dividendScale - scale);
+            const raise = newScale - divisorScale;
+            if (raise < BigDecimal.TEN_POWERS_TABLE.length) {
+                let ys = divisor;
+                if ((ys = BigDecimal.numberMultiplyPowerTen(ys, raise)) !== BigDecimal.INFLATED) {
+                    return BigDecimal.divideAndRound4(dividend, ys, scale, roundingMode, scale);
+                }
+            }
+            const scaledDivisor = BigDecimal.bigMultiplyPowerTen2(divisor, raise);
+            return BigDecimal.divideAndRound3(dividend, scaledDivisor, scale, roundingMode, scale);
+        }
     }
 
     /** @internal */
     private static divide10(
-        intVal: BigInt | null, _scale: number, intVal2: BigInt | null, _scale2: number, scale: number, rm: RoundingMode
+        dividend: BigInt, dividendScale: number, divisor: BigInt, divisorScale: number, scale: number, roundingMode: RoundingMode
     ): BigDecimal {
-        return BigDecimal.fromValue(1);
+        if (BigDecimal.checkScale3(dividend, scale + divisorScale) > dividendScale) {
+            const newScale = scale + divisorScale;
+            const raise = newScale - dividendScale;
+            const scaledDividend = BigDecimal.bigMultiplyPowerTen3(dividend, raise);
+            return BigDecimal.divideAndRound3(scaledDividend, divisor, scale, roundingMode, scale);
+        } else {
+            const newScale = BigDecimal.checkScale3(divisor, dividendScale - scale);
+            const raise = newScale - divisorScale;
+            const scaledDivisor = BigDecimal.bigMultiplyPowerTen3(divisor, raise);
+            return BigDecimal.divideAndRound3(dividend, scaledDivisor, scale, roundingMode, scale);
+        }
     }
 }
 
