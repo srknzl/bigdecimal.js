@@ -214,6 +214,28 @@ const testCaseMethods = {
         twoResult: false,
         randomize: true
     },
+    // Divide that has only divisor
+    Divide2: {
+        argsFn: ([f, s]) => [f, s],
+        twoOp: true,
+        twoResult: false,
+        randomize: false
+    },
+    // Divide that has divisor and rounding mode
+    Divide3: {
+        argsFn: ([f, s]) => [f, s, Math.floor(Math.random() * maxRoundingMode)],
+        twoOp: true,
+        twoResult: false,
+        randomize: true
+    },
+    // Divide that has divisor, scale and rounding mode
+    Divide4: {
+        argsFn: ([f, s]) =>
+            [f, s, Math.floor(Math.random() * smallScale) - smallScale, Math.floor(Math.random() * maxRoundingMode)],
+        twoOp: true,
+        twoResult: false,
+        randomize: true
+    },
     DivideToIntegralValue: {
         argsFn: ([f, s]) => [f, s, Math.floor(Math.random() * maxPrecision), Math.floor(Math.random() * maxRoundingMode)],
         twoOp: true,

@@ -1638,6 +1638,14 @@ export class BigDecimal {
      * * If scale is given but rounding mode is not given.
      */
     divide(divisor: BigDecimal, scale?: number, roundingMode?: RoundingMode): BigDecimal {
+        /*
+         * Handle zero cases first.
+         */
+        if (divisor.signum() === 0) {
+            if (this.signum() === 0)
+                throw new RangeError('Division undefined');
+            throw new RangeError('Division by zero');
+        }
         if (roundingMode === undefined) {
             if (scale !== undefined) {
                 throw new RangeError('Rounding mode is necessary if scale is given.');
@@ -1679,15 +1687,6 @@ export class BigDecimal {
 
     /** @internal */
     private divide6(divisor: BigDecimal): BigDecimal {
-        /*
-         * Handle zero cases first.
-         */
-        if (divisor.signum() === 0) { // x/0
-            if (this.signum() === 0) // 0/0
-                throw new RangeError('Division undefined'); // NaN
-            throw new RangeError('Division by zero');
-        }
-
         // Calculate preferred scale
         const preferredScale = BigDecimal.saturateScale(this._scale - divisor._scale);
 
