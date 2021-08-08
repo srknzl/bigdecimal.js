@@ -488,9 +488,9 @@ export class BigDecimal {
     private static readonly INFLATED_BIGINT = BigInt(BigDecimal.INFLATED);
 
     /** @internal */
-    private static readonly MAX_INT_VALUE = 2e32 - 1;
+    private static readonly MAX_INT_VALUE = 2147483647;
     /** @internal */
-    private static readonly MIN_INT_VALUE = -1 * (2e32 - 1);
+    private static readonly MIN_INT_VALUE = -2147483648;
 
     /** @internal */
     private static readonly MAX_COMPACT_DIGITS = 15;
@@ -1067,8 +1067,14 @@ export class BigDecimal {
      * @internal
      */
     private static integerDigitLength(value: number): number {
-        if (value < 0) value *= -1;
-        return Math.ceil(Math.log10(value + 1));
+        let length = 0;
+        let n = Math.abs(value);
+
+        do {
+            n /= 10;
+            length++;
+        } while (n >= 1);
+        return length;
     }
 
     /**
