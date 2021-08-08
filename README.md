@@ -3,17 +3,17 @@
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
 
-[BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal(arbitrary precision floats) implementation for Node.js.
-This implementation is based on java BigDecimal class. Like java BigDecimal class, it uses big integers internally. This implementation
-is faster than popular big decimal libraries. See [benchmarks results part below](https://github.com/srknzl/bigdecimal.js#benchmark-results) for comparison.
+[BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal implementation for Node.js 10.4 and above.
+This implementation is inspired from java BigDecimal class. This implementation is faster than popular big decimal libraries for most operations.
+See [benchmarks results part below](https://github.com/srknzl/bigdecimal.js#benchmark-results) for comparison of each operation.
 
-**Note: The library is currently in preview, v1.0.0 will be released soon. API can change in the near future. I appreciate your feedback, thanks.**
+## Advantages of this library
 
-## Features
-
-* Faster than other BigDecimal libraries because of native BigInt(for now, benchmarked against `big.js` and `bigdecimal` )
+* Faster than other BigDecimal libraries because of native BigInt
 * Simple API that is almost same with Java's [BigDecimal](https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/math/BigDecimal.html)
 * No dependencies
+* Well tested
+* Includes type definition file
 
 ## Installation
 
@@ -81,7 +81,7 @@ try {
 
 There is a benchmark suite that compares
 
-* bigdecimal.js
+* This library
 * [big.js](https://github.com/MikeMcl/big.js)
 * [GWT based BigDecimal](https://github.com/iriscouch/bigdecimal.js)
 
@@ -89,13 +89,17 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 
 ## Benchmark Results
 
+For now, benchmarked against [big.js](https://www.npmjs.com/package/big.js) and [bigdecimal](https://www.npmjs.com/package/bigdecimal).
+
 * Test Machine:
   * AMD Ryzen 5 3600
   * 16 GB 3600 Mhz Ram
   * Ubuntu 20.04
 * Update Date: 01 August 2021
-* Each operation is run with fixed numbers that is a mix of small and big decimal numbers.
-* Micro benchmark framework: benchmark.js. Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
+
+* Each operation is run with fixed set of decimal numbers composed of both simple and complex numbers.
+* Micro benchmark framework used is [benchmark](https://www.npmjs.com/package/benchmark). Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
+* For now, benchmarked the following operations, all operations will be added soon.
 * Operations per second(op/s):
 
 | Operation | Bigdecimal.js | Big.js | GWT | Winner |
