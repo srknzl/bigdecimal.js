@@ -190,4 +190,10 @@ describe('Constructor test', function () {
             Big(-Infinity);
         }).should.throw(RangeError);
     });
+
+    it('should throw if number is an integer, scale and math context given', function () {
+        (() => {
+            Big(112333123321, 1, MC(5, RoundingMode.HALF_DOWN));
+        }).should.throw(RangeError);
+    });
 });
