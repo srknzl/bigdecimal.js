@@ -10,11 +10,10 @@ describe('DivideAndRemainder test', function () {
     it('should be able to divideAndRemainder two decimals', function () {
         for (const test of testCases) {
             const divideAndRemainderOp = () => {
-                const result = Big(test.args[0]).divideAndRemainder(
+                return Big(test.args[0]).divideAndRemainder(
                     Big(test.args[1]),
                     new MC(test.args[2], test.args[3])
                 );
-                return result;
             };
             if (test.result[0] === 'errorThrown') {
                 divideAndRemainderOp.should.throw(

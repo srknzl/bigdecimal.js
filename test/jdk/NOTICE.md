@@ -1,4 +1,4 @@
-Some tests or test numbers in this directory is taken from https://github.com/openjdk/jdk repository.
+Tests and test numbers in this directory is taken from https://github.com/openjdk/jdk repository.
 
 ```
 Copyright (c) 2003, 2018, Oracle and/or its affiliates. All rights reserved.

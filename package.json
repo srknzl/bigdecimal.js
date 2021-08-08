@@ -4,7 +4,7 @@
   "description": "A BigDecimal implementation with native BigInts",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha -t 100000 test/**/*.js",
+    "test": "mocha -t 100000 test/**/**/*.js",
     "compile": "tsc",
     "clean": "rimraf docs lib",
     "predocs": "rimraf docs",
