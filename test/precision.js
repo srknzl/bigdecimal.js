@@ -1,5 +1,5 @@
 'use strict';
-const { Big } = require('../lib/bigdecimal');
+const { Big, MC, RoundingMode } = require('../lib/bigdecimal');
 const chai = require('chai');
 const testCases = require('../util/output/precisionTestCases.json');
 chai.should();
@@ -21,5 +21,9 @@ describe('Precision test', function () {
             const expected = Number(test.result);
             actual.should.be.equal(expected, `expected '${test.args[0]}'.precision() to be '${expected}'`);
         }
+    });
+
+    it('s', function () {
+
     });
 });
