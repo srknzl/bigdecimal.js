@@ -13,7 +13,7 @@ BigJs.RM = 1;
 
 suite.add('DivideTest#Bigdecimal.js', function () {
     for (let i = 0; i < bigDecimals.length - 1; i++) {
-        bigDecimals[i].divide(bigDecimals[i+1], MC(precision, RoundingMode.HALF_UP));
+        bigDecimals[i].divideWithMathContext(bigDecimals[i+1], MC(precision, RoundingMode.HALF_UP));
     }
 }).add('DivideTest#Big.js', function () {
     for (let i = 0; i < bigDecimalsBigjs.length - 1; i++) {
