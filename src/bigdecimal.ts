@@ -4264,12 +4264,12 @@ function _Big(n: any, scale?: number, mc?: MathContext): BigDecimal {
 export const Big: BigInterface = <BigInterface>_Big;
 
 interface MCInterface {
-    (precision: number, roundingMode: RoundingMode): MathContext;
+    (precision: number, roundingMode?: RoundingMode): MathContext;
 
-    new(precision: number, roundingMode: RoundingMode): MathContext;
+    new(precision: number, roundingMode?: RoundingMode): MathContext;
 }
 
-function _MC(precision: number, roundingMode: RoundingMode): MathContext {
+function _MC(precision: number, roundingMode?: RoundingMode): MathContext {
     return new MathContext(precision, roundingMode);
 }
 
@@ -4298,6 +4298,6 @@ function _MC(precision: number, roundingMode: RoundingMode): MathContext {
  * ```
  *
  * @param precision Precision value
- * @param roundingMode Rounding Mode
+ * @param roundingMode Optional rounding Mode. By default RoundingMode.HALF_UP.
  */
 export const MC: MCInterface = <MCInterface>_MC;
