@@ -473,7 +473,7 @@ export class BigDecimal {
     private _precision: number;
 
     /** @internal */
-    private stringCache: string | undefined = undefined;
+    private stringCache: string | undefined;
 
     /** @internal */
     private readonly intCompact: number;
@@ -487,7 +487,9 @@ export class BigDecimal {
     /** @internal */
     private static readonly INFLATED_BIGINT = BigInt(BigDecimal.INFLATED);
 
+    /** @internal */
     private static readonly MAX_INT_VALUE = 2e32 - 1;
+    /** @internal */
     private static readonly MIN_INT_VALUE = -1 * (2e32 - 1);
 
     /** @internal */
