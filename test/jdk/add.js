@@ -87,8 +87,8 @@ describe('Add JDK', function () {
      * computations.
      */
     it('extrema tests', function () {
-        addWithoutException(Big(1, Number.MIN_SAFE_INTEGER), Big(2, Number.MAX_SAFE_INTEGER));
-        addWithoutException(Big(1, -Number.MAX_SAFE_INTEGER), Big(-2, Number.MAX_SAFE_INTEGER));
+        addWithoutException(Big(1, -2147483647), Big(2, 2147483647));
+        addWithoutException(Big(1, -2147483647), Big(-2, 2147483647));
     });
 
     /**
