@@ -408,8 +408,8 @@ export class MathContext {
  * Floating-point Arithmetic</cite> has covered decimal formats and
  * operations. While there are broad similarities in the decimal
  * arithmetic defined by IEEE 754 and by this class, there are notable
- * differences as well. The fundamental similarity shared by {@code
- * BigDecimal} and IEEE 754 decimal arithmetic is the conceptual
+ * differences as well. The fundamental similarity shared by
+ * `BigDecimal` and IEEE 754 decimal arithmetic is the conceptual
  * operation of computing the mathematical infinitely precise real
  * number value of an operation and then mapping that real number to a
  * representable decimal floating-point value under a <em>rounding
@@ -842,14 +842,14 @@ export class BigDecimal {
 
     /**
      * Translates a `BigInt` unscaled value and a number
-     * scale into a {@code BigDecimal}, with rounding
+     * scale into a `BigDecimal`, with rounding
      * according to the context settings.  The value of the
-     * {@code BigDecimal} is <code>(unscaledVal &times;
+     * `BigDecimal` is <code>(unscaledVal &times;
      * 10<sup>-scale</sup>)</code>, rounded according to the
      * `precision` and rounding mode settings.
      *
-     * @param intVal unscaled value of the {@code BigDecimal}.
-     * @param scale       scale of the {@code BigDecimal}.
+     * @param intVal unscaled value of the `BigDecimal`.
+     * @param scale       scale of the `BigDecimal`.
      * @param mc          the context to use.
      * @internal
      */
@@ -890,11 +890,11 @@ export class BigDecimal {
     }
 
     /**
-     * Translates a {@code BigInteger} into a {@code BigDecimal}.
-     * The scale of the {@code BigDecimal} is zero.
+     * Translates a {@code BigInteger} into a `BigDecimal`.
+     * The scale of the `BigDecimal` is zero.
      *
      * @param intVal `BigInt` value to be converted to
-     *            {@code BigDecimal}.
+     *            `BigDecimal`.
      * @internal
      */
     private static fromBigInt3(intVal: BigInt): BigDecimal {
@@ -930,13 +930,13 @@ export class BigDecimal {
     }
 
     /**
-     * Translates a `double` into a {@code BigDecimal}, using
+     * Translates a `double` into a `BigDecimal`, using
      * the `double`'s canonical string representation provided
      * by the String constructor.
      *
-     * @param double `double` to convert to a {@code BigDecimal}.
+     * @param double `double` to convert to a `BigDecimal`.
      * @param mc math context to use
-     * @return a {@code BigDecimal} whose value is equal to or approximately
+     * @return a `BigDecimal` whose value is equal to or approximately
      * equal to the value of `double`.
      * @throws RangeError if `double` is not a valid `BigDecimal`
      * @internal
@@ -978,11 +978,11 @@ export class BigDecimal {
 
     /**
      * Translates a `number` unscaled value and a `number`
-     * scale into a {@code BigDecimal}.
+     * scale into a `BigDecimal`.
      *
-     * @param value unscaled value of the {@code BigDecimal}.
-     * @param scale       scale of the {@code BigDecimal}.
-     * @return a {@code BigDecimal} whose value is
+     * @param value unscaled value of the `BigDecimal`.
+     * @param scale       scale of the `BigDecimal`.
+     * @return a `BigDecimal` whose value is
      * <code>(unscaledVal &times; 10<sup>-scale</sup>)</code>.
      * @internal
      */
@@ -997,11 +997,11 @@ export class BigDecimal {
     }
 
     /**
-     * Translates an integer value into a {@code BigDecimal}
+     * Translates an integer value into a `BigDecimal`
      * with a scale of zero.
      *
-     * @param value value of the {@code BigDecimal}.
-     * @return a {@code BigDecimal} whose value is `value`.
+     * @param value value of the `BigDecimal`.
+     * @return a `BigDecimal` whose value is `value`.
      * @internal
      */
     private static fromInteger4(value: number): BigDecimal {
@@ -1015,11 +1015,11 @@ export class BigDecimal {
     }
 
     /**
-     * Translates an integer into a {@code BigDecimal}, with
+     * Translates an integer into a `BigDecimal`, with
      * rounding according to the context settings.  The scale of the
-     * {@code BigDecimal}, before any rounding, is zero.
+     * `BigDecimal`, before any rounding, is zero.
      *
-     * @param value number value to be converted to {@code BigDecimal}.
+     * @param value number value to be converted to `BigDecimal`.
      * @param mc  the context to use.
      * @internal
      */
@@ -1620,17 +1620,17 @@ export class BigDecimal {
     }
 
     /**
-     * Match the scales of two {@code BigDecimal}s to align their
+     * Match the scales of two `BigDecimal`s to align their
      * least significant digits.
      *
      * If the scales of val[0] and val[1] differ, rescale
-     * (non-destructively) the lower-scaled {@code BigDecimal} so
+     * (non-destructively) the lower-scaled `BigDecimal` so
      * they match.  That is, the lower-scaled reference will be
      * replaced by a reference to a new object with the same scale as
-     * the other {@code BigDecimal}.
+     * the other `BigDecimal`.
      *
      * @param val array of two elements referring to the two
-     *            {@code BigDecimal}s to be aligned.
+     *            `BigDecimal`s to be aligned.
      * @internal
      */
     private static matchScale(val: BigDecimal[]): void {
@@ -1643,7 +1643,7 @@ export class BigDecimal {
 
     /**
      * Returns an array of length two, the sum of whose entries is
-     * equal to the rounded sum of the {@code BigDecimal} arguments.
+     * equal to the rounded sum of the `BigDecimal` arguments.
      *
      * If the digit positions of the arguments have a sufficient
      * gap between them, the value smaller in magnitude can be
@@ -3635,7 +3635,7 @@ export class BigDecimal {
      * @param sci `true` for Scientific exponential notation;
      *            `false` for Engineering
      * @return string with canonical string representation of this
-     * {@code BigDecimal}
+     * `BigDecimal`
      * @internal
      */
     private layoutString(sci: boolean): string {
