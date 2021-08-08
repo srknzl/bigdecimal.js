@@ -620,7 +620,7 @@ export class BigDecimal {
     /** @internal */
     private static adjustScale(scl: number, exp: number): number {
         const adjustedScale = scl - exp;
-        if (adjustedScale > Number.MAX_SAFE_INTEGER || adjustedScale < Number.MIN_SAFE_INTEGER)
+        if (adjustedScale > BigDecimal.MAX_INT_VALUE || adjustedScale < BigDecimal.MIN_INT_VALUE)
             throw new RangeError('Scale out of range.');
         scl = adjustedScale;
         return scl;
@@ -712,7 +712,7 @@ export class BigDecimal {
                     exp = BigDecimal.parseExp(input, offset, len);
 
                     // Next test is required for backwards compatibility
-                    if (exp > Number.MAX_SAFE_INTEGER) // overflow
+                    if (exp > BigDecimal.MAX_INT_VALUE || exp < BigDecimal.MIN_INT_VALUE) // overflow
                         throw new RangeError('Exponent overflow.');
                     break; // [saves a test]
                 } else {
@@ -777,7 +777,7 @@ export class BigDecimal {
                 }
                 exp = BigDecimal.parseExp(input, offset, len);
                 // Next test is required for backwards compatibility
-                if (exp > Number.MAX_SAFE_INTEGER) // overflow
+                if (exp > BigDecimal.MAX_INT_VALUE || exp < BigDecimal.MIN_INT_VALUE) // overflow
                     throw new RangeError('Exponent overflow.');
                 break; // [saves a test]
             }
@@ -2850,6 +2850,8 @@ export class BigDecimal {
      * number is multiplied by ten to the power of the negation of the
      * scale.  For example, a scale of `-3` means the unscaled
      * value is multiplied by 1000.
+     *
+     * The scale will be kept in the integer range, if cannot error will be thrown.
      *
      * @return the scale of this `BigDecimal`.
      */
