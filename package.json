@@ -58,6 +58,7 @@
   },
   "homepage": "https://srknzl.github.io/bigdecimal.js/api/current/docs",
   "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@typescript-eslint/eslint-plugin": "~4.27.0",
     "@typescript-eslint/parser": "~4.27.0",
     "benchmark": "~2.1.4",
@@ -72,17 +73,5 @@
     "ts-node": "^10.2.1",
     "typedoc": "~0.20.36",
     "typescript": "~4.2.4"
-  },
-  "nyc": {
-    "extension": [
-      ".ts"
-    ],
-    "exclude": [
-      "**/*.d.ts"
-    ],
-    "reporter": [
-      "html"
-    ],
-    "all": true
   }
 }
