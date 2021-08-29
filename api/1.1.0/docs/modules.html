@@ -1,0 +1,288 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>bigdecimal.js</title>
+	<meta name="description" content="Documentation for bigdecimal.js">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">bigdecimal.js</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>bigdecimal.js</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Enumerations</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-enum"><a href="enums/roundingmode.html" class="tsd-kind-icon">Rounding<wbr>Mode</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Classes</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-class"><a href="classes/bigdecimal.html" class="tsd-kind-icon">Big<wbr>Decimal</a></li>
+								<li class="tsd-kind-class"><a href="classes/mathcontext.html" class="tsd-kind-icon">Math<wbr>Context</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function"><a href="modules.html#big" class="tsd-kind-icon">Big</a></li>
+								<li class="tsd-kind-function"><a href="modules.html#mc" class="tsd-kind-icon">MC</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="big" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Big</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">Big<span class="tsd-signature-symbol">(</span>n<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, scale<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, mc<span class="tsd-signature-symbol">?: </span><a href="classes/mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="classes/bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/3a42247/src/bigdecimal.ts#L4262">bigdecimal.ts:4262</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Constructor function for <a href="classes/bigdecimal.html">BigDecimal</a>. Can be invoked with new or without new.</p>
+								</div>
+								<p>The values passed must match one of Java BigDecimal&#39;s constructors, so the valid usages of this function is listed below:</p>
+								<pre><code class="language-javascript"><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">123</span><span style="color: #0000FF">n</span><span style="color: #000000">); </span><span style="color: #008000">// bigint, 123</span>
+<span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">123</span><span style="color: #0000FF">n</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">); </span><span style="color: #008000">// bigint and scale, 0.123</span>
+<span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">123</span><span style="color: #0000FF">n</span><span style="color: #000000">, </span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #795E26">MC</span><span style="color: #000000">(</span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #001080">RoundingMode</span><span style="color: #000000">.</span><span style="color: #0070C1">HALF_UP</span><span style="color: #000000">)); </span><span style="color: #008000">// bigint, scale and mc, 0.12</span>
+<span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">123</span><span style="color: #0000FF">n</span><span style="color: #000000">, </span><span style="color: #0000FF">undefined</span><span style="color: #000000">, </span><span style="color: #795E26">MC</span><span style="color: #000000">(</span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #001080">RoundingMode</span><span style="color: #000000">.</span><span style="color: #0070C1">HALF_UP</span><span style="color: #000000">)); </span><span style="color: #008000">// bigint and mc, 1.2E+2</span>
+<span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;1.13e12&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// string, 1.13E+12</span>
+<span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;1.11e11&#039;</span><span style="color: #000000">, </span><span style="color: #0000FF">undefined</span><span style="color: #000000">, </span><span style="color: #795E26">MC</span><span style="color: #000000">(</span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #001080">RoundingMode</span><span style="color: #000000">.</span><span style="color: #0070C1">HALF_UP</span><span style="color: #000000">)); </span><span style="color: #008000">// string and mc, 1.1E+11</span>
+<span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">10000</span><span style="color: #000000">); </span><span style="color: #008000">// number, 10000</span>
+<span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">123</span><span style="color: #000000">, </span><span style="color: #098658">5</span><span style="color: #000000">); </span><span style="color: #008000">// integer and scale, 0.00123</span>
+<span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">1.1233</span><span style="color: #000000">, </span><span style="color: #0000FF">undefined</span><span style="color: #000000">, </span><span style="color: #795E26">MC</span><span style="color: #000000">(</span><span style="color: #098658">2</span><span style="color: #000000">, </span><span style="color: #001080">RoundingMode</span><span style="color: #000000">.</span><span style="color: #0070C1">HALF_UP</span><span style="color: #000000">)); </span><span style="color: #008000">// number and scale, 1.1</span>
+</code></pre>
+								<p>Sample Usage:</p>
+								<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">Big</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;bigdecimal.js&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #008000">// Constructor accepts any value such as string and BigDecimal itself:</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">x</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;1.1111111111111111111111&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">y</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #001080">x</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">z</span><span style="color: #000000"> = </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">add</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">);</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">z</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 2.2222222222222222222222</span>
+
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">u</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">1.1</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">v</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #098658">2</span><span style="color: #0000FF">n</span><span style="color: #000000">);</span>
+
+<span style="color: #008000">// You can also construct a BigDecimal from a number or a BigInt:</span>
+
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">u</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 1.1</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">v</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 2</span>
+</code></pre>
+								<dl class="tsd-comment-tags">
+									<dt>throws</dt>
+									<dd><p>RangeError on following situations:</p>
+										<ul>
+											<li>If value is a number:<ul>
+													<li>Value is not in the range <code>[-Number.MAX_VALUE, Number.MAX_VALUE]</code></li>
+													<li>Both a scale and a math context is provided. You can only give one of scale and math context.
+													Passing <code>undefined</code> is same as omitting an argument.</li>
+													<li>If value is a double and scale is given.</li>
+												</ul>
+											</li>
+											<li>If value is not a <code>number</code>, a <code>BigInt</code> or a <code>BigDecimal</code>, it will be converted to string.
+											An error will be thrown if the string format is invalid.</li>
+											<li>If value is not a <code>BigInt</code> or <code>number</code>, and scale is given.</li>
+										</ul>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>n: <span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Any value to build a BigDecimal from. Types other than <code>Number</code>, <code>BigInt</code> and <code>BigDecimal</code> will be internally
+										converted to string and parsed.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> scale: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Scale to use, by default 0.</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> mc: <a href="classes/mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>MathContext object which allows you to set precision and rounding mode.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="classes/bigdecimal.html" class="tsd-signature-type" data-tsd-kind="Class">BigDecimal</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="mc" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> MC</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">MC<span class="tsd-signature-symbol">(</span>precision<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, roundingMode<span class="tsd-signature-symbol">?: </span><a href="enums/roundingmode.html" class="tsd-signature-type" data-tsd-kind="Enumeration">RoundingMode</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="classes/mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/srknzl/bigdecimal.js/blob/3a42247/src/bigdecimal.ts#L4299">bigdecimal.ts:4299</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Constructor function for <a href="classes/mathcontext.html">MathContext</a>. Can be invoked with new or without new.</p>
+								</div>
+								<p>Sample Usage:</p>
+								<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">Big</span><span style="color: #000000">, </span><span style="color: #0070C1">MathContext</span><span style="color: #000000">, </span><span style="color: #0070C1">RoundingMode</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;bigdecimal.js&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">x</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;1&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">y</span><span style="color: #000000"> = </span><span style="color: #795E26">Big</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;3&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">res1</span><span style="color: #000000"> = </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">divide</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">MathContext</span><span style="color: #000000">(</span><span style="color: #098658">3</span><span style="color: #000000">));</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">res1</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 0.333</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">res2</span><span style="color: #000000"> = </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">divide</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">, </span><span style="color: #795E26">MathContext</span><span style="color: #000000">(</span><span style="color: #098658">3</span><span style="color: #000000">, </span><span style="color: #001080">RoundingMode</span><span style="color: #000000">.</span><span style="color: #0070C1">UP</span><span style="color: #000000">)); </span><span style="color: #008000">// You can also use without `new` operator</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">res2</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// 0.334</span>
+
+<span style="color: #AF00DB">try</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #001080">x</span><span style="color: #000000">.</span><span style="color: #795E26">divide</span><span style="color: #000000">(</span><span style="color: #001080">y</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #008000">// throws since full precision is requested but it is not possible</span>
+<span style="color: #000000">} </span><span style="color: #AF00DB">catch</span><span style="color: #000000"> (</span><span style="color: #001080">e</span><span style="color: #000000">) {</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">e</span><span style="color: #000000">); </span><span style="color: #008000">// RangeError: Non-terminating decimal expansion; no exact representable decimal result.</span>
+<span style="color: #000000">}</span>
+</code></pre>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>precision: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Precision value</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> roundingMode: <a href="enums/roundingmode.html" class="tsd-signature-type" data-tsd-kind="Enumeration">RoundingMode</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optional rounding Mode. By default RoundingMode.HALF_UP.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="classes/mathcontext.html" class="tsd-signature-type" data-tsd-kind="Class">MathContext</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="current ">
+						<a href="modules.html">Exports</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-enum">
+						<a href="enums/roundingmode.html" class="tsd-kind-icon">Rounding<wbr>Mode</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/bigdecimal.html" class="tsd-kind-icon">Big<wbr>Decimal</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/mathcontext.html" class="tsd-kind-icon">Math<wbr>Context</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#big" class="tsd-kind-icon">Big</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="modules.html#mc" class="tsd-kind-icon">MC</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
