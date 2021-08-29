@@ -2,10 +2,18 @@
   "name": "bigdecimal.js",
   "version": "1.0.0",
   "description": "A BigDecimal implementation with native BigInts",
-  "main": "lib/index.js",
+  "exports": {
+    "import": "./lib/bigdecimal.mjs",
+    "require": "./lib/bigdecimal.js"
+  },
+  "main": "lib/bigdecimal.js",
+  "module": "lib/bigdecimal.mjs",
   "scripts": {
-    "test": "mocha -t 100000 test/**/**/*.js",
-    "compile": "tsc",
+    "test": "mocha --require ts-node/register --require source-map-support/register -t 100000 test/**/**/*.js",
+    "coverage": "nyc --reporter=lcov npm run test",
+    "compile": " npm run compile:cjs && npm run compile:esm && npm run prepareESM",
+    "compile:esm": "tsc --module es2020 --outDir lib/esm",
+    "compile:cjs": "tsc --module commonjs --outDir lib",
     "clean": "rimraf docs lib",
     "predocs": "rimraf docs",
     "docs": "typedoc --options typedoc.json",
@@ -13,7 +21,9 @@
     "lint:ci": "eslint --ext .ts .",
     "lint": "eslint --cache --fix .",
     "benchmark": "node benchmarks/runBench.js",
-    "generate-test-files": "node util/generateTestFiles.js"
+    "generate-test-files": "node util/generateTestFiles.js",
+    "prepareESM": "mv lib/esm/bigdecimal.js lib/bigdecimal.mjs && rm -rf lib/esm",
+    "prepublish": "npm run compile"
   },
   "keywords": [
     "bigdecimal",
@@ -25,10 +35,11 @@
     "arithmetic"
   ],
   "files": [
-    "lib/**/*.js",
-    "lib/**/*.ts"
+    "lib/bigdecimal.js",
+    "lib/bigdecimal.mjs",
+    "lib/bigdecimal.d.ts"
   ],
-  "types": "lib/index.d.ts",
+  "types": "lib/bigdecimal.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/srknzl/bigdecimal.js.git"
@@ -55,8 +66,23 @@
     "chai": "~4.3",
     "eslint": "~7.28.0",
     "mocha": "~9.0.0",
+    "nyc": "^15.1.0",
     "rimraf": "~3.0.2",
+    "source-map-support": "^0.5.19",
+    "ts-node": "^10.2.1",
     "typedoc": "~0.20.36",
     "typescript": "~4.2.4"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "reporter": [
+      "html"
+    ],
+    "all": true
   }
 }

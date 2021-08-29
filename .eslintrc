@@ -98,5 +98,8 @@
     }],
     "space-in-parens": "error",
     "eqeqeq": "error"
+  },
+  "parserOptions": {
+    "sourceType": "script"
   }
 }

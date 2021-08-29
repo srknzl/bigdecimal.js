@@ -1,5 +1,5 @@
 'use strict';
-const { Big, MC, RoundingMode } = require('../../lib/bigdecimal');
+const { Big, MC, RoundingMode } = require('../../lib/bigdecimal.js');
 const chai = require('chai');
 const should = chai.should();
 

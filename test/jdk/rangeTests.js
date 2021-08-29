@@ -1,5 +1,5 @@
 'use strict';
-const { Big, MathContext } = require('../../lib/bigdecimal');
+const { Big, MathContext } = require('../../lib/bigdecimal.js');
 const chai = require('chai');
 chai.should();
 

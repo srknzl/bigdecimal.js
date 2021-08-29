@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+  pull_request:
+
 jobs:
   Run-Tests:
     runs-on: ubuntu-latest
@@ -20,4 +22,8 @@ jobs:
           npm run compile
       - name: Tests
         run: |
-          npm test
+          npm run coverage
+      - name: Publish to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: coverage/lcov.info

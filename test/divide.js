@@ -1,5 +1,5 @@
 'use strict';
-const { Big, MC } = require('../lib/bigdecimal');
+const { Big, MC } = require('../lib/bigdecimal.js');
 const chai = require('chai');
 const testCases = require('../util/output/divideTestCases.json');
 const testCases2 = require('../util/output/divide2TestCases.json');
