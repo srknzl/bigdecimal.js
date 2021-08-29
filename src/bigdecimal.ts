@@ -245,7 +245,7 @@ export class MathContext {
  * exact result cannot be represented, a `RangeError`
  * is thrown; otherwise, calculations can be carried out to a chosen
  * precision and rounding mode by supplying an appropriate {@link
-    * MathContext} object to the operation.  In either case, eight
+ * MathContext} object to the operation.  In either case, eight
  * <em>rounding modes</em> are provided for the control of rounding.
  *
  * When a `MathContext` object is supplied with a precision
@@ -276,12 +276,12 @@ export class MathContext {
  *
  * The different representations of the same numerical value are
  * called members of the same <i>cohort</i>. The {@link
-    * compareTo |  natural order} of `BigDecimal`
+ * compareTo |  natural order} of `BigDecimal`
  * considers members of the same cohort to be equal to each other. In
  * contrast, the {@link equals | equals} method requires both the
  * numerical value and representation to be the same for equality to
  * hold. The results of methods like {@link scale} and {@link
-    * unscaledValue} will differ for numerically equal values with
+ * unscaledValue} will differ for numerically equal values with
  * different representations.
  *
  * In general the rounding modes and precision setting determine
@@ -311,7 +311,7 @@ export class MathContext {
  *
  * For methods and constructors with a `MathContext`
  * parameter, if the result is inexact but the rounding mode is {@link
-    * RoundingMode.UNNECESSARY | UNNECESSARY}, a RangeError will be thrown.
+ * RoundingMode.UNNECESSARY | UNNECESSARY}, a RangeError will be thrown.
  *
  * Besides a logical exact result, each arithmetic operation has a
  * preferred scale for representing a result.  The preferred
@@ -373,7 +373,7 @@ export class MathContext {
  * Two types of operations are provided for manipulating the scale
  * of a `BigDecimal`: scaling/rounding operations and decimal
  * point motion operations.  Scaling/rounding operations ({@link
-    * setScale} and {@link round}) return a
+ * setScale} and {@link round}) return a
  * `BigDecimal` whose value is approximately (or exactly) equal
  * to that of the operand, but whose scale or precision is the
  * specified value; that is, they increase or decrease the precision
@@ -414,7 +414,7 @@ export class MathContext {
  * number value of an operation and then mapping that real number to a
  * representable decimal floating-point value under a <em>rounding
  * policy</em>. The rounding policy is called a {@link
-    * RoundingMode | rounding mode} for `BigDecimal` and called a
+ * RoundingMode | rounding mode} for `BigDecimal` and called a
  * rounding-direction attribute in IEEE 754-2019. When the exact value
  * is not representable, the rounding policy determines which of the
  * two representable decimal values bracketing the exact value is
@@ -432,7 +432,7 @@ export class MathContext {
  * negating an IEEE 754 value's exponent. `BigDecimal` values do
  * not have a format in the same sense; all values have the same
  * possible range of scale/exponent and the {@link
-    * unscaledValue | unscaled value} has arbitrary precision. Instead,
+ * unscaledValue | unscaled value} has arbitrary precision. Instead,
  * for the `BigDecimal` operations taking a `MathContext`
  * parameter, if the `MathContext` has a nonzero precision, the
  * set of possible representable values for the result is determined
@@ -447,7 +447,7 @@ export class MathContext {
  * operations indicated by {@link RoundingMode | rounding modes}
  * are a proper superset of the IEEE 754 rounding-direction
  * attributes.
-
+ *
  * `BigDecimal` arithmetic will most resemble IEEE 754
  * decimal arithmetic if a `MathContext` corresponding to an
  * IEEE 754 decimal format, such as {@link MathContext.DECIMAL64 |
@@ -4201,14 +4201,10 @@ export class BigDecimal {
     }
 }
 
-interface BigInterface {
+interface BigDecimalConstructor {
     (n: any, scale?: number, mc?: MathContext): BigDecimal;
 
     new(n: any, scale?: number, mc?: MathContext): BigDecimal;
-}
-
-function _Big(n: any, scale?: number, mc?: MathContext): BigDecimal {
-    return BigDecimal.fromValue(n, scale, mc);
 }
 
 /**
@@ -4263,16 +4259,14 @@ function _Big(n: any, scale?: number, mc?: MathContext): BigDecimal {
  *   An error will be thrown if the string format is invalid.
  * * If value is not a `BigInt` or `number`, and scale is given.
  */
-export const Big: BigInterface = <BigInterface>_Big;
+export const Big = <BigDecimalConstructor> function _Big(n: any, scale?: number, mc?: MathContext): BigDecimal {
+    return BigDecimal.fromValue(n, scale, mc);
+};
 
-interface MCInterface {
+interface MathContextConstructor {
     (precision: number, roundingMode?: RoundingMode): MathContext;
 
     new(precision: number, roundingMode?: RoundingMode): MathContext;
-}
-
-function _MC(precision: number, roundingMode?: RoundingMode): MathContext {
-    return new MathContext(precision, roundingMode);
 }
 
 /**
@@ -4302,4 +4296,6 @@ function _MC(precision: number, roundingMode?: RoundingMode): MathContext {
  * @param precision Precision value
  * @param roundingMode Optional rounding Mode. By default RoundingMode.HALF_UP.
  */
-export const MC: MCInterface = <MCInterface>_MC;
+export const MC = <MathContextConstructor> function _MC(precision: number, roundingMode?: RoundingMode): MathContext {
+    return new MathContext(precision, roundingMode);
+};

@@ -1,5 +1,5 @@
 'use strict';
-const { Big } = require('../lib/bigdecimal');
+const { Big } = require('../lib/bigdecimal.js');
 const chai = require('chai');
 const testCases = require('../util/output/movePointLeftTestCases.json');
 chai.should();

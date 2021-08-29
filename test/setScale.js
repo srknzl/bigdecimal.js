@@ -1,5 +1,5 @@
 'use strict';
-const { Big, RoundingMode } = require('../lib/bigdecimal');
+const { Big, RoundingMode } = require('../lib/bigdecimal.js');
 const chai = require('chai');
 const testCases = require('../util/output/setScaleTestCases.json');
 chai.should();
