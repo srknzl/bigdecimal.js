@@ -6,3 +6,7 @@ node_modules
 lib/
 .eslintcache
 docs
+
+# coverage
+.nyc_output
+coverage
