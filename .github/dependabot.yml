@@ -7,7 +7,7 @@ updates:
       time: "09:00"
       timezone: "Asia/Istanbul"
     open-pull-requests-limit: 10
-    target-branch: master
+    target-branch: main
     versioning-strategy: increase
     labels:
       - "dependencies"
