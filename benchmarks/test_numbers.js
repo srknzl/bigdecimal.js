@@ -1,6 +1,6 @@
 'use strict';
 const { Big: BigJs } = require('big.js');
-const { Big } = require('../lib/index.js');
+const { Big } = require('../lib/bigdecimal.js');
 const { BigDecimal: GWTDecimal } = require('bigdecimal');
 
 const bigDecimalNumbers = [
