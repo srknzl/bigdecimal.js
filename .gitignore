@@ -5,6 +5,15 @@ sandbox.js
 node_modules
 lib/
 .eslintcache
-
 coverage
 .nyc_output
+_site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+vendor
+.husky
+index.js.map
+*.jar
+*.log
+Gemfile.lock
