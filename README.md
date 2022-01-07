@@ -93,10 +93,14 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 For now, benchmarked against [big.js](https://www.npmjs.com/package/big.js) and [bigdecimal](https://www.npmjs.com/package/bigdecimal).
 
 * Test Machine:
-  * AMD Ryzen 5 3600
-  * 16 GB 3600 Mhz Ram
-  * Ubuntu 20.04
-* Update Date: 01 August 2021
+  * M1 2020 Macbook Air
+  * 8 GB Ram
+  * MacOS Monterey 12.0.1
+* Update Date: January 7th 2022
+* Library versions used:  
+    * big.js 6.1.1
+    * (this library) bigdecimal.js 1.1.1
+    * bigdecimal 0.6.1
 
 * Each operation is run with fixed set of decimal numbers composed of both simple and complex numbers.
 * Micro benchmark framework used is [benchmark](https://www.npmjs.com/package/benchmark). Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
@@ -105,13 +109,13 @@ For now, benchmarked against [big.js](https://www.npmjs.com/package/big.js) and 
 
 | Operation | Bigdecimal.js | Big.js | GWT | Winner |
 | --- | --- | --- | --- | --- |
-| Add | 47,477 | 12,340 | 55.58 | BigDecimal.js |
-| Multiply | 336,782 | 31,950 | 1,451 | BigDecimal.js |
-| Subtract | 43,147 | 11,678 | 54.10 | BigDecimal.js |
-| Divide | 9,536 | 1,053 | 341 | BigDecimal.js |
-| Abs | 506,144 | 937,951 | 7,992 | Big.js |
-| Compare | 401,047 | 935,592 | 632,812 | Big.js |
-| Remainder | 5,511 | 4,275 | 1,316 | BigDecimal.js |
+| Add | 79,130 | 18,675 | 85.21 | BigDecimal.js |
+| Multiply | 495,894 | 33,534 | 2,607 | BigDecimal.js |
+| Subtract | 72,754 | 18,190 | 88.47 | BigDecimal.js |
+| Divide | 15,123 | 1,122 | 658 | BigDecimal.js |
+| Abs | 751,232 | 1,405,722 | 13,732 | Big.js |
+| Compare | 529,009 | 1,152,995 | 1,010,368 | Big.js |
+| Remainder | 9,705 | 3,878 | 2,487 | BigDecimal.js |
 
 [npm-image]: https://img.shields.io/npm/v/bigdecimal.js.svg
 [npm-url]: https://npmjs.org/package/bigdecimal.js

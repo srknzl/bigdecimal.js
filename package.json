@@ -11,6 +11,7 @@
   "scripts": {
     "test": "mocha --require ts-node/register --require source-map-support/register -t 100000 test/**/**/*.js",
     "coverage": "nyc --reporter=lcov npm run test",
+    "precompile": "rimraf lib",
     "compile": " npm run compile:cjs && npm run compile:esm && npm run prepareESM",
     "compile:esm": "tsc --module es2020 --outDir lib/esm",
     "compile:cjs": "tsc --module commonjs --outDir lib",
