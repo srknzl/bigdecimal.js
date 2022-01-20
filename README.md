@@ -70,7 +70,7 @@ try {
 ```
 ## Documentation
 
-* [API Documentation](https://srknzl.github.io/bigdecimal.js/api/current/docs)
+* [API Documentation](https://srknzl.github.io/bigdecimal.js)
 
 ## Testing
 
