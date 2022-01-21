@@ -1,10 +1,9 @@
-on: [pull_request]
 name: Check links for markdown files
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    push:
+        branches:
+            - main
+    pull_request:
 jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
