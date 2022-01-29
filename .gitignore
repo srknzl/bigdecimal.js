@@ -10,3 +10,7 @@ docs
 # coverage
 .nyc_output
 coverage
+
+# Ruby Jekyll
+Gemfile.lock
+.jekyll-cache/

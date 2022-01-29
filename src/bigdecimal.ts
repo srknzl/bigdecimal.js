@@ -141,15 +141,16 @@ export enum RoundingMode {
  *
  * Sample Usage:
  * ```javascript
- * const { Big, MathContext, RoundingMode } = require('bigdecimal.js');
+ * const { Big, MC, RoundingMode } = require('bigdecimal.js');
  *
  * const x = Big('1');
  * const y = Big('3');
  *
- * const res1 = x.divide(y, new MathContext(3));
+ * const res1 = x.divideWithMathContext(y, new MC(3));
  * console.log(res1.toString()); // 0.333
  *
- * const res2 = x.divide(y, MathContext(3, RoundingMode.UP)); // You can also use without `new` operator
+ * // You can also use without `new` operator
+ * const res2 = x.divideWithMathContext(y, MC(3, RoundingMode.UP));
  * console.log(res2.toString()); // 0.334
  *
  * try {
@@ -4253,18 +4254,16 @@ interface BigDecimalConstructor {
  * const { Big } = require('bigdecimal.js');
  *
  * // Constructor accepts any value such as string and BigDecimal itself:
- *
  * const x = Big('1.1111111111111111111111');
  * const y = Big(x);
  *
+ * // You can do arithmetic operations
  * const z = x.add(y);
  * console.log(z.toString()); // 2.2222222222222222222222
  *
- *
+ * // You can also construct a BigDecimal from a number or a BigInt:
  * const u = Big(1.1);
  * const v = Big(2n);
- *
- * // You can also construct a BigDecimal from a number or a BigInt:
  *
  * console.log(u.toString()); // 1.1
  * console.log(v.toString()); // 2
@@ -4299,15 +4298,16 @@ interface MathContextConstructor {
  *
  * Sample Usage:
  * ```javascript
- * const { Big, MathContext, RoundingMode } = require('bigdecimal.js');
+ * const { Big, MC, RoundingMode } = require('bigdecimal.js');
  *
  * const x = Big('1');
  * const y = Big('3');
  *
- * const res1 = x.divide(y, new MathContext(3));
+ * const res1 = x.divideWithMathContext(y, new MC(3));
  * console.log(res1.toString()); // 0.333
  *
- * const res2 = x.divide(y, MathContext(3, RoundingMode.UP)); // You can also use without `new` operator
+ * // You can also use without `new` operator
+ * const res2 = x.divideWithMathContext(y, MC(3, RoundingMode.UP));
  * console.log(res2.toString()); // 0.334
  *
  * try {
