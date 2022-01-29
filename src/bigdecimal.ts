@@ -148,9 +148,9 @@ export enum RoundingMode {
  *
  * const res1 = x.divideWithMathContext(y, new MC(3));
  * console.log(res1.toString()); // 0.333
- * 
+ *
  * // You can also use without `new` operator
- * const res2 = x.divideWithMathContext(y, MC(3, RoundingMode.UP)); 
+ * const res2 = x.divideWithMathContext(y, MC(3, RoundingMode.UP));
  * console.log(res2.toString()); // 0.334
  *
  * try {
@@ -4305,9 +4305,9 @@ interface MathContextConstructor {
  *
  * const res1 = x.divideWithMathContext(y, new MC(3));
  * console.log(res1.toString()); // 0.333
- * 
+ *
  * // You can also use without `new` operator
- * const res2 = x.divideWithMathContext(y, MC(3, RoundingMode.UP)); 
+ * const res2 = x.divideWithMathContext(y, MC(3, RoundingMode.UP));
  * console.log(res2.toString()); // 0.334
  *
  * try {
