@@ -22,8 +22,4 @@ describe('Precision test', function () {
             actual.should.be.equal(expected, `expected '${test.args[0]}'.precision() to be '${expected}'`);
         }
     });
-
-    it('s', function () {
-
-    });
 });
