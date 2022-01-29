@@ -4251,20 +4251,20 @@ interface BigDecimalConstructor {
  *
  * Sample Usage:
  *```javascript
+ * // Single unified constructor for multiple values
  * const { Big } = require('bigdecimal.js');
- *
- * // Constructor accepts any value such as string and BigDecimal itself:
+ * 
+ * // Construct from a string and clone it
  * const x = Big('1.1111111111111111111111');
- * const y = Big(x);
- *
- * // You can do arithmetic operations
+ * const y = new Big(x); // you can also use 'new'
+ * 
  * const z = x.add(y);
  * console.log(z.toString()); // 2.2222222222222222222222
- *
- * // You can also construct a BigDecimal from a number or a BigInt:
+ * 
+ * // You can also construct from a number or BigInt:
  * const u = Big(1.1);
  * const v = Big(2n);
- *
+ * 
  * console.log(u.toString()); // 1.1
  * console.log(v.toString()); // 2
  * ```
