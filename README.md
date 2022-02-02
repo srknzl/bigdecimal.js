@@ -27,11 +27,10 @@ npm install bigdecimal.js
 * The example usage is given below:
 
 ```javascript
+// Single unified constructor for multiple values
 const { Big } = require('bigdecimal.js');
 
-// Single constructor for all values
-// Construct from a string and copy it
-
+// Construct from a string and clone it
 const x = Big('1.1111111111111111111111');
 const y = new Big(x); // you can also use 'new'
 
@@ -39,7 +38,6 @@ const z = x.add(y);
 console.log(z.toString()); // 2.2222222222222222222222
 
 // You can also construct from a number or BigInt:
-
 const u = Big(1.1);
 const v = Big(2n);
 
@@ -55,10 +53,11 @@ const { Big, MC, RoundingMode } = require('bigdecimal.js');
 const x = Big('1');
 const y = Big('3');
 
-const res1 = x.divide(y, MC(3)); // MC is MathContext constructor that can be used without `new`
+// MC is MathContext constructor that can be used with or without `new`
+const res1 = x.divideWithMathContext(y, MC(3)); 
 console.log(res1.toString()); // 0.333
 
-const res2 = x.divide(y, new MC(3, RoundingMode.UP));
+const res2 = x.divideWithMathContext(y, new MC(3, RoundingMode.UP));
 console.log(res2.toString()); // 0.334
 
 try {
