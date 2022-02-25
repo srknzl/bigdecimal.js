@@ -60,7 +60,7 @@
   "homepage": "https://srknzl.github.io/bigdecimal.js/",
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "~1.0.2",
-    "@typescript-eslint/eslint-plugin": "~5.10.2",
+    "@typescript-eslint/eslint-plugin": "~5.12.1",
     "@typescript-eslint/parser": "~5.10.2",
     "benchmark": "~2.1.4",
     "big.js": "~6.1.1",
