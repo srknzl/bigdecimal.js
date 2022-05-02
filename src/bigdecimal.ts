@@ -653,6 +653,7 @@ export class BigDecimal {
      * @param input input string
      * @param offset first character in the string to inspect.
      * @param len number of characters to consider.
+     * @param scale scale value
      * @param mc the context to use.
      * @throws RangeError if `input` is not a valid
      * representation of a `BigDecimal` or the defined subarray
@@ -663,13 +664,14 @@ export class BigDecimal {
         input: string,
         offset: number,
         len: number,
+        scale: number | undefined,
         mc: MathContext = MathContext.UNLIMITED
     ): BigDecimal {
         // This is the primary string to BigDecimal constructor
 
         // Use locals for all fields values until completion
         let prec = 0; // record precision value
-        let scl = 0; // record scale value
+        let scl = scale || 0; // record scale value
         let rs = 0; // the compact value in long
         let rb: BigInt | null = null; // the inflated value in BigInt
 
@@ -957,7 +959,7 @@ export class BigDecimal {
      */
     private static fromDouble(double: number, mc?: MathContext): BigDecimal {
         const strValue = String(double);
-        return BigDecimal.fromString(strValue, 0, strValue.length, mc);
+        return BigDecimal.fromString(strValue, 0, strValue.length, 0, mc);
     }
 
     /**
@@ -1152,12 +1154,12 @@ export class BigDecimal {
                 if (scale !== undefined) {
                     throw new RangeError('You should not give scale when number is a double');
                 }
-
                 return BigDecimal.fromDouble(value, mc);
             }
             if (!(value > Number.MIN_SAFE_INTEGER && value <= Number.MAX_SAFE_INTEGER)) {
-                // Unsafe range, build from bigint
-                return BigDecimal.fromBigInt(BigInt(value), scale, mc);
+                // Unsafe range, build from string
+                value = String(value);
+                return BigDecimal.fromString(value, 0, value.length, scale, mc);
             }
             return BigDecimal.fromInteger(value, scale, mc);
         }
@@ -1172,7 +1174,7 @@ export class BigDecimal {
             throw new RangeError('You should give scale only with BigInts or integers');
         }
         value = String(value);
-        return BigDecimal.fromString(value, 0, value.length, mc);
+        return BigDecimal.fromString(value, 0, value.length, 0, mc);
     }
 
     /**

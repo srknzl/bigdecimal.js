@@ -114,12 +114,28 @@ describe('Constructor test', function () {
         big2.intCompact.should.be.eq(10000);
     });
 
-    it('should build from unsafe number', function () {
+    it('should build from unsafe number and scale', function () {
         const big = Big(Number.MAX_SAFE_INTEGER + 1, 1);
         big.scale().should.be.eq(1);
         big.precision().should.be.eq(16);
         should.equal(big.intVal, 9007199254740992n);
         big.intCompact.should.be.eq(Number.MIN_SAFE_INTEGER);
+    });
+
+    it('should build from max value', function () {
+        const big = Big(Number.MAX_VALUE); // 1.7976931348623157e+308
+        big.scale().should.be.eq(-292);
+        big.precision().should.be.eq(17);
+        should.equal(big.intVal, 17976931348623157n);
+        big.intCompact.should.be.eq(Number.MIN_SAFE_INTEGER);
+    });
+
+    it('should build from min value', function () {
+        const big = Big(Number.MIN_VALUE); // 5e-324
+        big.scale().should.be.eq(324);
+        big.precision().should.be.eq(1);
+        should.equal(big.intCompact, 5);
+        should.equal(big.intVal, null);
     });
 
     it('should throw on invalid argument', function () {
