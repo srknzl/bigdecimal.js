@@ -91,18 +91,21 @@ describe('Constructor test', function () {
         big.precision().should.be.eq(3);
         should.equal(big.intVal, null);
         big.intCompact.should.be.eq(123);
+        big.toPlainString().should.be.eq("0.00123");
 
         const big2 = Big(10000000000, 2);
         big2.scale().should.be.eq(2);
         big2.precision().should.be.eq(11);
         should.equal(big2.intVal, null);
         big2.intCompact.should.be.eq(10000000000);
+        big2.toPlainString().should.be.eq("100000000.00");
 
         const big3 = Big(123, -5);
         big3.scale().should.be.eq(-5);
         big3.precision().should.be.eq(3);
         should.equal(big3.intVal, null);
         big3.intCompact.should.be.eq(123);
+        big3.toPlainString().should.be.eq("12300000");
     });
 
     it('should contruct from number and math context', function () {
@@ -119,18 +122,20 @@ describe('Constructor test', function () {
         big2.intCompact.should.be.eq(10000);
     });
 
-    it('should build from unsafe number and scale', function () {
+    it('should build from unsafe number and scale', function () {       
         const big = Big(Number.MAX_SAFE_INTEGER + 1, 1);
         big.scale().should.be.eq(1);
         big.precision().should.be.eq(16);
         should.equal(big.intVal, 9007199254740992n);
         big.intCompact.should.be.eq(Number.MIN_SAFE_INTEGER);
+        big.toPlainString().should.be.eq("900719925474099.2");
 
         const big2 = Big(Number.MAX_SAFE_INTEGER + 1, -1);
         big2.scale().should.be.eq(-1);
         big2.precision().should.be.eq(16);
         should.equal(big2.intVal, 9007199254740992n);
         big2.intCompact.should.be.eq(Number.MIN_SAFE_INTEGER);
+        big2.toPlainString().should.be.eq("90071992547409920");
     });
 
     it('should build from max value', function () {
