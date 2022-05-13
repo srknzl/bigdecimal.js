@@ -87,7 +87,6 @@ describe('Constructor test', function () {
 
     it('should contruct from an integer and scale', function () {
         const big = Big(123, 5);
-
         big.scale().should.be.eq(5);
         big.precision().should.be.eq(3);
         should.equal(big.intVal, null);
@@ -98,6 +97,12 @@ describe('Constructor test', function () {
         big2.precision().should.be.eq(11);
         should.equal(big2.intVal, null);
         big2.intCompact.should.be.eq(10000000000);
+
+        const big3 = Big(123, -5);
+        big3.scale().should.be.eq(-5);
+        big3.precision().should.be.eq(3);
+        should.equal(big3.intVal, null);
+        big3.intCompact.should.be.eq(123);
     });
 
     it('should contruct from number and math context', function () {
@@ -120,6 +125,12 @@ describe('Constructor test', function () {
         big.precision().should.be.eq(16);
         should.equal(big.intVal, 9007199254740992n);
         big.intCompact.should.be.eq(Number.MIN_SAFE_INTEGER);
+
+        const big2 = Big(Number.MAX_SAFE_INTEGER + 1, -1);
+        big2.scale().should.be.eq(-1);
+        big2.precision().should.be.eq(16);
+        should.equal(big2.intVal, 9007199254740992n);
+        big2.intCompact.should.be.eq(Number.MIN_SAFE_INTEGER);
     });
 
     it('should build from max value', function () {
