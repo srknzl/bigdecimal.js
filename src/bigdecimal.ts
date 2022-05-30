@@ -4271,8 +4271,8 @@ interface BigDecimalConstructor {
  * console.log(v.toString()); // 2
  * ```
  *
- * @param n Any value to build a BigDecimal from. Types other than `Number`, `BigInt` and `BigDecimal` will be internally
- * converted to string and parsed.
+ * @param n Any value to build a BigDecimal from. Types other than `Number` (as safe integer), `BigInt` and `BigDecimal`
+ * will be internally converted to string and parsed.
  * @param scale Scale to use, by default 0.
  * @param mc MathContext object which allows you to set precision and rounding mode.
  * @throws RangeError on following situations:
@@ -4281,7 +4281,7 @@ interface BigDecimalConstructor {
  *     * Both a scale and a math context is provided. You can only give one of scale and math context.
  *       Passing `undefined` is same as omitting an argument.
  *     * If value is a double and scale is given.
- * * If value is not a `number`, a `BigInt` or a `BigDecimal`, it will be converted to string.
+ * * If value is not a `safe integer`, a `BigInt` or a `BigDecimal`, it will be converted to string.
  *   An error will be thrown if the string format is invalid.
  * * If value is not a `BigInt` or `number`, and scale is given.
  */
