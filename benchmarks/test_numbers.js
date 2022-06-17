@@ -2,6 +2,8 @@
 const { Big: BigJs } = require('big.js');
 const { Big } = require('../lib/bigdecimal.js');
 const { BigDecimal: GWTDecimal } = require('bigdecimal');
+const { Decimal } = require('decimal.js');
+const { BigNumber } = require('bignumber.js');
 
 const bigDecimalNumbers = [
     '1234',
@@ -44,16 +46,23 @@ const bigDecimalNumbers = [
 
 const bigDecimals = []; // for BigDecimal.js
 const bigDecimalsBigjs = []; // for big.js
+const bigDecimalsBigNumber = []; // for BigNumber.js
+const bigDecimalsDecimal = []; // for decimal.js
 const bigDecimalsGWT = []; // for gwt based bigdecimal
 
 for (const x of bigDecimalNumbers) {
     bigDecimals.push(Big(x));
     bigDecimalsBigjs.push(BigJs(x));
+    bigDecimalsBigNumber.push(BigNumber(x));
+    bigDecimalsDecimal.push(Decimal(x));
     bigDecimalsGWT.push(GWTDecimal(x));
 }
 
 module.exports = {
+    bigDecimalsString: bigDecimalNumbers,
     bigDecimals: bigDecimals,
     bigDecimalsBigjs: bigDecimalsBigjs,
+    bigDecimalsBigNumber: bigDecimalsBigNumber,
+    bigDecimalsDecimal: bigDecimalsDecimal,
     bigDecimalsGWT: bigDecimalsGWT
 };

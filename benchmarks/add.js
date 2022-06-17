@@ -1,32 +1,43 @@
 'use strict';
 const { Big: BigJs } = require('big.js');
 const { Big } = require('../lib/bigdecimal.js');
+const { BigNumber } = require('bignumber.js');
 const { BigDecimal: GWTDecimal } = require('bigdecimal');
 const Benchmark = require('benchmark');
-const { bigDecimals, bigDecimalsBigjs, bigDecimalsGWT } = require('./test_numbers');
+const { bigDecimals, bigDecimalsBigjs, bigDecimalsBigNumber, bigDecimalsDecimal, bigDecimalsGWT } = require('./test_numbers');
+const Decimal = require('decimal.js');
+const { attachEventsAndRun } = require('./utils.js');
 
-const suite = new Benchmark.Suite;
+const suite = new Benchmark.Suite('Add');
 
 const initialValue = '0';
 
 let resBigDec = Big(initialValue);
 let resBigJs = BigJs(initialValue);
+let resBigNumJs = BigNumber(initialValue);
+let resDecimalJs = Decimal(initialValue);
 let resGWT = GWTDecimal(initialValue);
 
-suite.add('AddTest#Bigdecimal.js', function () {
+suite.add('Bigdecimal.js', function () {
     for (const x of bigDecimals) {
         resBigDec = resBigDec.add(x);
     }
-}).add('AddTest#Big.js', function () {
+}).add('Big.js', function () {
     for (const x of bigDecimalsBigjs) {
         resBigJs = resBigJs.add(x);
     }
-}).add('AddTest#GWTBased', function () {
+}).add('BigNumber.js', function () {
+    for (const x of bigDecimalsBigNumber) {
+        resBigNumJs = resBigNumJs.plus(x);
+    }
+}).add('decimal.js', function () {
+    for (const x of bigDecimalsDecimal) {
+        resDecimalJs = resDecimalJs.plus(x);
+    }
+}).add('GWTBased', function () {
     for (const x of bigDecimalsGWT) {
         resGWT = resGWT.add(x);
     }
-}).on('cycle', function (event) {
-    console.log(String(event.target));
-}).on('complete', function () {
-    console.log('Fastest is ' + this.filter('fastest').map('name'));
-}).run();
+});
+debugger;
+module.exports = attachEventsAndRun(suite);

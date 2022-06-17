@@ -83,7 +83,9 @@ There is a benchmark suite that compares
 
 * This library
 * [big.js](https://github.com/MikeMcl/big.js)
-* [GWT based BigDecimal](https://github.com/iriscouch/bigdecimal.js)
+* [big.js](https://github.com/MikeMcl/big.js)
+* [bignumber.js](https://github.com/MikeMcl/bignumber.js)
+* [decimal.js](https://github.com/MikeMcl/decimal.js)
 
 To run the benchmark run `npm install` and then `npm run benchmark`.
 
@@ -92,29 +94,36 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 For now, benchmarked against [big.js](https://www.npmjs.com/package/big.js) and [bigdecimal](https://www.npmjs.com/package/bigdecimal).
 
 * Test Machine:
-  * M1 2020 Macbook Air
-  * 8 GB Ram
-  * MacOS Monterey 12.0.1
-* Update Date: January 7th 2022
+  * M1 2021 MacBook Pro 
+  * 32 GB Ram
+  * MacOS Monterey 12.2.1
+* Update Date: June 16th 2022
 * Library versions used:  
     * big.js 6.1.1
-    * (this library) bigdecimal.js 1.1.1
+    * (this library) bigdecimal.js 1.1.3
     * bigdecimal 0.6.1
+    * bignumber.js: 9.0.2
+    * decimal.js:10.3.1,
 
 * Each operation is run with fixed set of decimal numbers composed of both simple and complex numbers.
 * Micro benchmark framework used is [benchmark](https://www.npmjs.com/package/benchmark). Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
-* For now, benchmarked the following operations, all operations will be added soon.
+* For now, benchmarked the following operations, more operations will be added soon.
 * Operations per second(op/s):
 
-| Operation | Bigdecimal.js | Big.js | GWT | Winner |
-| --- | --- | --- | --- | --- |
-| Add | 79,130 | 18,675 | 85.21 | BigDecimal.js |
-| Multiply | 495,894 | 33,534 | 2,607 | BigDecimal.js |
-| Subtract | 72,754 | 18,190 | 88.47 | BigDecimal.js |
-| Divide | 15,123 | 1,122 | 658 | BigDecimal.js |
-| Abs | 751,232 | 1,405,722 | 13,732 | Big.js |
-| Compare | 529,009 | 1,152,995 | 1,010,368 | Big.js |
-| Remainder | 9,705 | 3,878 | 2,487 | BigDecimal.js |
+| Operation | Bigdecimal.js | Big.js | BigNumber.js | decimal.js | GWTBased |
+| --- | --- | --- | --- | --- | --- |
+| Constructor | 44,092 ( - ) | 39,246 (<span style="color:red">-11%</span>) | 41,920 (<span style="color:red">-5%</span>) | 41,669 (<span style="color:red">-5%</span>) | 2,814 (<span style="color:red">-94%</span>) |
+| Add | 80,748 ( - ) | 16,901 (<span style="color:red">-79%</span>) | 100,613 (<span style="color:green">**25%**</span>) | 59,138 (<span style="color:red">-27%</span>) | 88 (<span style="color:red">-100%</span>) |
+| Subtract | 75,724 ( - ) | 18,438 (<span style="color:red">-76%</span>) | 96,361 (<span style="color:green">**27%**</span>) | 56,545 (<span style="color:red">-25%</span>) | 88 (<span style="color:red">-100%</span>) |
+| Multiply | 503,550 ( - ) | 33,408 (<span style="color:red">-93%</span>) | 27,806 (<span style="color:red">-94%</span>) | 54,172 (<span style="color:red">-89%</span>) | 2,739 (<span style="color:red">-99%</span>) |
+| Divide | 15,953 ( - ) | 1,157 (<span style="color:red">-93%</span>) | 12,530 (<span style="color:red">-21%</span>) | 14,611 (<span style="color:red">-8%</span>) | 686 (<span style="color:red">-96%</span>) |
+| Remainder | 10,186 ( - ) | 4,002 (<span style="color:red">-61%</span>) | 14,416 (<span style="color:green">**42%**</span>) | 23,014 (<span style="color:green">**126%**</span>) | 2,640 (<span style="color:red">-74%</span>) |
+| Positive pow | 28,230 ( - ) | 26 (<span style="color:red">-100%</span>) | 128 (<span style="color:red">-100%</span>) | 3,833 (<span style="color:red">-86%</span>) | 6 (<span style="color:red">-100%</span>) |
+| Negative pow | 5,169 ( - ) | 21 (<span style="color:red">-100%</span>) | 123 (<span style="color:red">-98%</span>) | 2,131 (<span style="color:red">-59%</span>) | 278 (<span style="color:red">-95%</span>) |
+| Abs | 795,097 ( - ) | 1,448,594 (<span style="color:green">**82%**</span>) | 948,990 (<span style="color:green">**19%**</span>) | 355,103 (<span style="color:red">-55%</span>) | 14,320 (<span style="color:red">-98%</span>) |
+| Integer rounding | 99,357 ( - ) | 459,079 (<span style="color:green">**362%**</span>) | 266,314 (<span style="color:green">**168%**</span>) | 144,091 (<span style="color:green">**45%**</span>) | 1,878 (<span style="color:red">-98%</span>) |
+| Decimal scale | 100,688 ( - ) | 502,895 (<span style="color:green">**399%**</span>) | 241,756 (<span style="color:green">**140%**</span>) | 130,178 (<span style="color:green">**29%**</span>) | 1,735 (<span style="color:red">-98%</span>) |
+| Compare | 558,710 ( - ) | 1,237,538 (<span style="color:green">**121%**</span>) | 780,308 (<span style="color:green">**40%**</span>) | 296,844 (<span style="color:red">-47%</span>) | 1,006,175 (<span style="color:green">**80%**</span>) |
 
 [npm-image]: https://img.shields.io/npm/v/bigdecimal.js.svg
 [npm-url]: https://npmjs.org/package/bigdecimal.js
