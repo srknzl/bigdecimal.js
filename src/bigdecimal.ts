@@ -1887,9 +1887,9 @@ export class BigDecimal {
      * be performed to generate a result with the specified scale, the
      * specified rounding mode is applied.
      *
-     * @param  divisor value by which this `BigDecimal` is to be divided.
-     * @param  scale scale of the `BigDecimal` quotient to be returned.
-     * @param  roundingMode rounding mode to apply.
+     * @param divisor value by which this `BigDecimal` is to be divided.
+     * @param scale scale of the `BigDecimal` quotient to be returned.
+     * @param roundingMode rounding mode to apply.
      * @return `this / divisor`
      * @throws RangeError
      * * If `divisor` is zero
@@ -2411,8 +2411,8 @@ export class BigDecimal {
      * mc).multiply(divisor))`.  Note that this is not the modulo
      * operation (the result can be negative).
      *
-     * @param  divisor value by which this `BigDecimal` is to be divided.
-     * @param  mc the context to use.
+     * @param divisor value by which this `BigDecimal` is to be divided.
+     * @param mc the context to use.
      * @return `this % divisor`, rounded as necessary.
      * @throws RangeError if divisor is 0
      * @throws RangeError if the result is inexact but the
@@ -2489,7 +2489,7 @@ export class BigDecimal {
      * substitutable for each other under some arithmetic operations
      * are the two expressions:
      *
-     * @param  value to which this `BigDecimal` is
+     * @param value to which this `BigDecimal` is
      *         to be compared.
      * @return true if and only if the specified value is a
      *         BigDecimal whose value and scale are equal to this
@@ -2526,11 +2526,11 @@ export class BigDecimal {
      * `divideToIntegralValue` and `remainder` methods
      * separately because the division need only be carried out once.
      *
-     * @param  divisor value by which this `BigDecimal` is to be divided,
+     * @param divisor value by which this `BigDecimal` is to be divided,
      *         and the remainder computed. This value will be converted to a
      *         `BigDecimal` before the operation. See the
      *         {@link Big | constructor} to learn more about the conversion.
-     * @param  mc the context to use.
+     * @param mc the context to use.
      * @return a two element `BigDecimal` array: the quotient
      *         (the result of `divideToIntegralValue`) is the
      *         initial element and the remainder is the final element.
@@ -3008,8 +3008,8 @@ export class BigDecimal {
      * division.
      *
      *
-     * @param  newScale scale of the `BigDecimal` value to be returned.
-     * @param  roundingMode The rounding mode to apply. By default it is set to `UNNECESSARY`.
+     * @param newScale scale of the `BigDecimal` value to be returned.
+     * @param roundingMode The rounding mode to apply. By default it is set to `UNNECESSARY`.
      * @return a `BigDecimal` whose scale is the specified value,
      *         and whose unscaled value is determined by multiplying or
      *         dividing this `BigDecimal`'s unscaled value by the
@@ -3128,8 +3128,8 @@ export class BigDecimal {
      *     * The final value from either the positive or negative case
      *   is then rounded to the destination precision.
      *
-     * @param  n power to raise this `BigDecimal` to.
-     * @param  mc the context to use.
+     * @param n power to raise this `BigDecimal` to.
+     * @param mc the context to use.
      * @return <code>this<sup>n</sup></code> using the ANSI standard X3.274-1996
      *         algorithm
      * @throws RangeError if the result is inexact but the
@@ -3484,7 +3484,7 @@ export class BigDecimal {
      * 10<sup>-n</sup>)</code> and scale `max(this.scale()+n,
      * 0)`.
      *
-     * @param  n number of places to move the decimal point to the left.
+     * @param n number of places to move the decimal point to the left.
      * @return a `BigDecimal` which is equivalent to this one with the
      *         decimal point moved `n` places to the left.
      * @throws RangeError if scale overflows.
@@ -3507,7 +3507,7 @@ export class BigDecimal {
      * `BigDecimal` returned by this call has value <code>(this
      * &times; 10<sup>n</sup>)</code> and scale `max(this.scale()-n, 0)`.
      *
-     * @param  n number of places to move the decimal point to the right.
+     * @param n number of places to move the decimal point to the right.
      * @return a `BigDecimal` which is equivalent to this one
      *         with the decimal point moved `n` places to the right.
      * @throws RangeError if scale overflows.
@@ -3524,7 +3524,7 @@ export class BigDecimal {
     /**
      * Returns the minimum of this `BigDecimal` and `val`.
      *
-     * @param  val value with which the minimum is to be computed.
+     * @param val value with which the minimum is to be computed.
      * @return the `BigDecimal` whose value is the lesser of this
      *         `BigDecimal` and `val`.  If they are equal,
      *         as defined by the {@link compareTo}
@@ -3538,7 +3538,7 @@ export class BigDecimal {
     /**
      * Returns the maximum of this `BigDecimal` and `val`.
      *
-     * @param  val value with which the maximum is to be computed.
+     * @param val value with which the maximum is to be computed.
      * @return the `BigDecimal` whose value is the greater of this
      *         `BigDecimal` and `val`.  If they are equal,
      *         as defined by the {@link compareTo}
