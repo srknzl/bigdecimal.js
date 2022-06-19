@@ -1167,7 +1167,6 @@ export class BigDecimal {
         if (value instanceof BigDecimal) {
             return new BigDecimal(value.intVal, value.intCompact, value.scale(), value._precision);
         }
-
         if (scale !== undefined) {
             throw new RangeError('You should give scale only with BigInts or integers');
         }
@@ -1736,11 +1735,13 @@ export class BigDecimal {
      * If either number is zero and the precision setting is nonzero then
      * the other number, rounded if necessary, is used as the result.
      *
-     * @param  augend value to be added to this `BigDecimal`.
-     * @param  mc the context to use.
+     * @param augend value to be added to this `BigDecimal`. This value will
+     * be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @param mc the context to use.
      * @return `this + augend`, rounded as necessary.
      */
-    add(augend: BigDecimal, mc?: MathContext): BigDecimal {
+    add(augend: any, mc?: MathContext): BigDecimal {
         augend = BigDecimal.convertToBigDecimal(augend);
         if (!mc || (mc && mc.precision === 0)) {
             if (this.intCompact !== BigDecimal.INFLATED) {
@@ -1802,11 +1803,13 @@ export class BigDecimal {
      * If `subtrahend` is zero then this, rounded if necessary, is used as the
      * result.  If this is zero then the result is `subtrahend.negate(mc)`.
      *
-     * @param  subtrahend value to be subtracted from this `BigDecimal`.
-     * @param  mc the context to use.
+     * @param subtrahend value to be subtracted from this `BigDecimal`. This value
+     * will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @param mc the context to use.
      * @return `this - subtrahend`, rounded as necessary.
      */
-    subtract(subtrahend: BigDecimal, mc?: MathContext): BigDecimal {
+    subtract(subtrahend: any, mc?: MathContext): BigDecimal {
         subtrahend = BigDecimal.convertToBigDecimal(subtrahend);
         if (!mc || (mc && mc.precision === 0)) {
             if (this.intCompact !== BigDecimal.INFLATED) {
@@ -1838,11 +1841,13 @@ export class BigDecimal {
      * Returns a `BigDecimal` whose value is <code>(this &times;
      * multiplicand)</code>, with rounding according to the context settings.
      *
-     * @param  multiplicand value to be multiplied by this `BigDecimal`.
-     * @param  mc the context to use.
+     * @param multiplicand value to be multiplied by this `BigDecimal`. This
+     * value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @param mc the context to use.
      * @return `this * multiplicand`, rounded as necessary.
      */
-    multiply(multiplicand: BigDecimal, mc?: MathContext): BigDecimal {
+    multiply(multiplicand: any, mc?: MathContext): BigDecimal {
         multiplicand = BigDecimal.convertToBigDecimal(multiplicand);
         if (!mc || (mc && mc.precision === 0)) {
             const productScale = this.checkScale(this._scale + multiplicand._scale);
@@ -1986,13 +1991,15 @@ export class BigDecimal {
      * Returns a `BigDecimal` whose value is `(this /
      * divisor)`, with rounding according to the context settings.
      *
-     * @param  divisor value by which this `BigDecimal` is to be
-     * @param  mc the context to use.
+     * @param divisor value by which this `BigDecimal` is to be divided.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @param mc the context to use.
      * @throws RangeError if the exact quotient does not have a
      *         terminating decimal expansion, including dividing by zero
      * @return `this / divisor`
      */
-    divideWithMathContext(divisor: BigDecimal, mc?: MathContext): BigDecimal {
+    divideWithMathContext(divisor: any, mc?: MathContext): BigDecimal {
         divisor = BigDecimal.convertToBigDecimal(divisor);
         if (divisor.signum() === 0) { // x/0
             if (this.signum() === 0) // 0/0
@@ -2305,14 +2312,16 @@ export class BigDecimal {
      * the exact quotient needs more than `mc.precision`
      * digits.
      *
-     * @param  divisor value by which this `BigDecimal` is to be divided.
-     * @param  mc the context to use.
+     * @param divisor value by which this `BigDecimal` is to be divided.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @param mc the context to use.
      * @return The integer part of `this / divisor`.
      * @throws RangeError if divisor is 0
      * @throws RangeError if `mc.precision > 0` and the result
      *         requires a precision of more than `mc.precision` digits.
      */
-    divideToIntegralValue(divisor: BigDecimal, mc?: MathContext): BigDecimal {
+    divideToIntegralValue(divisor: any, mc?: MathContext): BigDecimal {
         divisor = BigDecimal.convertToBigDecimal(divisor);
         if (!mc || (mc && (mc.precision === 0 || this.compareMagnitude(divisor) < 0))) {
             // Calculate preferred scale
@@ -2518,7 +2527,9 @@ export class BigDecimal {
      * separately because the division need only be carried out once.
      *
      * @param  divisor value by which this `BigDecimal` is to be divided,
-     *         and the remainder computed.
+     *         and the remainder computed. This value will be converted to a
+     *         `BigDecimal` before the operation. See the
+     *         {@link Big | constructor} to learn more about the conversion.
      * @param  mc the context to use.
      * @return a two element `BigDecimal` array: the quotient
      *         (the result of `divideToIntegralValue`) is the
@@ -2531,7 +2542,7 @@ export class BigDecimal {
      * @see    {@link divideToIntegralValue}
      * @see    {@link remainder}
      */
-    divideAndRemainder(divisor: BigDecimal, mc?: MathContext): [BigDecimal, BigDecimal] {
+    divideAndRemainder(divisor: any, mc?: MathContext): [BigDecimal, BigDecimal] {
         divisor = BigDecimal.convertToBigDecimal(divisor);
         const result = new Array<BigDecimal>(2);
 
@@ -2909,12 +2920,13 @@ export class BigDecimal {
      * (x.compareTo(y) &lt;<i>op</i>&gt; 0), where
      * &lt;<i>op</i>&gt; is one of the six comparison operators.
 
-     * @param  val `BigDecimal` to which this `BigDecimal` is
-     *         to be compared.
+     * @param val value to which this `BigDecimal` is to be compared.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
      * @return -1, 0, or 1 as this `BigDecimal` is numerically
      *          less than, equal to, or greater than `val`.
      */
-    compareTo(val: BigDecimal): number {
+    compareTo(val: any): number {
         val = BigDecimal.convertToBigDecimal(val);
         // Quick path for equal scale and non-inflated case.
         if (this._scale === val._scale) {
