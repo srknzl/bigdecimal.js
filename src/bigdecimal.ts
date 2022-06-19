@@ -1888,6 +1888,8 @@ export class BigDecimal {
      * specified rounding mode is applied.
      *
      * @param divisor value by which this `BigDecimal` is to be divided.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
      * @param scale scale of the `BigDecimal` quotient to be returned.
      * @param roundingMode rounding mode to apply.
      * @return `this / divisor`
@@ -1897,7 +1899,8 @@ export class BigDecimal {
      *   of the division exactly.
      * * If scale is given but rounding mode is not given.
      */
-    divide(divisor: BigDecimal, scale?: number, roundingMode?: RoundingMode): BigDecimal {
+    divide(divisor: any, scale?: number, roundingMode?: RoundingMode): BigDecimal {
+        divisor = BigDecimal.convertToBigDecimal(divisor);
         /*
          * Handle zero cases first.
          */
@@ -2412,6 +2415,8 @@ export class BigDecimal {
      * operation (the result can be negative).
      *
      * @param divisor value by which this `BigDecimal` is to be divided.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
      * @param mc the context to use.
      * @return `this % divisor`, rounded as necessary.
      * @throws RangeError if divisor is 0
@@ -2421,7 +2426,7 @@ export class BigDecimal {
      *         require a precision of more than `mc.precision` digits.
      * @see    {@link divideToIntegralValue}
      */
-    remainder(divisor: BigDecimal, mc?: MathContext): BigDecimal {
+    remainder(divisor: any, mc?: MathContext): BigDecimal {
         return this.divideAndRemainder(divisor, mc)[1];
     }
 
