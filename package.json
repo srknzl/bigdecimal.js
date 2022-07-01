@@ -63,7 +63,7 @@
     "@typescript-eslint/eslint-plugin": "~5.10.2",
     "@typescript-eslint/parser": "~5.10.2",
     "benchmark": "~2.1.4",
-    "big.js": "~6.1.1",
+    "big.js": "~6.2.0",
     "bigdecimal": "~0.6.1",
     "chai": "~4.3",
     "eslint": "~8.8.0",
