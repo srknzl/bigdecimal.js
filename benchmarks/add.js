@@ -39,5 +39,5 @@ suite.add('Bigdecimal.js', function () {
         resGWT = resGWT.add(x);
     }
 });
-debugger;
+
 module.exports = attachEventsAndRun(suite);
