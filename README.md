@@ -83,7 +83,7 @@ There is a benchmark suite that compares
 
 * This library
 * [big.js](https://github.com/MikeMcl/big.js)
-* [big.js](https://github.com/MikeMcl/big.js)
+* [bigdecimal](https://github.com/iriscouch/bigdecimal.js)
 * [bignumber.js](https://github.com/MikeMcl/bignumber.js)
 * [decimal.js](https://github.com/MikeMcl/decimal.js)
 
@@ -103,7 +103,7 @@ For now, benchmarked against [big.js](https://www.npmjs.com/package/big.js) and 
     * (this library) bigdecimal.js 1.1.3
     * bigdecimal 0.6.1
     * bignumber.js: 9.0.2
-    * decimal.js:10.3.1,
+    * decimal.js:10.3.1
 
 * Each operation is run with fixed set of decimal numbers composed of both simple and complex numbers.
 * Micro benchmark framework used is [benchmark](https://www.npmjs.com/package/benchmark). Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
