@@ -2,18 +2,18 @@
 console.log('----------Starting tests-------');
 
 const suites = [
-    require('./constructor'),
-    require('./add.js'),
-    require('./subtract.js'),
-    require('./mul.js'),
-    require('./divide.js'),
-    require('./remainder.js'),
-    require('./positive_pow.js'),
-    require('./negative_pow.js'),
-    require('./abs.js'),
-    require('./integer_round.js'),
-    require('./decimal_scaling.js'),
-    require('./compare.js')
+    require('./suites/constructor'),
+    require('./suites/add.js'),
+    require('./suites/subtract.js'),
+    require('./suites/mul.js'),
+    require('./suites/divide.js'),
+    require('./suites/remainder.js'),
+    require('./suites/positive_pow.js'),
+    require('./suites/negative_pow.js'),
+    require('./suites/abs.js'),
+    require('./suites/integer_round.js'),
+    require('./suites/decimal_scaling.js'),
+    require('./suites/compare.js')
 ];
 
 // Retrieve all unique names in the test suites

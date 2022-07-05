@@ -1,12 +1,12 @@
 'use strict';
 const { Big: BigJs } = require('big.js');
-const { Big } = require('../lib/bigdecimal.js');
+const { Big } = require('../../lib/bigdecimal.js');
 const { BigDecimal: GWTDecimal } = require('bigdecimal');
 const { BigNumber } = require('bignumber.js');
 const Decimal = require('decimal.js');
 const Benchmark = require('benchmark');
-const { bigDecimalStrings } = require('./test_numbers');
-const { attachEventsAndRun } = require('./utils.js');
+const { bigDecimalStrings } = require('../test_numbers');
+const { attachEventsAndRun } = require('../utils.js');
 
 const values = [...bigDecimalStrings, ...bigDecimalStrings.map(v => Number(v))];
 

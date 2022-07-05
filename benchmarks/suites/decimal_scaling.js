@@ -1,9 +1,9 @@
 'use strict';
 const Benchmark = require('benchmark');
 const Decimal = require('decimal.js');
-const { RoundingMode } = require('../lib/bigdecimal.js');
-const { bigDecimals, bigDecimalsBigjs, bigDecimalsBigNumber, bigDecimalsDecimal, bigDecimalsGWT } = require('./test_numbers');
-const { attachEventsAndRun } = require('./utils.js');
+const { RoundingMode } = require('../../lib/bigdecimal.js');
+const { bigDecimals, bigDecimalsBigjs, bigDecimalsBigNumber, bigDecimalsDecimal, bigDecimalsGWT } = require('../test_numbers');
+const { attachEventsAndRun } = require('../utils.js');
 const { RoundingMode: RoundingModeGwt } = require('bigdecimal');
 
 const suite = new Benchmark.Suite('Decimal scaling');

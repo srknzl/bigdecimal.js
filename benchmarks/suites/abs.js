@@ -1,30 +1,29 @@
 'use strict';
 const Benchmark = require('benchmark');
-const { RoundingMode } = require('../lib/bigdecimal.js');
-const { bigDecimals, bigDecimalsBigjs, bigDecimalsBigNumber, bigDecimalsDecimal, bigDecimalsGWT } = require('./test_numbers');
-const { attachEventsAndRun } = require('./utils.js');
+const { bigDecimals, bigDecimalsBigjs, bigDecimalsBigNumber, bigDecimalsDecimal, bigDecimalsGWT } = require('../test_numbers');
+const { attachEventsAndRun } = require('../utils.js');
 
-const suite = new Benchmark.Suite('Integer rounding');
+const suite = new Benchmark.Suite('Abs');
 
 suite.add('Bigdecimal.js', function () {
     for (const x of bigDecimals) {
-        x.setScale(0, RoundingMode.HALF_UP);
+        x.abs();
     }
 }).add('Big.js', function () {
     for (const x of bigDecimalsBigjs) {
-        x.round(0, 1);
+        x.abs();
     }
 }).add('BigNumber.js', function () {
     for (const x of bigDecimalsBigNumber) {
-        x.integerValue();
+        x.abs();
     }
 }).add('decimal.js', function () {
     for (const x of bigDecimalsDecimal) {
-        x.round();
+        x.abs();
     }
 }).add('GWTBased', function () {
     for (const x of bigDecimalsGWT) {
-        x.setScale(0, RoundingMode.HALF_UP);
+        x.abs();
     }
 });
 

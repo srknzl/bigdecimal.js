@@ -1,12 +1,12 @@
 'use strict';
 const { Big: BigJs } = require('big.js');
-const { Big } = require('../lib/bigdecimal.js');
+const { Big } = require('../../lib/bigdecimal.js');
 const { BigDecimal: GWTDecimal } = require('bigdecimal');
 const { BigNumber } = require('bignumber.js');
 const Decimal = require('decimal.js');
 const Benchmark = require('benchmark');
-const { bigDecimals, bigDecimalsBigjs, bigDecimalsBigNumber, bigDecimalsDecimal, bigDecimalsGWT } = require('./test_numbers');
-const { attachEventsAndRun } = require('./utils.js');
+const { bigDecimals, bigDecimalsBigjs, bigDecimalsBigNumber, bigDecimalsDecimal, bigDecimalsGWT } = require('../test_numbers');
+const { attachEventsAndRun } = require('../utils.js');
 
 const suite = new Benchmark.Suite('Remainder');
 

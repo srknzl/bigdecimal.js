@@ -21,7 +21,7 @@
     "docs:w": "typedoc --watch --options typedoc.json",
     "lint:ci": "eslint --ext .ts .",
     "lint": "eslint --cache --fix .",
-    "benchmark": "node benchmarks/runBench.js",
+    "benchmark": "node benchmarks",
     "generate-test-files": "node util/generateTestFiles.js",
     "prepareESM": "mv lib/esm/bigdecimal.js lib/bigdecimal.mjs && rm -rf lib/esm",
     "prepublish": "npm run compile"
