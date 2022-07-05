@@ -5,10 +5,10 @@ const { BigDecimal: GWTDecimal } = require('bigdecimal');
 const { BigNumber } = require('bignumber.js');
 const Decimal = require('decimal.js');
 const Benchmark = require('benchmark');
-const { bigDecimalsString } = require('./test_numbers');
+const { bigDecimalStrings } = require('./test_numbers');
 const { attachEventsAndRun } = require('./utils.js');
 
-const values = [...bigDecimalsString, ...bigDecimalsString.map(v => Number(v))];
+const values = [...bigDecimalStrings, ...bigDecimalStrings.map(v => Number(v))];
 
 const suite = new Benchmark.Suite('Constructor');
 
