@@ -11,8 +11,6 @@ const suites = [
     require('./suites/positive_pow.js'),
     require('./suites/negative_pow.js'),
     require('./suites/abs.js'),
-    require('./suites/integer_round.js'),
-    require('./suites/decimal_scaling.js'),
     require('./suites/compare.js')
 ];
 
