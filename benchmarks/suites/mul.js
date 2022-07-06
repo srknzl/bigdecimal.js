@@ -1,9 +1,17 @@
 'use strict';
 const Benchmark = require('benchmark');
+const Decimal = require('decimal.js');
 const { bigDecimals, bigDecimalsBigjs, bigDecimalsBigNumber, bigDecimalsDecimal, bigDecimalsGWT } = require('../test_numbers');
 const { attachEventsAndRun } = require('../utils.js');
 
 const suite = new Benchmark.Suite('Multiply');
+
+/* 
+    decimal.js cap the precision to 20 by default. 
+    Increasing the precision also slightly increase the performance.
+*/
+Decimal.set({ precision: 99});
+
 
 suite.add('Bigdecimal.js', function () {
     for (let i = 0; i < bigDecimals.length - 1; i++) {
