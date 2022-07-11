@@ -4,24 +4,24 @@ const chai = require('chai');
 const testCases = require('../util/output/equalsTestCases.json');
 chai.should();
 
-describe('Equals test', function () {
+describe('Equals strict test', function () {
 
     it('should calculate equals correctly', function () {
         for (const test of testCases) {
-            const equalsOp = () => {
-                return Big(test.args[0]).equals(
+            const equalsStrictOp = () => {
+                return Big(test.args[0]).equalsStrict(
                     Big(test.args[1])
                 ).toString();
             };
             if (test.result === 'errorThrown') {
-                equalsOp.should.throw(
+                equalsStrictOp.should.throw(
                     undefined,
                     undefined,
                     `expected '${test.args[0]}'.equals(${test.args[1]}) to throw`
                 );
                 continue;
             }
-            const actual = equalsOp();
+            const actual = equalsStrictOp();
             const expected = test.result;
             actual.should.be.equal(
                 expected,

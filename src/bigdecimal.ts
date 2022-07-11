@@ -279,7 +279,7 @@ export class MathContext {
  * called members of the same <i>cohort</i>. The {@link
  * compareTo |  natural order} of `BigDecimal`
  * considers members of the same cohort to be equal to each other. In
- * contrast, the {@link equals | equals} method requires both the
+ * contrast, the {@link equalsStrict | equalsStrict} method requires both the
  * numerical value and representation to be the same for equality to
  * hold. The results of methods like {@link scale} and {@link
  * unscaledValue} will differ for numerically equal values with
@@ -2481,6 +2481,12 @@ export class BigDecimal {
      * One example that shows how 2.0 and 2.00 are **not**
      * substitutable for each other under some arithmetic operations
      * are the two expressions:
+     * new BigDecimal("2.0" ).divide(BigDecimal.valueOf(3), HALF_UP) which evaluates to 0.7 and
+     * new BigDecimal("2.00").divide(BigDecimal.valueOf(3), HALF_UP) which evaluates to 0.67.
+     *
+     * @remarks `equalsStrict` is based on the method `equals` from the Java class.
+     *
+     * Since 2.0, the method has been renamed to facilitate the introduction of comparison on BigDecimal values.
      *
      * @param  value to which this `BigDecimal` is
      *         to be compared.
@@ -2489,7 +2495,7 @@ export class BigDecimal {
      *         BigDecimal's.
      * @see    {@link compareTo}
      */
-    equals(value: any): boolean {
+    equalsStrict(value: any): boolean {
         if (!(value instanceof BigDecimal))
             return false;
         if (value === this)
@@ -2915,6 +2921,11 @@ export class BigDecimal {
      *         to be compared.
      * @return -1, 0, or 1 as this `BigDecimal` is numerically
      *          less than, equal to, or greater than `val`.
+     * @see {@link equals}
+     * @see {@link greaterThan}
+     * @see {@link greaterThanOrEquals}
+     * @see {@link lowerThan}
+     * @see {@link lowerThanOrEquals}
      */
     compareTo(val: BigDecimal): number {
         val = BigDecimal.convertToBigDecimal(val);
@@ -2937,6 +2948,112 @@ export class BigDecimal {
             const cmp = this.compareMagnitude(val);
             return xsign > 0 ? cmp : -cmp;
         }
+    }
+
+    /**
+     * Alias for `compareTo(val) === 0`.
+     *
+     * @param val value to which this `BigDecimal` is to be compared.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @returns true if `val` is equal in value
+     * @see    {@link equalsStrict}
+     * @see    {@link compareTo}
+     * @alias  {@link eq}
+     */
+    equals(val: any) {
+        return this.compareTo(val) === 0;
+    }
+
+    /**
+     * @alias {@link equals}
+     */
+    eq(val:any) {
+        return this.equals(val);
+    }
+
+    /**
+     * Alias for `compareTo(val) > 0`.
+     *
+     * @param val value to which this `BigDecimal` is to be compared.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @returns true if the value is greater than `val`
+     * @see     {@link compareTo}
+     * @alias   {@link gt}
+     */
+    greaterThan(val: any) {
+        return this.compareTo(val) > 0;
+    }
+
+    /**
+     * @alias {@link greaterThan}
+     */
+    gt(val:any) {
+        return this.greaterThan(val);
+    }
+
+    /**
+     * Alias for `compareTo(val) >= 0`.
+     *
+     * @param val value to which this `BigDecimal` is to be compared.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @returns true if the value is greater than or equals to `val`
+     * @see     {@link compareTo}
+     * @alias   {@link gte}
+     */
+    greaterThanOrEquals(val: any) {
+        return this.compareTo(val) >= 0;
+    }
+
+    /**
+     * @alias {@link greaterThanOrEquals}
+     */
+    gte(val:any) {
+        return this.greaterThanOrEquals(val);
+    }
+
+    /**
+     * Alias for `compareTo(val) < 0`.
+     *
+     * @param val value to which this `BigDecimal` is to be compared.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @returns true if the value is lower than `val`
+     * @see     {@link compareTo}
+     * @alias   {@link lt}
+     */
+    lowerThan(val: any) {
+        return this.compareTo(val) < 0;
+    }
+
+    /**
+     * @alias {@link lowerThan}
+     */
+    lt(val: any) {
+        return this.lowerThan(val);
+    }
+
+    /**
+     * Alias for `compareTo(val) <= 0`.
+     *
+     * @param val value to which this `BigDecimal` is to be compared.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @returns true if the value is lower than or equals to `val`
+     * @see     {@link compareTo}
+     * @alias   {@link lte}
+     */
+    lowerThanOrEquals(val: any) {
+        return this.compareTo(val) <= 0;
+    }
+
+    /**
+     * @alias {@link lowerThanOrEquals}
+     */
+    lte(val: any) {
+        return this.lowerThanOrEquals(val);
     }
 
     /**
