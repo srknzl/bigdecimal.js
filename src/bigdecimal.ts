@@ -2978,14 +2978,14 @@ export class BigDecimal {
      * @see    {@link compareTo}
      * @alias  {@link eq}
      */
-    equals(val: any) {
+    equals(val: any): boolean {
         return this.compareTo(val) === 0;
     }
 
     /**
      * @alias {@link equals}
      */
-    eq(val:any) {
+    eq(val:any): boolean {
         return this.equals(val);
     }
 
@@ -2999,14 +2999,14 @@ export class BigDecimal {
      * @see     {@link compareTo}
      * @alias   {@link gt}
      */
-    greaterThan(val: any) {
+    greaterThan(val: any): boolean {
         return this.compareTo(val) > 0;
     }
 
     /**
      * @alias {@link greaterThan}
      */
-    gt(val:any) {
+    gt(val:any): boolean {
         return this.greaterThan(val);
     }
 
@@ -3020,14 +3020,14 @@ export class BigDecimal {
      * @see     {@link compareTo}
      * @alias   {@link gte}
      */
-    greaterThanOrEquals(val: any) {
+    greaterThanOrEquals(val: any): boolean {
         return this.compareTo(val) >= 0;
     }
 
     /**
      * @alias {@link greaterThanOrEquals}
      */
-    gte(val:any) {
+    gte(val:any): boolean {
         return this.greaterThanOrEquals(val);
     }
 
@@ -3041,14 +3041,14 @@ export class BigDecimal {
      * @see     {@link compareTo}
      * @alias   {@link lt}
      */
-    lowerThan(val: any) {
+    lowerThan(val: any): boolean {
         return this.compareTo(val) < 0;
     }
 
     /**
      * @alias {@link lowerThan}
      */
-    lt(val: any) {
+    lt(val: any): boolean {
         return this.lowerThan(val);
     }
 
@@ -3062,14 +3062,14 @@ export class BigDecimal {
      * @see     {@link compareTo}
      * @alias   {@link lte}
      */
-    lowerThanOrEquals(val: any) {
+    lowerThanOrEquals(val: any): boolean {
         return this.compareTo(val) <= 0;
     }
 
     /**
      * @alias {@link lowerThanOrEquals}
      */
-    lte(val: any) {
+    lte(val: any): boolean {
         return this.lowerThanOrEquals(val);
     }
 
