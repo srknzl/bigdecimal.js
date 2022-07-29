@@ -2497,9 +2497,9 @@ export class BigDecimal {
      * are the two expressions:
      *
      * ```
-     * Big("2.0" ).divide(Big(3), HALF_UP) // which evaluates to 0.7
+     * Big("2.0" ).divide(Big(3), undefined, HALF_UP) // which evaluates to 0.7
      *
-     * Big("2.00").divide(Big(3), HALF_UP) // which evaluates to 0.67.
+     * Big("2.00").divide(Big(3), undefined, HALF_UP) // which evaluates to 0.67.
      *```
      *
      * @remarks `equalsStrict` is based on the method `equals` from the Java class.
