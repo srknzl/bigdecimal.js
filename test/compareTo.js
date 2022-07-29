@@ -14,6 +14,14 @@ describe('Compare test', function () {
                     Big(test.args[1])
                 ).toString();
             };
+            if (test.result === 'errorThrown') {
+                compareToOp.should.throw(
+                    undefined,
+                    undefined,
+                    `expected '${test.args[0]}'.compareTo(${test.args[1]}) to throw`
+                );
+                continue;
+            }
             const actual = compareToOp();
             const expected = test.result;
             actual.should.be.equal(
