@@ -2495,9 +2495,13 @@ export class BigDecimal {
      * One example that shows how 2.0 and 2.00 are **not**
      * substitutable for each other under some arithmetic operations
      * are the two expressions:
-     * new BigDecimal("2.0" ).divide(BigDecimal.valueOf(3), HALF_UP) which evaluates to 0.7 and
-     * new BigDecimal("2.00").divide(BigDecimal.valueOf(3), HALF_UP) which evaluates to 0.67.
-     *
+     * 
+     * ```
+     * Big("2.0" ).divide(Big(3), HALF_UP) // which evaluates to 0.7
+     * 
+     * Big("2.00").divide(Big(3), HALF_UP) // which evaluates to 0.67.
+     *```
+     * 
      * @remarks `equalsStrict` is based on the method `equals` from the Java class.
      *
      * Since 2.0, the method has been renamed to facilitate the introduction of comparison on BigDecimal values.
