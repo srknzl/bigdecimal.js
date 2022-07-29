@@ -4,9 +4,9 @@ const chai = require('chai');
 const testCases = require('../util/output/equalsTestCases.json');
 chai.should();
 
-describe('Equals strict test', function () {
+describe('EqualsStrict test', function () {
 
-    it('should calculate equals correctly', function () {
+    it('should calculate equalsStrict correctly', function () {
         for (const test of testCases) {
             const equalsStrictOp = () => {
                 return Big(test.args[0]).equalsStrict(
@@ -17,7 +17,7 @@ describe('Equals strict test', function () {
                 equalsStrictOp.should.throw(
                     undefined,
                     undefined,
-                    `expected '${test.args[0]}'.equals(${test.args[1]}) to throw`
+                    `expected '${test.args[0]}'.equalsStrict(${test.args[1]}) to throw`
                 );
                 continue;
             }
@@ -25,7 +25,7 @@ describe('Equals strict test', function () {
             const expected = test.result;
             actual.should.be.equal(
                 expected,
-                `expected '${test.args[0]}'.equals(${test.args[1]}) to be '${expected}'`
+                `expected '${test.args[0]}'.equalsStrict(${test.args[1]}) to be '${expected}'`
             );
         }
     });
