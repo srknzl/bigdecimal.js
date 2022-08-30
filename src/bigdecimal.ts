@@ -279,7 +279,7 @@ export class MathContext {
  * called members of the same <i>cohort</i>. The {@link
  * compareTo |  natural order} of `BigDecimal`
  * considers members of the same cohort to be equal to each other. In
- * contrast, the {@link equalsStrict | equalsStrict} method requires both the
+ * contrast, the {@link equals | equals} method requires both the
  * numerical value and representation to be the same for equality to
  * hold. The results of methods like {@link scale} and {@link
  * unscaledValue} will differ for numerically equal values with
@@ -2502,10 +2502,6 @@ export class BigDecimal {
      * Big("2.00").divide(Big(3), undefined, HALF_UP) // which evaluates to 0.67.
      *```
      *
-     * @remarks `equalsStrict` is based on the method `equals` from the Java class.
-     *
-     * Since 2.0, the method has been renamed to facilitate the introduction of comparison on BigDecimal values.
-     *
      * @param value to which this `BigDecimal` is
      *         to be compared.
      * @return true if and only if the specified value is a
@@ -2513,7 +2509,7 @@ export class BigDecimal {
      *         BigDecimal's.
      * @see    {@link compareTo}
      */
-    equalsStrict(value: any): boolean {
+    equals(value: any): boolean {
         if (!(value instanceof BigDecimal))
             return false;
         if (value === this)
@@ -2942,7 +2938,6 @@ export class BigDecimal {
      * See the {@link Big | constructor} to learn more about the conversion.
      * @return -1, 0, or 1 as this `BigDecimal` is numerically
      *          less than, equal to, or greater than `val`.
-     * @see {@link equals}
      * @see {@link greaterThan}
      * @see {@link greaterThanOrEquals}
      * @see {@link lowerThan}
@@ -2969,28 +2964,6 @@ export class BigDecimal {
             const cmp = this.compareMagnitude(val);
             return xsign > 0 ? cmp : -cmp;
         }
-    }
-
-    /**
-     * Alias for `compareTo(val) === 0`.
-     *
-     * @param val value to which this `BigDecimal` is to be compared.
-     * This value will be converted to a `BigDecimal` before the operation.
-     * See the {@link Big | constructor} to learn more about the conversion.
-     * @returns true if `val` is equal in value
-     * @see    {@link equalsStrict}
-     * @see    {@link compareTo}
-     * @alias  {@link eq}
-     */
-    equals(val: BigDecimal | BigInt | number | string): boolean {
-        return this.compareTo(val) === 0;
-    }
-
-    /**
-     * @alias {@link equals}
-     */
-    eq(val: BigDecimal | BigInt | number | string): boolean {
-        return this.equals(val);
     }
 
     /**
