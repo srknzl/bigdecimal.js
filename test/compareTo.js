@@ -41,6 +41,7 @@ describe('Compare test', function () {
 
     it('should calculate compareTo aliases correctly', function() {
         const aliasesMap = {
+            'sameValue': [0],
             'gt': [1],
             'greaterThan': [1],
             'gte': [0, 1],

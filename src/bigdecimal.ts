@@ -2938,6 +2938,7 @@ export class BigDecimal {
      * See the {@link Big | constructor} to learn more about the conversion.
      * @return -1, 0, or 1 as this `BigDecimal` is numerically
      *          less than, equal to, or greater than `val`.
+     * @see {@link sameValue}
      * @see {@link greaterThan}
      * @see {@link greaterThanOrEquals}
      * @see {@link lowerThan}
@@ -2964,6 +2965,17 @@ export class BigDecimal {
             const cmp = this.compareMagnitude(val);
             return xsign > 0 ? cmp : -cmp;
         }
+    }
+
+    /**
+    * Alias for `compareTo(val) === 0`.
+    * Consider using {@link equals} in case the precision needs to be considered.
+    * @returns true if the value is the same as `val`
+    * @see {@link equals}
+    * @see     {@link compareTo}
+    */
+    sameValue(val: BigDecimal | BigInt | number | string): boolean {
+        return this.compareTo(val) === 0;
     }
 
     /**
