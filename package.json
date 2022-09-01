@@ -65,7 +65,7 @@
     "benchmark": "~2.1.4",
     "big.js": "~6.1.1",
     "bigdecimal": "~0.6.1",
-    "bignumber.js": "^9.0.2",
+    "bignumber.js": "^9.1.0",
     "chai": "~4.3",
     "decimal.js": "^10.3.1",
     "eslint": "~8.8.0",
