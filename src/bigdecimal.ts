@@ -906,7 +906,7 @@ export class BigDecimal {
     }
 
     /**
-     * Translates a {@code BigInteger} into a `BigDecimal`.
+     * Translates a `BigInteger` into a `BigDecimal`.
      * The scale of the `BigDecimal` is zero.
      *
      * @param intVal `BigInt` value to be converted to
@@ -2424,7 +2424,7 @@ export class BigDecimal {
      * @throws RangeError if divisor is 0
      * @throws RangeError if the result is inexact but the
      *         rounding mode is `UNNECESSARY`, or `mc.precision`
-     *         > 0 and the result of {`this.divideToIntegralValue(divisor)` would
+     *         > 0 and the result of `this.divideToIntegralValue(divisor)` would
      *         require a precision of more than `mc.precision` digits.
      * @see    {@link divideToIntegralValue}
      */
@@ -2565,8 +2565,8 @@ export class BigDecimal {
      * The preferred scale of the returned result is equal to
      * `this.scale()/2`. The value of the returned result is
      * always within one ulp of the exact decimal value for the
-     * precision in question.  If the rounding mode is {@link
-        * RoundingMode.HALF_UP}, {@link RoundingMode.HALF_DOWN},
+     * precision in question.  If the rounding mode is
+     *  {@link RoundingMode.HALF_UP}, {@link RoundingMode.HALF_DOWN},
      * or {@link RoundingMode.HALF_EVEN}, the
      * result is within one half an ulp of the exact decimal value.
      *
@@ -3112,7 +3112,7 @@ export class BigDecimal {
      * The X3.274-1996 algorithm is:
      *
      * * An `RangeError` exception is thrown if
-     *     * `abs(n)` > 999999999}
+     *     * `abs(n)` > 999999999
      *     * `mc.precision == 0` and `n < 0`
      *     * `mc.precision > 0` and `n` has more than
      *    `mc.precision` decimal digits
@@ -3965,7 +3965,7 @@ export class BigDecimal {
      * ys)`, with rounding according to the context settings.
      *
      * Fast path - used only when (xscale <= yscale && yscale < 15
-     * && mc.presision<15) {
+     * && mc.presision<15)
      * @internal
      */
     private static divideSmallFastPath(
