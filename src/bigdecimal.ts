@@ -2969,10 +2969,10 @@ export class BigDecimal {
 
     /**
     * Alias for `compareTo(val) === 0`.
-    * Consider using {@link equals} in case the precision needs to be considered.
+    * Consider using {@link equals} in case the scale needs to be considered.
     * @returns true if the value is the same as `val`
     * @see {@link equals}
-    * @see     {@link compareTo}
+    * @see {@link compareTo}
     */
     sameValue(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) === 0;
