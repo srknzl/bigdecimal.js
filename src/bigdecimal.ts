@@ -2974,7 +2974,7 @@ export class BigDecimal {
     * @see {@link equals}
     * @see     {@link compareTo}
     */
-    sameValue(val: BigDecimal | BigInt | number | string): boolean {
+    sameValue(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) === 0;
     }
 
@@ -2988,14 +2988,14 @@ export class BigDecimal {
      * @see     {@link compareTo}
      * @alias   {@link gt}
      */
-    greaterThan(val: BigDecimal | BigInt | number | string): boolean {
+    greaterThan(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) > 0;
     }
 
     /**
      * @alias {@link greaterThan}
      */
-    gt(val: BigDecimal | BigInt | number | string): boolean {
+    gt(val: BigDecimal | bigint | number | string): boolean {
         return this.greaterThan(val);
     }
 
@@ -3009,14 +3009,14 @@ export class BigDecimal {
      * @see     {@link compareTo}
      * @alias   {@link gte}
      */
-    greaterThanOrEquals(val: BigDecimal | BigInt | number | string): boolean {
+    greaterThanOrEquals(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) >= 0;
     }
 
     /**
      * @alias {@link greaterThanOrEquals}
      */
-    gte(val: BigDecimal | BigInt | number | string): boolean {
+    gte(val: BigDecimal | bigint | number | string): boolean {
         return this.greaterThanOrEquals(val);
     }
 
@@ -3030,14 +3030,14 @@ export class BigDecimal {
      * @see     {@link compareTo}
      * @alias   {@link lt}
      */
-    lowerThan(val: BigDecimal | BigInt | number | string): boolean {
+    lowerThan(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) < 0;
     }
 
     /**
      * @alias {@link lowerThan}
      */
-    lt(val: BigDecimal | BigInt | number | string): boolean {
+    lt(val: BigDecimal | bigint | number | string): boolean {
         return this.lowerThan(val);
     }
 
@@ -3051,14 +3051,14 @@ export class BigDecimal {
      * @see     {@link compareTo}
      * @alias   {@link lte}
      */
-    lowerThanOrEquals(val: BigDecimal | BigInt | number | string): boolean {
+    lowerThanOrEquals(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) <= 0;
     }
 
     /**
      * @alias {@link lowerThanOrEquals}
      */
-    lte(val: BigDecimal | BigInt | number | string): boolean {
+    lte(val: BigDecimal | bigint | number | string): boolean {
         return this.lowerThanOrEquals(val);
     }
 
