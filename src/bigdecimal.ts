@@ -2496,6 +2496,12 @@ export class BigDecimal {
      * substitutable for each other under some arithmetic operations
      * are the two expressions:
      *
+     * ```
+     * Big("2.0" ).divide(Big(3), undefined, HALF_UP) // which evaluates to 0.7
+     *
+     * Big("2.00").divide(Big(3), undefined, HALF_UP) // which evaluates to 0.67.
+     *```
+     *
      * @param value to which this `BigDecimal` is
      *         to be compared.
      * @return true if and only if the specified value is a
@@ -2932,6 +2938,11 @@ export class BigDecimal {
      * See the {@link Big | constructor} to learn more about the conversion.
      * @return -1, 0, or 1 as this `BigDecimal` is numerically
      *          less than, equal to, or greater than `val`.
+     * @see {@link sameValue}
+     * @see {@link greaterThan}
+     * @see {@link greaterThanOrEquals}
+     * @see {@link lowerThan}
+     * @see {@link lowerThanOrEquals}
      */
     compareTo(val: BigDecimal | bigint | number | string): number {
         val = BigDecimal.convertToBigDecimal(val);
@@ -2954,6 +2965,101 @@ export class BigDecimal {
             const cmp = this.compareMagnitude(val);
             return xsign > 0 ? cmp : -cmp;
         }
+    }
+
+    /**
+    * Alias for `compareTo(val) === 0`.
+    * Consider using {@link equals} in case the scale needs to be considered.
+    * @returns true if the value is the same as `val`
+    * @see {@link equals}
+    * @see {@link compareTo}
+    */
+    sameValue(val: BigDecimal | bigint | number | string): boolean {
+        return this.compareTo(val) === 0;
+    }
+
+    /**
+     * Alias for `compareTo(val) > 0`.
+     *
+     * @param val value to which this `BigDecimal` is to be compared.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @returns true if the value is greater than `val`
+     * @see     {@link compareTo}
+     * @alias   {@link gt}
+     */
+    greaterThan(val: BigDecimal | bigint | number | string): boolean {
+        return this.compareTo(val) > 0;
+    }
+
+    /**
+     * @alias {@link greaterThan}
+     */
+    gt(val: BigDecimal | bigint | number | string): boolean {
+        return this.greaterThan(val);
+    }
+
+    /**
+     * Alias for `compareTo(val) >= 0`.
+     *
+     * @param val value to which this `BigDecimal` is to be compared.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @returns true if the value is greater than or equals to `val`
+     * @see     {@link compareTo}
+     * @alias   {@link gte}
+     */
+    greaterThanOrEquals(val: BigDecimal | bigint | number | string): boolean {
+        return this.compareTo(val) >= 0;
+    }
+
+    /**
+     * @alias {@link greaterThanOrEquals}
+     */
+    gte(val: BigDecimal | bigint | number | string): boolean {
+        return this.greaterThanOrEquals(val);
+    }
+
+    /**
+     * Alias for `compareTo(val) < 0`.
+     *
+     * @param val value to which this `BigDecimal` is to be compared.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @returns true if the value is lower than `val`
+     * @see     {@link compareTo}
+     * @alias   {@link lt}
+     */
+    lowerThan(val: BigDecimal | bigint | number | string): boolean {
+        return this.compareTo(val) < 0;
+    }
+
+    /**
+     * @alias {@link lowerThan}
+     */
+    lt(val: BigDecimal | bigint | number | string): boolean {
+        return this.lowerThan(val);
+    }
+
+    /**
+     * Alias for `compareTo(val) <= 0`.
+     *
+     * @param val value to which this `BigDecimal` is to be compared.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @returns true if the value is lower than or equals to `val`
+     * @see     {@link compareTo}
+     * @alias   {@link lte}
+     */
+    lowerThanOrEquals(val: BigDecimal | bigint | number | string): boolean {
+        return this.compareTo(val) <= 0;
+    }
+
+    /**
+     * @alias {@link lowerThanOrEquals}
+     */
+    lte(val: BigDecimal | bigint | number | string): boolean {
+        return this.lowerThanOrEquals(val);
     }
 
     /**

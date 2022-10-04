@@ -39,4 +39,37 @@ describe('Compare test', function () {
         }
     });
 
+    it('should calculate compareTo aliases correctly', function() {
+        const aliasesMap = {
+            'sameValue': [0],
+            'gt': [1],
+            'greaterThan': [1],
+            'gte': [0, 1],
+            'greaterThanOrEquals': [0, 1],
+            'lt': [-1],
+            'lowerThan': [-1],
+            'lte': [-1, 0],
+            'lowerThanOrEquals': [-1, 0]
+        };
+
+        Object.entries(aliasesMap).forEach(([alias, associatedReturns]) => {
+            for (const test of testCases) {
+                if (test.result === 'errorThrown') {
+                    compareToOp.should.throw(
+                        undefined,
+                        undefined,
+                        `expected '${test.args[0]}'.${alias}(${test.args[1]}) to throw`
+                    );
+                    continue;
+                }
+
+                const actual = Big(test.args[0])[alias](Big(test.args[1]));
+                const expected = associatedReturns.includes(Number(test.result));
+                actual.should.be.equal(
+                    expected,
+                    `expected '${test.args[0]}'.${alias}(${test.args[1]}) to be '${expected}'`
+                );
+            }
+        });
+    });
 });
