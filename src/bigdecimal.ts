@@ -4350,6 +4350,36 @@ export class BigDecimal {
             return BigDecimal.divideAndRound3(dividend, scaledDivisor, scale, roundingMode, scale);
         }
     }
+
+    /**
+     * Function called in case BigDecimal is implicitly converted to a primitive value.
+     * The function will throw when the code try to convert the BigDecimal value in the following cases:
+     * - Using a greater or lower comparison operators (>, <, <=, >=)
+     * - Using loose equality operators against number, string, symbol or bigint (==, !=)
+     * - Using an arithmetic operators (+, -, /, *, %, **, --, ++)
+     * - Using bitwise operators (&, |, ^, ~, >>, >>>, <<)
+     *
+     * Note:
+     * - In case of string templates, the function will return the value from {@link toString}.
+     * - It will throw when the plus (+) sign is used for addition or concatenation.
+     * Prefer string template, {@link toString} or {@link add} instead.
+     *
+     * References:
+     * - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol}
+     * - {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Expressions_and_Operators}
+     * @param hint string
+     * @returns string if hint is `string`
+     * @throws TypeError if hint is `number`
+     * @throws TypeError if hint is `default`
+     */
+    [Symbol.toPrimitive](hint: 'number' | 'string' | 'default') {
+        if (hint === 'number') {
+            throw new TypeError('BigDecimal cannot be implicitly converted to a number type');
+        } else if (hint === 'default') {
+            throw new TypeError('BigDecimal cannot be implicitly converted to an ambiguous type');
+        }
+        return this.toString();
+    }
 }
 
 interface BigDecimalConstructor {
