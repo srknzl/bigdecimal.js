@@ -54,6 +54,8 @@ describe('Compare test', function () {
 
         Object.entries(aliasesMap).forEach(([alias, associatedReturns]) => {
             for (const test of testCases) {
+                const compareToOp = () => Big(test.args[0])[alias](Big(test.args[1]));
+
                 if (test.result === 'errorThrown') {
                     compareToOp.should.throw(
                         undefined,
@@ -63,7 +65,7 @@ describe('Compare test', function () {
                     continue;
                 }
 
-                const actual = Big(test.args[0])[alias](Big(test.args[1]));
+                const actual = compareToOp();
                 const expected = associatedReturns.includes(Number(test.result));
                 actual.should.be.equal(
                     expected,
