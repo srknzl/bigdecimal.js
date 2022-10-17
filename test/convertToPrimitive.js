@@ -22,6 +22,7 @@ describe('Convert to primitive test', function () {
     });
 
     it('should perform logical operators on BigDecimal without calling toPrimitive', () => {
+        // toPrimitive is not used in the following cases
         const value = Big(0);
         const testCases = {
             '&&': () => {
@@ -44,6 +45,7 @@ describe('Convert to primitive test', function () {
     });
 
     it('should perform BigDecimal comparison without calling toPrimitive', () => {
+        // toPrimitive is not used in the following cases
         const value = Big(0);
         const testCases = {
             '=== Big': () => {
@@ -89,7 +91,6 @@ describe('Convert to primitive test', function () {
     });
 
     it('should throw when performing BigDecimal comparison with loose equal against primitive values', () => {
-        // toPrimitive is not used for equality operators
         const value = Big(0);
         const testCases = {
             '== 1': () => {
