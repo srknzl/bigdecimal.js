@@ -29,7 +29,7 @@ describe('Convert to primitive test', function () {
                 value && 1;
             },
             '||': () => {
-                value || "1";
+                value || '1';
             },
             '!': () => {
                 !value;
