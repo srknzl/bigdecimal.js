@@ -4373,12 +4373,13 @@ export class BigDecimal {
      * @throws TypeError if hint is `default`
      */
     [Symbol.toPrimitive](hint: 'number' | 'string' | 'default') {
-        if (hint === 'number') {
+        if (hint === "string") {
+            return this.toString();
+        } else if (hint === 'number') {
             throw new TypeError('BigDecimal cannot be implicitly converted to a number type');
-        } else if (hint === 'default') {
+        } else {
             throw new TypeError('BigDecimal cannot be implicitly converted to an ambiguous type');
         }
-        return this.toString();
     }
 }
 
