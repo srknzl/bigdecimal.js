@@ -1,0 +1,234 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>bigdecimal.js</title><meta name="description" content="Documentation for bigdecimal.js"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container">
+<div class="table-cell" id="tsd-search" data-base=".">
+<div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
+<ul class="results">
+<li class="state loading">Preparing search index...</li>
+<li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">bigdecimal.js</a></div>
+<div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
+<div class="container container-main">
+<div class="col-8 col-content">
+<div class="tsd-page-title">
+<h2>bigdecimal.js</h2></div>
+<div class="tsd-panel tsd-typography">
+<a href="#bigdecimaljs" id="bigdecimaljs" style="color: inherit; text-decoration: none;">
+  <h1>BigDecimal.js</h1>
+</a>
+<p><a href="https://npmjs.org/package/bigdecimal.js"><img src="https://img.shields.io/npm/v/bigdecimal.js.svg" alt="NPM Version"></a>
+<a href="https://npmcharts.com/compare/bigdecimal.js?minimal=true"><img src="https://img.shields.io/npm/dm/bigdecimal.js.svg" alt="NPM Downloads"></a>
+<a href="https://codecov.io/gh/srknzl/bigdecimal.js"><img src="https://codecov.io/gh/srknzl/bigdecimal.js/branch/main/graph/badge.svg?token=Y9PL8TFV2L" alt="codecov"></a></p>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt">BigInt</a> based BigDecimal implementation for Node.js 10.4 and above.
+This implementation is inspired from java BigDecimal class. This implementation is faster than popular big decimal libraries for most operations.
+See <a href="https://github.com/srknzl/bigdecimal.js#benchmark-results">benchmarks results part below</a> for comparison of each operation.</p>
+
+<a href="#advantages-of-this-library" id="advantages-of-this-library" style="color: inherit; text-decoration: none;">
+  <h2>Advantages of this library</h2>
+</a>
+<ul>
+<li>Faster than other BigDecimal libraries because of native BigInt</li>
+<li>Simple API that is almost same with Java&#39;s <a href="https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/math/BigDecimal.html">BigDecimal</a></li>
+<li>No dependencies</li>
+<li>Well tested</li>
+<li>Includes type definition file</li>
+</ul>
+
+<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+  <h2>Installation</h2>
+</a>
+<pre><code><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-0">install</span><span class="hl-1"> </span><span class="hl-0">bigdecimal</span><span class="hl-1">.</span><span class="hl-0">js</span>
+</code></pre>
+
+<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+  <h2>Usage</h2>
+</a>
+<ul>
+<li>The example usage is given below:</li>
+</ul>
+<pre><code class="language-javascript"><span class="hl-2">// Single unified constructor for multiple values</span><br/><span class="hl-3">const</span><span class="hl-1"> { </span><span class="hl-4">Big</span><span class="hl-1"> } = </span><span class="hl-5">require</span><span class="hl-1">(</span><span class="hl-6">&#39;bigdecimal.js&#39;</span><span class="hl-1">);</span><br/><br/><span class="hl-2">// Construct from a string and clone it</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">x</span><span class="hl-1"> = </span><span class="hl-5">Big</span><span class="hl-1">(</span><span class="hl-6">&#39;1.1111111111111111111111&#39;</span><span class="hl-1">);</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">y</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-5">Big</span><span class="hl-1">(</span><span class="hl-0">x</span><span class="hl-1">); </span><span class="hl-2">// you can also use &#39;new&#39;</span><br/><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">z</span><span class="hl-1"> = </span><span class="hl-0">x</span><span class="hl-1">.</span><span class="hl-5">add</span><span class="hl-1">(</span><span class="hl-0">y</span><span class="hl-1">);</span><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">z</span><span class="hl-1">.</span><span class="hl-5">toString</span><span class="hl-1">()); </span><span class="hl-2">// 2.2222222222222222222222</span><br/><br/><span class="hl-2">// You can also construct from a number or BigInt:</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">u</span><span class="hl-1"> = </span><span class="hl-5">Big</span><span class="hl-1">(</span><span class="hl-7">1.1</span><span class="hl-1">);</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">v</span><span class="hl-1"> = </span><span class="hl-5">Big</span><span class="hl-1">(</span><span class="hl-7">2</span><span class="hl-3">n</span><span class="hl-1">);</span><br/><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">u</span><span class="hl-1">.</span><span class="hl-5">toString</span><span class="hl-1">()); </span><span class="hl-2">// 1.1</span><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">v</span><span class="hl-1">.</span><span class="hl-5">toString</span><span class="hl-1">()); </span><span class="hl-2">// 2</span>
+</code></pre>
+<p>You can use MathContext to set precision and rounding mode for a specific operation:</p>
+<pre><code class="language-javascript"><span class="hl-3">const</span><span class="hl-1"> { </span><span class="hl-4">Big</span><span class="hl-1">, </span><span class="hl-4">MC</span><span class="hl-1">, </span><span class="hl-4">RoundingMode</span><span class="hl-1"> } = </span><span class="hl-5">require</span><span class="hl-1">(</span><span class="hl-6">&#39;bigdecimal.js&#39;</span><span class="hl-1">);</span><br/><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">x</span><span class="hl-1"> = </span><span class="hl-5">Big</span><span class="hl-1">(</span><span class="hl-6">&#39;1&#39;</span><span class="hl-1">);</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">y</span><span class="hl-1"> = </span><span class="hl-5">Big</span><span class="hl-1">(</span><span class="hl-6">&#39;3&#39;</span><span class="hl-1">);</span><br/><br/><span class="hl-2">// MC is MathContext constructor that can be used with or without `new`</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">res1</span><span class="hl-1"> = </span><span class="hl-0">x</span><span class="hl-1">.</span><span class="hl-5">divideWithMathContext</span><span class="hl-1">(</span><span class="hl-0">y</span><span class="hl-1">, </span><span class="hl-5">MC</span><span class="hl-1">(</span><span class="hl-7">3</span><span class="hl-1">)); </span><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">res1</span><span class="hl-1">.</span><span class="hl-5">toString</span><span class="hl-1">()); </span><span class="hl-2">// 0.333</span><br/><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">res2</span><span class="hl-1"> = </span><span class="hl-0">x</span><span class="hl-1">.</span><span class="hl-5">divideWithMathContext</span><span class="hl-1">(</span><span class="hl-0">y</span><span class="hl-1">, </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-5">MC</span><span class="hl-1">(</span><span class="hl-7">3</span><span class="hl-1">, </span><span class="hl-0">RoundingMode</span><span class="hl-1">.</span><span class="hl-4">UP</span><span class="hl-1">));</span><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">res2</span><span class="hl-1">.</span><span class="hl-5">toString</span><span class="hl-1">()); </span><span class="hl-2">// 0.334</span><br/><br/><span class="hl-8">try</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">x</span><span class="hl-1">.</span><span class="hl-5">divide</span><span class="hl-1">(</span><span class="hl-0">y</span><span class="hl-1">);</span><br/><span class="hl-1">    </span><span class="hl-2">// throws since full precision is requested but it is not possible</span><br/><span class="hl-1">} </span><span class="hl-8">catch</span><span class="hl-1"> (</span><span class="hl-0">e</span><span class="hl-1">) {</span><br/><span class="hl-1">    </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">e</span><span class="hl-1">); </span><span class="hl-2">// RangeError: Non-terminating decimal expansion; no exact representable decimal result.</span><br/><span class="hl-1">}</span>
+</code></pre>
+
+<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
+  <h2>Documentation</h2>
+</a>
+<ul>
+<li><a href="https://srknzl.github.io/bigdecimal.js">API Documentation</a></li>
+</ul>
+
+<a href="#testing" id="testing" style="color: inherit; text-decoration: none;">
+  <h2>Testing</h2>
+</a>
+<ul>
+<li>Install dependencies: <code>npm i</code></li>
+<li>Compile: <code>npm run compile</code></li>
+<li>Run tests: <code>npm test</code></li>
+</ul>
+
+<a href="#running-benchmarks" id="running-benchmarks" style="color: inherit; text-decoration: none;">
+  <h2>Running Benchmarks</h2>
+</a>
+<p>There is a benchmark suite that compares</p>
+<ul>
+<li>This library</li>
+<li><a href="https://github.com/MikeMcl/big.js">big.js</a></li>
+<li><a href="https://github.com/iriscouch/bigdecimal.js">bigdecimal</a></li>
+<li><a href="https://github.com/MikeMcl/bignumber.js">bignumber.js</a></li>
+<li><a href="https://github.com/MikeMcl/decimal.js">decimal.js</a></li>
+</ul>
+<p>To run the benchmark run <code>npm install</code> and then <code>npm run benchmark</code>.</p>
+
+<a href="#benchmark-results" id="benchmark-results" style="color: inherit; text-decoration: none;">
+  <h2>Benchmark Results</h2>
+</a>
+<p>For now, benchmarked against <a href="https://www.npmjs.com/package/big.js">big.js</a> and <a href="https://www.npmjs.com/package/bigdecimal">bigdecimal</a>.</p>
+<ul>
+<li><p>Test Machine:</p>
+<ul>
+<li>M1 2021 MacBook Air </li>
+<li>16 GB Ram</li>
+<li>MacOS Monterey 12.4</li>
+</ul>
+</li>
+<li><p>Update Date: September 30th 2022</p>
+</li>
+<li><p>Library versions used:  </p>
+<ul>
+<li>big.js 6.2.1</li>
+<li>(this library) bigdecimal.js 1.2.0</li>
+<li>bigdecimal 0.6.1</li>
+<li>bignumber.js: 9.1.0</li>
+<li>decimal.js:10.4.1</li>
+</ul>
+</li>
+<li><p>Each operation is run with fixed set of decimal numbers composed of both simple and complex numbers.</p>
+</li>
+<li><p>Micro benchmark framework used is <a href="https://www.npmjs.com/package/benchmark">benchmark</a>. Check out <a href="https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks">benchmarks folder</a> for source code of benchmarks.</p>
+</li>
+<li><p>For now, benchmarked the following operations, more operations will be added soon.</p>
+</li>
+<li><p>Operations per second(op/s):</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Bigdecimal.js</th>
+<th>Big.js</th>
+<th>BigNumber.js</th>
+<th>decimal.js</th>
+<th>GWTBased</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Constructor</td>
+<td>44,023 ( - )</td>
+<td>38,837 (<span style="color:red">-12%</span>)</td>
+<td>42,904 (<span style="color:red">-3%</span>)</td>
+<td>42,332 (<span style="color:red">-4%</span>)</td>
+<td>2,867 (<span style="color:red">-93%</span>)</td>
+</tr>
+<tr>
+<td>Add</td>
+<td>80,680 ( - )</td>
+<td>18,565 (<span style="color:red">-77%</span>)</td>
+<td>102,628 (<span style="color:green"><strong>+27%</strong></span>)</td>
+<td>60,988 (<span style="color:red">-24%</span>)</td>
+<td>89 (<span style="color:red">-100%</span>)</td>
+</tr>
+<tr>
+<td>Subtract</td>
+<td>74,621 ( - )</td>
+<td>18,297 (<span style="color:red">-75%</span>)</td>
+<td>97,269 (<span style="color:green"><strong>+30%</strong></span>)</td>
+<td>56,907 (<span style="color:red">-24%</span>)</td>
+<td>89 (<span style="color:red">-100%</span>)</td>
+</tr>
+<tr>
+<td>Multiply</td>
+<td>503,718 ( - )</td>
+<td>33,486 (<span style="color:red">-93%</span>)</td>
+<td>27,603 (<span style="color:red">-95%</span>)</td>
+<td>81,700 (<span style="color:red">-84%</span>)</td>
+<td>2,720 (<span style="color:red">-99%</span>)</td>
+</tr>
+<tr>
+<td>Divide</td>
+<td>15,352 ( - )</td>
+<td>1,129 (<span style="color:red">-93%</span>)</td>
+<td>12,169 (<span style="color:red">-21%</span>)</td>
+<td>14,022 (<span style="color:red">-9%</span>)</td>
+<td>679 (<span style="color:red">-96%</span>)</td>
+</tr>
+<tr>
+<td>Remainder</td>
+<td>9,557 ( - )</td>
+<td>3,916 (<span style="color:red">-59%</span>)</td>
+<td>14,052 (<span style="color:green"><strong>+47%</strong></span>)</td>
+<td>22,538 (<span style="color:green"><strong>+136%</strong></span>)</td>
+<td>2,605 (<span style="color:red">-73%</span>)</td>
+</tr>
+<tr>
+<td>Positive pow</td>
+<td>27,710 ( - )</td>
+<td>25 (<span style="color:red">-100%</span>)</td>
+<td>121 (<span style="color:red">-100%</span>)</td>
+<td>3,685 (<span style="color:red">-87%</span>)</td>
+<td>6 (<span style="color:red">-100%</span>)</td>
+</tr>
+<tr>
+<td>Negative pow</td>
+<td>4,783 ( - )</td>
+<td>21 (<span style="color:red">-100%</span>)</td>
+<td>117 (<span style="color:red">-98%</span>)</td>
+<td>2,063 (<span style="color:red">-57%</span>)</td>
+<td>277 (<span style="color:red">-94%</span>)</td>
+</tr>
+<tr>
+<td>Abs</td>
+<td>771,310 ( - )</td>
+<td>1,329,070 (<span style="color:green"><strong>+72%</strong></span>)</td>
+<td>904,043 (<span style="color:green"><strong>+17%</strong></span>)</td>
+<td>339,619 (<span style="color:red">-56%</span>)</td>
+<td>13,737 (<span style="color:red">-98%</span>)</td>
+</tr>
+<tr>
+<td>Compare</td>
+<td>536,627 ( - )</td>
+<td>1,180,043 (<span style="color:green"><strong>+120%</strong></span>)</td>
+<td>764,960 (<span style="color:green"><strong>+43%</strong></span>)</td>
+<td>393,814 (<span style="color:red">-27%</span>)</td>
+<td>1,010,649 (<span style="color:green"><strong>+88%</strong></span>)</td>
+</tr>
+</tbody></table>
+</div></div>
+<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+<div class="tsd-navigation settings">
+<details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility">
+<h4 class="uppercase">Member Visibility</h4><form>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></form></div>
+<div class="tsd-theme-toggle">
+<h4 class="uppercase">Theme</h4><select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<nav class="tsd-navigation primary">
+<details class="tsd-index-accordion" open><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Modules</h3></summary>
+<div class="tsd-accordion-details">
+<ul>
+<li class="current selected"><a href="modules.html">bigdecimal.js</a>
+<ul></ul></li></ul></div></details></nav>
+<nav class="tsd-navigation secondary menu-sticky">
+<ul>
+<li class="tsd-kind-enum"><a href="enums/RoundingMode.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-enum)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-8-path"></rect><path d="M9.45 16V7.24H14.49V8.224H10.518V10.936H14.07V11.908H10.518V15.016H14.49V16H9.45Z" fill="var(--color-text)" id="icon-8-text"></path></svg>Rounding<wbr/>Mode</a></li>
+<li class="tsd-kind-class"><a href="classes/BigDecimal.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-class)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-128-path"></rect><path d="M11.898 16.1201C11.098 16.1201 10.466 15.8961 10.002 15.4481C9.53803 15.0001 9.30603 14.3841 9.30603 13.6001V9.64012C9.30603 8.85612 9.53803 8.24012 10.002 7.79212C10.466 7.34412 11.098 7.12012 11.898 7.12012C12.682 7.12012 13.306 7.34812 13.77 7.80412C14.234 8.25212 14.466 8.86412 14.466 9.64012H13.386C13.386 9.14412 13.254 8.76412 12.99 8.50012C12.734 8.22812 12.37 8.09212 11.898 8.09212C11.426 8.09212 11.054 8.22412 10.782 8.48812C10.518 8.75212 10.386 9.13212 10.386 9.62812V13.6001C10.386 14.0961 10.518 14.4801 10.782 14.7521C11.054 15.0161 11.426 15.1481 11.898 15.1481C12.37 15.1481 12.734 15.0161 12.99 14.7521C13.254 14.4801 13.386 14.0961 13.386 13.6001H14.466C14.466 14.3761 14.234 14.9921 13.77 15.4481C13.306 15.8961 12.682 16.1201 11.898 16.1201Z" fill="var(--color-text)" id="icon-128-text"></path></svg>Big<wbr/>Decimal</a></li>
+<li class="tsd-kind-class"><a href="classes/MathContext.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-128-path"></use><use href="#icon-128-text"></use></svg>Math<wbr/>Context</a></li>
+<li class="tsd-kind-function"><a href="functions/Big.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-function)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-64-path"></rect><path d="M9.39 16V7.24H14.55V8.224H10.446V11.128H14.238V12.112H10.47V16H9.39Z" fill="var(--color-text)" id="icon-64-text"></path></svg>Big</a></li>
+<li class="tsd-kind-function"><a href="functions/MC.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-64-path"></use><use href="#icon-64-text"></use></svg>MC</a></li></ul></nav></div></div>
+<div class="container tsd-generator">
+<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
+<div class="overlay"></div><script src="assets/main.js"></script></body></html>
