@@ -4,7 +4,8 @@
   "description": "A BigDecimal implementation with native BigInts",
   "exports": {
     "import": "./lib/bigdecimal.mjs",
-    "require": "./lib/bigdecimal.js"
+    "require": "./lib/bigdecimal.js",
+    "typings": "./lib/bigdecimal.d.ts"
   },
   "main": "lib/bigdecimal.js",
   "module": "lib/bigdecimal.mjs",
