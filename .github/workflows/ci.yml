@@ -22,4 +22,8 @@ jobs:
           npm run compile
       - name: Tests
         run: |
-          npm run test
+          npm run coverage
+      - name: Publish to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: coverage/lcov.info
