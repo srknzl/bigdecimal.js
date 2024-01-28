@@ -16,6 +16,10 @@ See [benchmarks results part below](https://github.com/srknzl/bigdecimal.js#benc
 * Well tested
 * Includes type definition file
 
+## Disadvantages
+
+* This library's minified version is about 5 times larger than big.js's minified version. So the library is not small. 
+
 ## Installation
 
 ```
