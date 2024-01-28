@@ -1992,6 +1992,81 @@ export class BigDecimal {
         }
     }
 
+    /**
+     * Returns a `BigDecimal` whose value is `(this /
+     * divisor)`, with rounding according to the context settings.
+     *
+     * @param divisor value by which this `BigDecimal` is to be divided.
+     * This value will be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @param mc the context to use.
+     * @throws RangeError if the exact quotient does not have a
+     *         terminating decimal expansion, including dividing by zero
+     * @return `this / divisor`
+     */
+    divideWithMathContext(divisor: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        divisor = BigDecimal.convertToBigDecimal(divisor);
+        if (divisor.signum() === 0) { // x/0
+            if (this.signum() === 0) // 0/0
+                throw new RangeError('Division undefined'); // NaN
+            throw new RangeError('Division by zero');
+        }
+        if (!mc || (mc && mc.precision === 0)) {
+            const preferredScale = BigDecimal.saturateScale(this._scale - divisor._scale);
+
+            if (this.signum() === 0)
+                return BigDecimal.zeroValueOf(preferredScale);
+            else {
+                const mc = new MathContext(
+                    Math.min(this.precision() + Math.ceil(10.0 * divisor.precision() / 3.0), Number.MAX_SAFE_INTEGER),
+                    RoundingMode.UNNECESSARY
+                );
+                let quotient: BigDecimal;
+                try {
+                    quotient = this.divideWithMathContext(divisor, mc);
+                } catch (e) {
+                    throw new RangeError('Non-terminating decimal expansion; no exact representable decimal result.');
+                }
+
+                const quotientScale = quotient._scale;
+
+                if (preferredScale > quotientScale)
+                    return quotient.setScale(preferredScale, RoundingMode.UNNECESSARY);
+                return quotient;
+            }
+        }
+        const preferredScale = this._scale - divisor._scale;
+        // Now calculate the answer.  We use the existing
+        // divide-and-round method, but as this rounds to scale we have
+        // to normalize the values here to achieve the desired result.
+        // For x/y we first handle y=0 and x=0, and then normalize x and
+        // y to give x' and y' with the following constraints:
+        //   (a) 0.1 <= x' < 1
+        //   (b)  x' <= y' < 10*x'
+        // Dividing x'/y' with the required scale set to mc.precision then
+        // will give a result in the range 0.1 to 1 rounded to exactly
+        // the right number of digits (except in the case of a result of
+        // 1.000... which can arise when x=y, or when rounding overflows
+        // The 1.000... case will reduce properly to 1.
+        if (this.signum() === 0)
+            return BigDecimal.zeroValueOf(BigDecimal.saturateScale(preferredScale));
+        const xscale = this.precision();
+        const yscale = divisor.precision();
+        if (this.intCompact !== BigDecimal.INFLATED) {
+            if (divisor.intCompact !== BigDecimal.INFLATED) {
+                return BigDecimal.divide2(this.intCompact, xscale, divisor.intCompact, yscale, preferredScale, mc);
+            } else {
+                return BigDecimal.divide3(this.intCompact, xscale, divisor.intVal!, yscale, preferredScale, mc);
+            }
+        } else {
+            if (divisor.intCompact !== BigDecimal.INFLATED) {
+                return BigDecimal.divide4(this.intVal!, xscale, divisor.intCompact, yscale, preferredScale, mc);
+            } else {
+                return BigDecimal.divide5(this.intVal!, xscale, divisor.intVal!, yscale, preferredScale, mc);
+            }
+        }
+    }
+
     /** @internal */
     private static multiply1(x: number, y: number): number {
         const product = x * y;
@@ -2586,6 +2661,22 @@ export class BigDecimal {
     }
 
     /**
+     * Returns the size of an ulp, a unit in the last place, of this
+     * `BigDecimal`.  An ulp of a nonzero `BigDecimal`
+     * value is the positive distance between this value and the
+     * `BigDecimal` value next larger in magnitude with the
+     * same number of digits.  An ulp of a zero value is numerically
+     * equal to 1 with the scale of `this`.  The result is
+     * stored with the same scale as `this` so the result
+     * for zero and nonzero values is equal to `[1, this.scale()]`.
+     *
+     * @return the size of an ulp of `this`
+     */
+    ulp(): BigDecimal {
+        return BigDecimal.fromInteger2(1, this._scale, 1);
+    }
+
+    /**
      * Returns signum of a bigint. If negative -1 returned, if positive 1 returned, if zero 0 returned.
      * @param val
      * @internal
@@ -2650,6 +2741,20 @@ export class BigDecimal {
      */
     scale(): number {
         return this._scale;
+    }
+
+    /**
+     * Returns a BigDecimal whose numerical value is equal to
+     * (`this` * 10<sup>n</sup>).  The scale of
+     * the result is `(this.scale() - n)`.
+     *
+     * @param n the exponent power of ten to scale by
+     * @return a BigDecimal whose numerical value is equal to
+     * (`this` * 10<sup>n</sup>)
+     * @throws RangeError if the scale would be outside the range of a safe integer.
+     */
+    scaleByPowerOfTen(n: number): BigDecimal {
+        return new BigDecimal(this.intVal, this.intCompact, this.checkScale(this._scale - n), this._precision);
     }
 
     /**
