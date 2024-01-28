@@ -1992,81 +1992,6 @@ export class BigDecimal {
         }
     }
 
-    /**
-     * Returns a `BigDecimal` whose value is `(this /
-     * divisor)`, with rounding according to the context settings.
-     *
-     * @param divisor value by which this `BigDecimal` is to be divided.
-     * This value will be converted to a `BigDecimal` before the operation.
-     * See the {@link Big | constructor} to learn more about the conversion.
-     * @param mc the context to use.
-     * @throws RangeError if the exact quotient does not have a
-     *         terminating decimal expansion, including dividing by zero
-     * @return `this / divisor`
-     */
-    divideWithMathContext(divisor: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
-        divisor = BigDecimal.convertToBigDecimal(divisor);
-        if (divisor.signum() === 0) { // x/0
-            if (this.signum() === 0) // 0/0
-                throw new RangeError('Division undefined'); // NaN
-            throw new RangeError('Division by zero');
-        }
-        if (!mc || (mc && mc.precision === 0)) {
-            const preferredScale = BigDecimal.saturateScale(this._scale - divisor._scale);
-
-            if (this.signum() === 0)
-                return BigDecimal.zeroValueOf(preferredScale);
-            else {
-                const mc = new MathContext(
-                    Math.min(this.precision() + Math.ceil(10.0 * divisor.precision() / 3.0), Number.MAX_SAFE_INTEGER),
-                    RoundingMode.UNNECESSARY
-                );
-                let quotient: BigDecimal;
-                try {
-                    quotient = this.divideWithMathContext(divisor, mc);
-                } catch (e) {
-                    throw new RangeError('Non-terminating decimal expansion; no exact representable decimal result.');
-                }
-
-                const quotientScale = quotient._scale;
-
-                if (preferredScale > quotientScale)
-                    return quotient.setScale(preferredScale, RoundingMode.UNNECESSARY);
-                return quotient;
-            }
-        }
-        const preferredScale = this._scale - divisor._scale;
-        // Now calculate the answer.  We use the existing
-        // divide-and-round method, but as this rounds to scale we have
-        // to normalize the values here to achieve the desired result.
-        // For x/y we first handle y=0 and x=0, and then normalize x and
-        // y to give x' and y' with the following constraints:
-        //   (a) 0.1 <= x' < 1
-        //   (b)  x' <= y' < 10*x'
-        // Dividing x'/y' with the required scale set to mc.precision then
-        // will give a result in the range 0.1 to 1 rounded to exactly
-        // the right number of digits (except in the case of a result of
-        // 1.000... which can arise when x=y, or when rounding overflows
-        // The 1.000... case will reduce properly to 1.
-        if (this.signum() === 0)
-            return BigDecimal.zeroValueOf(BigDecimal.saturateScale(preferredScale));
-        const xscale = this.precision();
-        const yscale = divisor.precision();
-        if (this.intCompact !== BigDecimal.INFLATED) {
-            if (divisor.intCompact !== BigDecimal.INFLATED) {
-                return BigDecimal.divide2(this.intCompact, xscale, divisor.intCompact, yscale, preferredScale, mc);
-            } else {
-                return BigDecimal.divide3(this.intCompact, xscale, divisor.intVal!, yscale, preferredScale, mc);
-            }
-        } else {
-            if (divisor.intCompact !== BigDecimal.INFLATED) {
-                return BigDecimal.divide4(this.intVal!, xscale, divisor.intCompact, yscale, preferredScale, mc);
-            } else {
-                return BigDecimal.divide5(this.intVal!, xscale, divisor.intVal!, yscale, preferredScale, mc);
-            }
-        }
-    }
-
     /** @internal */
     private static multiply1(x: number, y: number): number {
         const product = x * y;
@@ -2307,132 +2232,6 @@ export class BigDecimal {
     }
 
     /**
-     * Returns a `BigDecimal` whose value is the integer part
-     * of `(this / divisor)`.  Since the integer part of the
-     * exact quotient does not depend on the rounding mode, the
-     * rounding mode does not affect the values returned by this
-     * method.  The preferred scale of the result is
-     * `(this.scale() - divisor.scale())`. A
-     * `RangeError` is thrown if the integer part of
-     * the exact quotient needs more than `mc.precision`
-     * digits.
-     *
-     * @param divisor value by which this `BigDecimal` is to be divided.
-     * This value will be converted to a `BigDecimal` before the operation.
-     * See the {@link Big | constructor} to learn more about the conversion.
-     * @param mc the context to use.
-     * @return The integer part of `this / divisor`.
-     * @throws RangeError if divisor is 0
-     * @throws RangeError if `mc.precision > 0` and the result
-     *         requires a precision of more than `mc.precision` digits.
-     */
-    divideToIntegralValue(divisor: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
-        divisor = BigDecimal.convertToBigDecimal(divisor);
-        if (!mc || (mc && (mc.precision === 0 || this.compareMagnitude(divisor) < 0))) {
-            // Calculate preferred scale
-            const preferredScale = BigDecimal.saturateScale(this._scale - divisor._scale);
-            if (this.compareMagnitude(divisor) < 0) {
-                // much faster when this << divisor
-                return BigDecimal.zeroValueOf(preferredScale);
-            }
-
-            if (this.signum() === 0 && divisor.signum() !== 0)
-                return this.setScale(preferredScale, RoundingMode.UNNECESSARY);
-
-            // Perform a divide with enough digits to round to a correct
-            // integer value; then remove any fractional digits
-            const maxDigits = Math.min(
-                this.precision() + Math.ceil(10.0 * divisor.precision() / 3.0) + Math.abs(this._scale - divisor._scale) + 2,
-                Number.MAX_SAFE_INTEGER
-            );
-            let quotient = this.divideWithMathContext(divisor, new MathContext(maxDigits, RoundingMode.DOWN));
-            if (quotient._scale > 0) {
-                quotient = quotient.setScale(0, RoundingMode.DOWN);
-                quotient = BigDecimal.stripZerosToMatchScale(
-                    quotient.intVal!, quotient.intCompact, quotient._scale, preferredScale
-                );
-            }
-
-            if (quotient._scale < preferredScale) {
-                // pad with zeros if necessary
-                quotient = quotient.setScale(preferredScale, RoundingMode.UNNECESSARY);
-            }
-
-            return quotient;
-        }
-
-        // Calculate preferred scale
-        const preferredScale = BigDecimal.saturateScale(this._scale - divisor._scale);
-
-        /*
-         * Perform a normal divide to mc.precision digits.  If the
-         * remainder has absolute value less than the divisor, the
-         * integer portion of the quotient fits into mc.precision
-         * digits.  Next, remove any fractional digits from the
-         * quotient and adjust the scale to the preferred value.
-         */
-        let result = this.divideWithMathContext(divisor, new MathContext(mc.precision, RoundingMode.DOWN));
-
-        if (result._scale < 0) {
-            /*
-             * Result is an integer. See if quotient represents the
-             * full integer portion of the exact quotient; if it does,
-             * the computed remainder will be less than the divisor.
-             */
-            const product = result.multiply(divisor);
-            // If the quotient is the full integer value,
-            // |dividend-product| < |divisor|.
-            if (this.subtract(product).compareMagnitude(divisor) >= 0) {
-                throw new RangeError('Division impossible');
-            }
-        } else if (result._scale > 0) {
-            /*
-             * Integer portion of quotient will fit into precision
-             * digits; recompute quotient to scale 0 to avoid double
-             * rounding and then try to adjust, if necessary.
-             */
-            result = result.setScale(0, RoundingMode.DOWN);
-        }
-        // else result.scale() == 0;
-
-        let precisionDiff;
-        if ((preferredScale > result._scale) &&
-            (precisionDiff = mc.precision - result.precision()) > 0) {
-            return result.setScale(result._scale + Math.min(precisionDiff, preferredScale - result._scale));
-        } else {
-            return BigDecimal.stripZerosToMatchScale(result.intVal!, result.intCompact, result._scale, preferredScale);
-        }
-    }
-
-    /**
-     * Returns a `BigDecimal` whose value is `(this % divisor)`, with rounding according to the context settings.
-     * The `MathContext` settings affect the implicit divide
-     * used to compute the remainder.  The remainder computation
-     * itself is by definition exact.  Therefore, the remainder may
-     * contain more than `mc.getPrecision()` digits.
-     *
-     * The remainder is given by
-     * `this.subtract(this.divideToIntegralValue(divisor,
-     * mc).multiply(divisor))`.  Note that this is not the modulo
-     * operation (the result can be negative).
-     *
-     * @param divisor value by which this `BigDecimal` is to be divided.
-     * This value will be converted to a `BigDecimal` before the operation.
-     * See the {@link Big | constructor} to learn more about the conversion.
-     * @param mc the context to use.
-     * @return `this % divisor`, rounded as necessary.
-     * @throws RangeError if divisor is 0
-     * @throws RangeError if the result is inexact but the
-     *         rounding mode is `UNNECESSARY`, or `mc.precision`
-     *         > 0 and the result of `this.divideToIntegralValue(divisor)` would
-     *         require a precision of more than `mc.precision` digits.
-     * @see    {@link divideToIntegralValue}
-     */
-    remainder(divisor: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
-        return this.divideAndRemainder(divisor, mc)[1];
-    }
-
-    /**
      * Version of compareTo that ignores sign.
      * @internal
      */
@@ -2526,42 +2325,6 @@ export class BigDecimal {
             return xs === BigDecimal.compactValFor(this.intVal!);
 
         return this.inflated() === value.inflated();
-    }
-
-    /**
-     * Returns a two-element `BigDecimal` array containing the
-     * result of `divideToIntegralValue` followed by the result of
-     * `remainder` on the two operands calculated with rounding
-     * according to the context settings.
-     *
-     * Note that if both the quotient and remainder are
-     * needed, this method is faster than using the
-     * `divideToIntegralValue` and `remainder` methods
-     * separately because the division need only be carried out once.
-     *
-     * @param divisor value by which this `BigDecimal` is to be divided,
-     *         and the remainder computed. This value will be converted to a
-     *         `BigDecimal` before the operation. See the
-     *         {@link Big | constructor} to learn more about the conversion.
-     * @param mc the context to use.
-     * @return a two element `BigDecimal` array: the quotient
-     *         (the result of `divideToIntegralValue`) is the
-     *         initial element and the remainder is the final element.
-     * @throws RangeError if divisor is 0
-     * @throws RangeError if the result is inexact but the
-     *         rounding mode is `UNNECESSARY`, or `mc.precision > 0`
-     *         and the result of `this.divideToIntegralValue(divisor)` would
-     *         require a precision of more than `mc.precision` digits.
-     * @see    {@link divideToIntegralValue}
-     * @see    {@link remainder}
-     */
-    divideAndRemainder(divisor: BigDecimal | bigint | number | string, mc?: MathContext): [BigDecimal, BigDecimal] {
-        divisor = BigDecimal.convertToBigDecimal(divisor);
-        const result = new Array<BigDecimal>(2);
-
-        result[0] = this.divideToIntegralValue(divisor, mc);
-        result[1] = this.subtract(result[0].multiply(divisor));
-        return <[BigDecimal, BigDecimal]>result;
     }
 
     /**
@@ -2823,22 +2586,6 @@ export class BigDecimal {
     }
 
     /**
-     * Returns the size of an ulp, a unit in the last place, of this
-     * `BigDecimal`.  An ulp of a nonzero `BigDecimal`
-     * value is the positive distance between this value and the
-     * `BigDecimal` value next larger in magnitude with the
-     * same number of digits.  An ulp of a zero value is numerically
-     * equal to 1 with the scale of `this`.  The result is
-     * stored with the same scale as `this` so the result
-     * for zero and nonzero values is equal to `[1, this.scale()]`.
-     *
-     * @return the size of an ulp of `this`
-     */
-    ulp(): BigDecimal {
-        return BigDecimal.fromInteger2(1, this._scale, 1);
-    }
-
-    /**
      * Returns signum of a bigint. If negative -1 returned, if positive 1 returned, if zero 0 returned.
      * @param val
      * @internal
@@ -2903,20 +2650,6 @@ export class BigDecimal {
      */
     scale(): number {
         return this._scale;
-    }
-
-    /**
-     * Returns a BigDecimal whose numerical value is equal to
-     * (`this` * 10<sup>n</sup>).  The scale of
-     * the result is `(this.scale() - n)`.
-     *
-     * @param n the exponent power of ten to scale by
-     * @return a BigDecimal whose numerical value is equal to
-     * (`this` * 10<sup>n</sup>)
-     * @throws RangeError if the scale would be outside the range of a safe integer.
-     */
-    scaleByPowerOfTen(n: number): BigDecimal {
-        return new BigDecimal(this.intVal, this.intCompact, this.checkScale(this._scale - n), this._precision);
     }
 
     /**
@@ -3588,81 +3321,6 @@ export class BigDecimal {
     }
 
     /**
-     * Returns a `BigDecimal` which is equivalent to this one
-     * with the decimal point moved `n` places to the left.  If
-     * `n` is non-negative, the call merely adds `n` to
-     * the scale.  If `n` is negative, the call is equivalent
-     * to `movePointRight(-n)`.  The `BigDecimal`
-     * returned by this call has value <code>(this &times;
-     * 10<sup>-n</sup>)</code> and scale `max(this.scale()+n,
-     * 0)`.
-     *
-     * @param n number of places to move the decimal point to the left.
-     * @return a `BigDecimal` which is equivalent to this one with the
-     *         decimal point moved `n` places to the left.
-     * @throws RangeError if scale overflows.
-     */
-    movePointLeft(n: number): BigDecimal {
-        if (n === 0) return this;
-
-        // Cannot use movePointRight(-n) in case of n==BigDecimal.MIN_INT_VALUE
-        const newScale = this.checkScale(this._scale + n);
-        const num = new BigDecimal(this.intVal, this.intCompact, newScale, 0);
-        return num._scale < 0 ? num.setScale(0, RoundingMode.UNNECESSARY) : num;
-    }
-
-    /**
-     * Returns a `BigDecimal` which is equivalent to this one
-     * with the decimal point moved `n` places to the right.
-     * If `n` is non-negative, the call merely subtracts
-     * `n` from the scale.  If `n` is negative, the call
-     * is equivalent to `movePointLeft(-n)`.  The
-     * `BigDecimal` returned by this call has value <code>(this
-     * &times; 10<sup>n</sup>)</code> and scale `max(this.scale()-n, 0)`.
-     *
-     * @param n number of places to move the decimal point to the right.
-     * @return a `BigDecimal` which is equivalent to this one
-     *         with the decimal point moved `n` places to the right.
-     * @throws RangeError if scale overflows.
-     */
-    movePointRight(n: number): BigDecimal {
-        if (n === 0) return this;
-
-        // Cannot use movePointLeft(-n) in case of n==BigDecimal.MIN_INT_VALUE
-        const newScale = this.checkScale(this._scale - n);
-        const num = new BigDecimal(this.intVal, this.intCompact, newScale, 0);
-        return num._scale < 0 ? num.setScale(0, RoundingMode.UNNECESSARY) : num;
-    }
-
-    /**
-     * Returns the minimum of this `BigDecimal` and `val`.
-     *
-     * @param val value with which the minimum is to be computed.
-     * @return the `BigDecimal` whose value is the lesser of this
-     *         `BigDecimal` and `val`.  If they are equal,
-     *         as defined by the {@link compareTo}
-     *         method, `this` is returned.
-     * @see    {@link compareTo}
-     */
-    min(val: BigDecimal): BigDecimal {
-        return (this.compareTo(val) <= 0 ? this : val);
-    }
-
-    /**
-     * Returns the maximum of this `BigDecimal` and `val`.
-     *
-     * @param val value with which the maximum is to be computed.
-     * @return the `BigDecimal` whose value is the greater of this
-     *         `BigDecimal` and `val`.  If they are equal,
-     *         as defined by the {@link compareTo}
-     *         method, `this` is returned.
-     * @see    {@link compareTo}
-     */
-    max(val: BigDecimal): BigDecimal {
-        return (this.compareTo(val) >= 0 ? this : val);
-    }
-
-    /**
      * Returns the string representation of this `BigDecimal`,
      * using scientific notation if an exponent is needed.
      *
@@ -3752,32 +3410,6 @@ export class BigDecimal {
             this.stringCache = sc = this.layoutString(true);
         }
         return sc;
-    }
-
-    /**
-     * Returns a string representation of this `BigDecimal`,
-     * using engineering notation if an exponent is needed.
-     *
-     * Returns a string that represents the `BigDecimal` as
-     * described in the {@link toString} method, except that if
-     * exponential notation is used, the power of ten is adjusted to
-     * be a multiple of three (engineering notation) such that the
-     * integer part of nonzero values will be in the range 1 through
-     * 999.  If exponential notation is used for zero values, a
-     * decimal point and one or two fractional zero digits are used so
-     * that the scale of the zero value is preserved.  Note that
-     * unlike the output of {@link toString}, the output of this
-     * method is <em>not</em> guaranteed to recover the same [number,
-     * scale] pair of this `BigDecimal` if the output string is
-     * converting back to a `BigDecimal` using the string constructor.
-     * The result of this method meets the weaker constraint of always producing a numerically equal
-     * result from applying the string constructor to the method's output.
-     *
-     * @return string representation of this `BigDecimal`, using
-     *         engineering notation if an exponent is needed.
-     */
-    toEngineeringString(): string {
-        return this.layoutString(false);
     }
 
     /**
@@ -3888,122 +3520,6 @@ export class BigDecimal {
             }
         }
         return str;
-    }
-
-    /**
-     * Returns a string representation of this `BigDecimal`
-     * without an exponent field.  For values with a positive scale,
-     * the number of digits to the right of the decimal point is used
-     * to indicate scale.  For values with a zero or negative scale,
-     * the resulting string is generated as if the value were
-     * converted to a numerically equal value with zero scale and as
-     * if all the trailing zeros of the zero scale value were present
-     * in the result.
-     *
-     * The entire string is prefixed by a minus sign character '-'
-     * (<code>'&#92;u002D'</code>) if the unscaled value is less than
-     * zero. No sign character is prefixed if the unscaled value is
-     * zero or positive.
-     *
-     * Note that if the result of this method is passed to the
-     * string constructor, only the
-     * numerical value of this `BigDecimal` will necessarily be
-     * recovered; the representation of the new `BigDecimal`
-     * may have a different scale.  In particular, if this
-     * `BigDecimal` has a negative scale, the string resulting
-     * from this method will have a scale of zero when processed by
-     * the string constructor.
-     *
-     * @return a string representation of this `BigDecimal`
-     * without an exponent field.
-     * @see {@link toString}
-     * @see {@link toEngineeringString}
-     */
-    toPlainString(): string {
-        if (this._scale === 0) {
-            if (this.intCompact !== BigDecimal.INFLATED) {
-                return this.intCompact.toString();
-            } else {
-                return this.intVal!.toString();
-            }
-        }
-        if (this._scale < 0) { // No decimal point
-            if (this.signum() === 0) {
-                return '0';
-            }
-            const trailingZeros = this.checkScale(-this._scale);
-            let buf = '';
-            if (this.intCompact !== BigDecimal.INFLATED) {
-                buf += this.intCompact.toString();
-            } else {
-                buf += this.intVal!.toString();
-            }
-            for (let i = 0; i < trailingZeros; i++) {
-                buf += '0';
-            }
-            return buf;
-        }
-        let str;
-        if (this.intCompact !== BigDecimal.INFLATED) {
-            str = Math.abs(this.intCompact).toString();
-        } else {
-            str = BigDecimal.bigIntAbs(this.intVal!).toString();
-        }
-        return BigDecimal.getValueString(this.signum(), str, this._scale);
-    }
-
-    /**
-     * Returns a digit.digit string
-     * @internal
-     */
-    private static getValueString(signum: number, intString: string, scale: number): string {
-        /* Insert decimal point */
-        let buf = '';
-        const insertionPoint = intString.length - scale;
-        if (insertionPoint === 0) { /* Point goes right before intVal */
-            return (signum < 0 ? '-0.' : '0.') + intString;
-        } else if (insertionPoint > 0) { /* Point goes inside intVal */
-            buf = intString.slice(0, insertionPoint) + '.' + intString.slice(insertionPoint);
-            if (signum < 0)
-                buf = '-' + buf;
-        } else { /* We must insert zeros between point and intVal */
-            buf += signum < 0 ? '-0.' : '0.';
-            for (let i = 0; i < -insertionPoint; i++) {
-                buf += '0';
-            }
-            buf += intString;
-        }
-        return buf.toString();
-    }
-
-    /**
-     * Converts this `BigDecimal` to a `BigInt`.
-     * Any fractional part of this will be discarded.  Note that this
-     * conversion can lose information about the precision of the
-     * `BigDecimal` value.
-     *
-     * To have an exception thrown if the conversion is inexact (in
-     * other words if a nonzero fractional part is discarded), use the
-     * {@link toBigIntExact} method.
-     *
-     * @return this `BigDecimal` converted to a `BigInt`.
-     */
-    toBigInt(): bigint {
-        // force to an integer, quietly
-        return this.setScale(0, RoundingMode.DOWN).inflated();
-    }
-
-    /**
-     * Converts this `BigDecimal` to a `BigInt`,
-     * checking for lost information.  An exception is thrown if this
-     * `BigDecimal` has a nonzero fractional part.
-     *
-     * @return this `BigDecimal` converted to a `BigInt`.
-     * @throws RangeError if `this` has a nonzero fractional part.
-     */
-    toBigIntExact(): bigint {
-        // round to an integer, with Exception if decimal part non-0
-        return this.setScale(0, RoundingMode.UNNECESSARY).inflated();
     }
 
     /**
