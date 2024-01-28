@@ -9,7 +9,8 @@
   "main": "lib/bigdecimal.js",
   "module": "lib/bigdecimal.mjs",
   "scripts": {
-    "test": "mocha --require ts-node/register --require source-map-support/register -t 100000 test/**/**/*.js",
+    "test": "mocha --require ts-node/register/transpile-only --require source-map-support/register -t 100000 test/**/**/*.js",
+    "coverage": "nyc npm run test",
     "precompile": "rimraf lib",
     "compile": " npm run compile:cjs && npm run compile:esm && npm run prepareESM",
     "compile:esm": "tsc --module es2020 --outDir lib/esm",
@@ -58,6 +59,7 @@
   },
   "homepage": "https://srknzl.github.io/bigdecimal.js/",
   "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
     "benchmark": "^2.1.4",
@@ -68,6 +70,7 @@
     "decimal.js": "^10.4.2",
     "eslint": "^8.56.0",
     "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
     "rimraf": "^5.0.5",
     "source-map-support": "^0.5.21",
     "ts-node": "^10.9.2",
