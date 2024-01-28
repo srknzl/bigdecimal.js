@@ -1,6 +1,6 @@
 {
   "name": "bigdecimal.js",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "A BigDecimal implementation with native BigInts",
   "exports": {
     "import": "./lib/bigdecimal.mjs",
