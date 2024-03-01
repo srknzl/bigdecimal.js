@@ -67,7 +67,7 @@
     "big.js": "^6.2.1",
     "bigdecimal": "^0.6.1",
     "bignumber.js": "^9.1.2",
-    "chai": "^4.3",
+    "chai": "^5.1",
     "decimal.js": "^10.4.3",
     "eslint": "^8.56.0",
     "mocha": "^10.2.0",
