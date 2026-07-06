@@ -1,9 +1,8 @@
 'use strict';
 // Run this script to generate all test cases in output directory
-const util = require('util');
 const fs = require('fs');
 const path = require('path');
-const exec = util.promisify(require('child_process').exec);
+const { spawnSync } = require('child_process');
 
 const testNumbers = require('./testNumbers');
 
@@ -11,7 +10,6 @@ const repeatCountForRandomTests = 10;
 const maxPrecision = 1000;
 const smallScale = 1000;
 const maxRoundingMode = 8;
-const maxPromiseSize = 1000; // defines concurrency, repeatCountForRandomTests should divide this number
 const maxPowNumber = 9999; // too big pow is not good for BigInt
 const maxPoint = 1000;
 const minPoint = -1000;
@@ -20,7 +18,6 @@ const minScale = 2147483648;
 const numberOfToStringTests = 2000;
 
 const numberSet = new Set();
-let counter = 0;
 
 /**
  * Returns errorThrown string
@@ -32,51 +29,6 @@ function getErrorResult(twoResult) {
     } else {
         return 'errorThrown';
     }
-}
-
-/**
- * Run java to calculate correct result
- *
- * @param name name of the test
- * @param args [first decimal string, second decimal string, precision, rounding mode] where the last two elements are optional
- * @param twoResult Whether two result should be returned
- * @return the execution result
- */
-async function runJava(name, args, twoResult) {
-    try {
-        const classPath = path.join(__dirname, 'com', name);
-
-        let command = `java -cp ${classPath} Main ${args[0]} ${args[1]}`;
-        if (args.length > 2) {
-            command += ` ${args[2]} ${args[3]}`;
-        }
-        const { stdout, stderr } = await exec(command);
-        if (stderr !== '') {
-            return getErrorResult(twoResult);
-        }
-        if (twoResult) {
-            return stdout.trim().split(' ');
-        } else {
-            return stdout.trim();
-        }
-    } catch (e) {
-        return getErrorResult(twoResult);
-    }
-}
-
-/**
- * Generate test cases and append them to to the testCasesArray
- *
- * @param name Name of the test
- * @param args Test args
- * @param testCasesArray The results will be appended to this one
- * @param twoResult Whether two result should be generated
- */
-async function generateTest(name, args, testCasesArray, twoResult) {
-    const result = await runJava(name, args, twoResult);
-    testCasesArray.push({ args: args, result: result });
-    counter++;
-    if (counter % maxPromiseSize === 0) console.log(counter);
 }
 
 /**
@@ -126,16 +78,31 @@ async function generateJsonFile(name, randomize, outputDir, twoResult, testNumbe
                 }
             }
         }
-        const batches = generateBatches(testArgs, maxPromiseSize);
-
-        for (const batch of batches) {
-            let indexCounter = 0;
-            const jobs = new Array(batch.length);
-            for (const args of batch) {
-                jobs[indexCounter] = generateTest(name, args, testCases, twoResult);
-                indexCounter++;
+        // One JVM per operation: stream every case through stdin (one
+        // space-separated arg list per line) and read one result line per case.
+        // This replaces the old one-JVM-per-case model (~549k JVM startups).
+        const input = testArgs.map((args) => args.join(' ')).join('\n') + '\n';
+        const classPath = path.join(__dirname, 'batch');
+        const res = spawnSync('java', ['-cp', classPath, 'Main', name], {
+            input,
+            encoding: 'utf8',
+            maxBuffer: 1024 * 1024 * 1024, // 1 GB — pow output alone is ~19 MB
+        });
+        if (res.status !== 0) {
+            throw new Error(`java exited ${res.status} for ${name}: ${res.stderr}`);
+        }
+        const lines = res.stdout.split('\n');
+        for (let i = 0; i < testArgs.length; i++) {
+            const line = lines[i];
+            let result;
+            if (line === 'errorThrown') {
+                result = getErrorResult(twoResult);
+            } else if (twoResult) {
+                result = line.split(' ');
+            } else {
+                result = line;
             }
-            await Promise.all(jobs);
+            testCases.push({ args: testArgs[i], result });
         }
 
         fs.writeFileSync(fileName, JSON.stringify(testCases));
@@ -407,23 +374,6 @@ function generateRandomBigInt() {
     return result;
 }
 
-/**
- * Generates batches for better parallel execution
- */
-function generateBatches(testArgs, maxPromiseSize) {
-    const batches = new Array(Math.ceil(testArgs.length / maxPromiseSize));
-
-    for (let testCounter = 0, batchCounter = 0; testCounter < testArgs.length; batchCounter++) {
-        const jobs = new Array(Math.min(1000, testArgs.length - testCounter)); // at most 1000 sized array
-        for (let j = 0; j < jobs.length; j++, testCounter++) {
-            jobs[j] = testArgs[testCounter];
-        }
-        batches[batchCounter] = jobs;
-    }
-
-    return batches;
-};
-
 async function run() {
 
     const outputDir = path.join(__dirname, 'output');
@@ -444,7 +394,6 @@ async function run() {
             testCaseMethods[name].twoResult,
             testCaseMethods[name].twoOp ? testNumbers : numberSet
         );
-        counter = 0;
     }
 }
 
