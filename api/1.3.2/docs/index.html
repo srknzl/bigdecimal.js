@@ -1,0 +1,165 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>bigdecimal.js</title><meta name="description" content="Documentation for bigdecimal.js"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">bigdecimal.js</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h2>bigdecimal.js</h2></div><div class="tsd-panel tsd-typography"><a id="md:bigdecimaljs" class="tsd-anchor"></a><h1><a href="#md:bigdecimaljs">BigDecimal.js</a></h1><p><a href="https://npmjs.org/package/bigdecimal.js"><img src="https://img.shields.io/npm/v/bigdecimal.js.svg" alt="NPM Version"></a>
+<a href="https://npmcharts.com/compare/bigdecimal.js?minimal=true"><img src="https://img.shields.io/npm/dm/bigdecimal.js.svg" alt="NPM Downloads"></a>
+<a href="https://codecov.io/gh/srknzl/bigdecimal.js"><img src="https://codecov.io/gh/srknzl/bigdecimal.js/branch/main/graph/badge.svg?token=Y9PL8TFV2L" alt="codecov"></a></p>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt">BigInt</a> based BigDecimal implementation for Node.js 10.4 and above.
+This implementation is inspired from java BigDecimal class. This implementation is faster than popular big decimal libraries for most operations.
+See <a href="https://github.com/srknzl/bigdecimal.js#benchmark-results">benchmarks results part below</a> for comparison of each operation.</p>
+<a id="md:advantages-of-this-library" class="tsd-anchor"></a><h2><a href="#md:advantages-of-this-library">Advantages of this library</a></h2><ul>
+<li>Faster than other BigDecimal libraries because of native BigInt</li>
+<li>Simple API that is almost same with Java&#39;s <a href="https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/math/BigDecimal.html">BigDecimal</a></li>
+<li>No dependencies</li>
+<li>Well tested</li>
+<li>Includes type definition file</li>
+</ul>
+<a id="md:disadvantages" class="tsd-anchor"></a><h2><a href="#md:disadvantages">Disadvantages</a></h2><ul>
+<li>This library&#39;s minified version is about 5 times larger than big.js&#39;s minified version. So the library is not small.</li>
+</ul>
+<a id="md:installation" class="tsd-anchor"></a><h2><a href="#md:installation">Installation</a></h2><pre><code><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-0">install</span><span class="hl-1"> </span><span class="hl-0">bigdecimal</span><span class="hl-1">.</span><span class="hl-0">js</span>
+</code><button>Copy</button></pre>
+<a id="md:usage" class="tsd-anchor"></a><h2><a href="#md:usage">Usage</a></h2><ul>
+<li>The example usage is given below:</li>
+</ul>
+<pre><code class="language-javascript"><span class="hl-2">// Single unified constructor for multiple values</span><br/><span class="hl-3">const</span><span class="hl-1"> { </span><span class="hl-4">Big</span><span class="hl-1"> } = </span><span class="hl-5">require</span><span class="hl-1">(</span><span class="hl-6">&#39;bigdecimal.js&#39;</span><span class="hl-1">);</span><br/><br/><span class="hl-2">// Construct from a string and clone it</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">x</span><span class="hl-1"> = </span><span class="hl-5">Big</span><span class="hl-1">(</span><span class="hl-6">&#39;1.1111111111111111111111&#39;</span><span class="hl-1">);</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">y</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-5">Big</span><span class="hl-1">(</span><span class="hl-0">x</span><span class="hl-1">); </span><span class="hl-2">// you can also use &#39;new&#39;</span><br/><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">z</span><span class="hl-1"> = </span><span class="hl-0">x</span><span class="hl-1">.</span><span class="hl-5">add</span><span class="hl-1">(</span><span class="hl-0">y</span><span class="hl-1">);</span><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">z</span><span class="hl-1">.</span><span class="hl-5">toString</span><span class="hl-1">()); </span><span class="hl-2">// 2.2222222222222222222222</span><br/><br/><span class="hl-2">// You can also construct from a number or BigInt:</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">u</span><span class="hl-1"> = </span><span class="hl-5">Big</span><span class="hl-1">(</span><span class="hl-7">1.1</span><span class="hl-1">);</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">v</span><span class="hl-1"> = </span><span class="hl-5">Big</span><span class="hl-1">(</span><span class="hl-7">2</span><span class="hl-3">n</span><span class="hl-1">);</span><br/><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">u</span><span class="hl-1">.</span><span class="hl-5">toString</span><span class="hl-1">()); </span><span class="hl-2">// 1.1</span><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">v</span><span class="hl-1">.</span><span class="hl-5">toString</span><span class="hl-1">()); </span><span class="hl-2">// 2</span>
+</code><button>Copy</button></pre>
+<p>You can use MathContext to set precision and rounding mode for a specific operation:</p>
+<pre><code class="language-javascript"><span class="hl-3">const</span><span class="hl-1"> { </span><span class="hl-4">Big</span><span class="hl-1">, </span><span class="hl-4">MC</span><span class="hl-1">, </span><span class="hl-4">RoundingMode</span><span class="hl-1"> } = </span><span class="hl-5">require</span><span class="hl-1">(</span><span class="hl-6">&#39;bigdecimal.js&#39;</span><span class="hl-1">);</span><br/><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">x</span><span class="hl-1"> = </span><span class="hl-5">Big</span><span class="hl-1">(</span><span class="hl-6">&#39;1&#39;</span><span class="hl-1">);</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">y</span><span class="hl-1"> = </span><span class="hl-5">Big</span><span class="hl-1">(</span><span class="hl-6">&#39;3&#39;</span><span class="hl-1">);</span><br/><br/><span class="hl-2">// MC is MathContext constructor that can be used with or without `new`</span><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">res1</span><span class="hl-1"> = </span><span class="hl-0">x</span><span class="hl-1">.</span><span class="hl-5">divideWithMathContext</span><span class="hl-1">(</span><span class="hl-0">y</span><span class="hl-1">, </span><span class="hl-5">MC</span><span class="hl-1">(</span><span class="hl-7">3</span><span class="hl-1">)); </span><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">res1</span><span class="hl-1">.</span><span class="hl-5">toString</span><span class="hl-1">()); </span><span class="hl-2">// 0.333</span><br/><br/><span class="hl-3">const</span><span class="hl-1"> </span><span class="hl-4">res2</span><span class="hl-1"> = </span><span class="hl-0">x</span><span class="hl-1">.</span><span class="hl-5">divideWithMathContext</span><span class="hl-1">(</span><span class="hl-0">y</span><span class="hl-1">, </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-5">MC</span><span class="hl-1">(</span><span class="hl-7">3</span><span class="hl-1">, </span><span class="hl-0">RoundingMode</span><span class="hl-1">.</span><span class="hl-4">UP</span><span class="hl-1">));</span><br/><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">res2</span><span class="hl-1">.</span><span class="hl-5">toString</span><span class="hl-1">()); </span><span class="hl-2">// 0.334</span><br/><br/><span class="hl-8">try</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">x</span><span class="hl-1">.</span><span class="hl-5">divide</span><span class="hl-1">(</span><span class="hl-0">y</span><span class="hl-1">);</span><br/><span class="hl-1">    </span><span class="hl-2">// throws since full precision is requested but it is not possible</span><br/><span class="hl-1">} </span><span class="hl-8">catch</span><span class="hl-1"> (</span><span class="hl-0">e</span><span class="hl-1">) {</span><br/><span class="hl-1">    </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-5">log</span><span class="hl-1">(</span><span class="hl-0">e</span><span class="hl-1">); </span><span class="hl-2">// RangeError: Non-terminating decimal expansion; no exact representable decimal result.</span><br/><span class="hl-1">}</span>
+</code><button>Copy</button></pre>
+<a id="md:documentation" class="tsd-anchor"></a><h2><a href="#md:documentation">Documentation</a></h2><ul>
+<li><a href="https://srknzl.github.io/bigdecimal.js">API Documentation</a></li>
+</ul>
+<a id="md:testing" class="tsd-anchor"></a><h2><a href="#md:testing">Testing</a></h2><ul>
+<li>Install dependencies: <code>npm i</code></li>
+<li>Compile: <code>npm run compile</code></li>
+<li>Run tests: <code>npm test</code></li>
+</ul>
+<a id="md:running-benchmarks" class="tsd-anchor"></a><h2><a href="#md:running-benchmarks">Running Benchmarks</a></h2><p>There is a benchmark suite that compares</p>
+<ul>
+<li>This library</li>
+<li><a href="https://github.com/MikeMcl/big.js">big.js</a></li>
+<li><a href="https://github.com/iriscouch/bigdecimal.js">bigdecimal</a></li>
+<li><a href="https://github.com/MikeMcl/bignumber.js">bignumber.js</a></li>
+<li><a href="https://github.com/MikeMcl/decimal.js">decimal.js</a></li>
+</ul>
+<p>To run the benchmark run <code>npm install</code> and then <code>npm run benchmark</code>.</p>
+<a id="md:benchmark-results" class="tsd-anchor"></a><h2><a href="#md:benchmark-results">Benchmark Results</a></h2><p>For now, benchmarked against <a href="https://www.npmjs.com/package/big.js">big.js</a> and <a href="https://www.npmjs.com/package/bigdecimal">bigdecimal</a>.</p>
+<ul>
+<li><p>Test Machine:</p>
+<ul>
+<li>M1 2021 MacBook Air </li>
+<li>16 GB Ram</li>
+<li>MacOS Sonoma 14.2.1</li>
+</ul>
+</li>
+<li><p>Update Date: January 28th 2024</p>
+</li>
+<li><p>Library versions used:  </p>
+<ul>
+<li>big.js 6.2.1</li>
+<li>(this library) bigdecimal.js 1.3.1</li>
+<li>bigdecimal 0.6.1</li>
+<li>bignumber.js: 9.1.2</li>
+<li>decimal.js:10.4.3</li>
+</ul>
+</li>
+<li><p>Each operation is run with fixed set of decimal numbers composed of both simple and complex numbers.</p>
+</li>
+<li><p>Micro benchmark framework used is <a href="https://www.npmjs.com/package/benchmark">benchmark</a>. Check out <a href="https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks">benchmarks folder</a> for source code of benchmarks.</p>
+</li>
+<li><p>For now, benchmarked the following operations, more operations will be added later.</p>
+</li>
+<li><p>Operations per second(op/s):</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Bigdecimal.js</th>
+<th>Big.js</th>
+<th>BigNumber.js</th>
+<th>decimal.js</th>
+<th>GWTBased</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Constructor</td>
+<td>43,962 ( - )</td>
+<td>38,238 (<span style="color:red">-13%</span>)</td>
+<td>42,337 (<span style="color:red">-4%</span>)</td>
+<td>42,355 (<span style="color:red">-4%</span>)</td>
+<td>2,818 (<span style="color:red">-94%</span>)</td>
+</tr>
+<tr>
+<td>Add</td>
+<td>80,569 ( - )</td>
+<td>18,406 (<span style="color:red">-77%</span>)</td>
+<td>100,734 (<span style="color:green"><strong>+25%</strong></span>)</td>
+<td>59,815 (<span style="color:red">-26%</span>)</td>
+<td>90 (<span style="color:red">-100%</span>)</td>
+</tr>
+<tr>
+<td>Subtract</td>
+<td>73,518 ( - )</td>
+<td>18,265 (<span style="color:red">-75%</span>)</td>
+<td>96,022 (<span style="color:green"><strong>+31%</strong></span>)</td>
+<td>57,130 (<span style="color:red">-22%</span>)</td>
+<td>89 (<span style="color:red">-100%</span>)</td>
+</tr>
+<tr>
+<td>Multiply</td>
+<td>493,291 ( - )</td>
+<td>33,422 (<span style="color:red">-93%</span>)</td>
+<td>26,810 (<span style="color:red">-95%</span>)</td>
+<td>79,995 (<span style="color:red">-84%</span>)</td>
+<td>2,609 (<span style="color:red">-99%</span>)</td>
+</tr>
+<tr>
+<td>Divide</td>
+<td>15,341 ( - )</td>
+<td>1,129 (<span style="color:red">-93%</span>)</td>
+<td>11,721 (<span style="color:red">-24%</span>)</td>
+<td>13,301 (<span style="color:red">-13%</span>)</td>
+<td>645 (<span style="color:red">-96%</span>)</td>
+</tr>
+<tr>
+<td>Remainder</td>
+<td>9,362 ( - )</td>
+<td>3,816 (<span style="color:red">-59%</span>)</td>
+<td>13,470 (<span style="color:green"><strong>+44%</strong></span>)</td>
+<td>21,952 (<span style="color:green"><strong>+134%</strong></span>)</td>
+<td>2,445 (<span style="color:red">-74%</span>)</td>
+</tr>
+<tr>
+<td>Positive pow</td>
+<td>27,403 ( - )</td>
+<td>25 (<span style="color:red">-100%</span>)</td>
+<td>113 (<span style="color:red">-100%</span>)</td>
+<td>3,535 (<span style="color:red">-87%</span>)</td>
+<td>6 (<span style="color:red">-100%</span>)</td>
+</tr>
+<tr>
+<td>Negative pow</td>
+<td>4,863 ( - )</td>
+<td>21 (<span style="color:red">-100%</span>)</td>
+<td>109 (<span style="color:red">-98%</span>)</td>
+<td>1,970 (<span style="color:red">-59%</span>)</td>
+<td>264 (<span style="color:red">-95%</span>)</td>
+</tr>
+<tr>
+<td>Abs</td>
+<td>782,251 ( - )</td>
+<td>1,424,376 (<span style="color:green"><strong>+82%</strong></span>)</td>
+<td>917,526 (<span style="color:green"><strong>+17%</strong></span>)</td>
+<td>358,678 (<span style="color:red">-54%</span>)</td>
+<td>14,132 (<span style="color:red">-98%</span>)</td>
+</tr>
+<tr>
+<td>Compare</td>
+<td>546,243 ( - )</td>
+<td>1,216,388 (<span style="color:green"><strong>+123%</strong></span>)</td>
+<td>783,432 (<span style="color:green"><strong>+43%</strong></span>)</td>
+<td>417,873 (<span style="color:red">-24%</span>)</td>
+<td>990,187 (<span style="color:green"><strong>+81%</strong></span>)</td>
+</tr>
+</tbody></table>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-index-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><h4 class="uppercase">Member Visibility</h4><form><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></form></div><div class="tsd-theme-toggle"><h4 class="uppercase">Theme</h4><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-index-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#md:bigdecimaljs"><span>Big<wbr/>Decimal.js</span></a><ul><li><a href="#md:advantages-of-this-library"><span>Advantages of this library</span></a></li><li><a href="#md:disadvantages"><span>Disadvantages</span></a></li><li><a href="#md:installation"><span>Installation</span></a></li><li><a href="#md:usage"><span>Usage</span></a></li><li><a href="#md:documentation"><span>Documentation</span></a></li><li><a href="#md:testing"><span>Testing</span></a></li><li><a href="#md:running-benchmarks"><span>Running <wbr/>Benchmarks</span></a></li><li><a href="#md:benchmark-results"><span>Benchmark <wbr/>Results</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-1"></use></svg><span>bigdecimal.js</span></a><ul class="tsd-small-nested-navigation" id="tsd-nav-container" data-base="."><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
