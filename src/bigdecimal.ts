@@ -4007,6 +4007,40 @@ export class BigDecimal {
     }
 
     /**
+     * Returns a string representation of this `BigDecimal`
+     * without an exponent field.  For values with a positive scale,
+     * the number of digits to the right of the decimal point is used
+     * to indicate scale.  For values with a zero or negative scale,
+     * the resulting string is generated as if the value were
+     * converted to a numerically equal value with zero scale and as
+     * if all the trailing zeros of the zero scale value were present
+     * in the result.
+     *
+     * The entire string is prefixed by a minus sign character '-'
+     * (<code>'&#92;u002D'</code>) if the unscaled value is less than
+     * zero. No sign character is prefixed if the unscaled value is
+     * zero or positive.
+     *
+     * Note that if the result of this method is passed to the
+     * string constructor, only the
+     * numerical value of this `BigDecimal` will necessarily be
+     * recovered; the representation of the new `BigDecimal`
+     * may have a different scale.  In particular, if this
+     * `BigDecimal` has a negative scale, the string resulting
+     * from this method will have a scale of zero when processed by
+     * the string constructor.
+     *
+     * @return a string representation of this `BigDecimal`
+     * without an exponent field.
+     * @see {@link toPlainString}
+     * @see {@link toString}
+     * @see {@link toEngineeringString}
+     */
+    toJSON(): string {
+        return this.toPlainString();
+    }
+
+    /**
      * Divides `BigInt` value by number value and
      * do rounding based on the passed in roundingMode.
      * @internal
