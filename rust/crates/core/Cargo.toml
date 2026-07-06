@@ -1,0 +1,11 @@
+[package]
+name = "bigdecimal-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Pure Rust core reimplementing OpenJDK java.math.BigDecimal semantics"
+
+[dependencies]
+num-bigint = "0.4"
+num-integer = "0.1"
+num-traits = "0.2"

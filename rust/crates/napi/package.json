@@ -1,0 +1,9 @@
+{
+  "name": "bigdecimal-native",
+  "version": "0.1.0",
+  "private": true,
+  "napi": {
+    "binaryName": "bigdecimal",
+    "targets": ["aarch64-apple-darwin"]
+  }
+}

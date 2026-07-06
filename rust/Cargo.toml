@@ -1,0 +1,15 @@
+[workspace]
+resolver = "2"
+members = ["crates/core", "crates/napi"]
+
+# The `core` crate is pure domain logic with no knowledge of any binding layer.
+# `napi` is the Node.js binding; the wasm binding is added in a later phase.
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[profile.release]
+lto = true
+codegen-units = 1
