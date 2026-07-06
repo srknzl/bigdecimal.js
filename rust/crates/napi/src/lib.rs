@@ -86,4 +86,96 @@ impl BigDecimal {
     pub fn to_engineering_string(&self) -> String {
         self.inner.to_engineering_string()
     }
+
+    #[napi]
+    pub fn negate(&self) -> BigDecimal {
+        BigDecimal {
+            inner: self.inner.negate(),
+        }
+    }
+
+    #[napi]
+    pub fn subtract(&self, subtrahend: &BigDecimal) -> BigDecimal {
+        BigDecimal {
+            inner: self.inner.subtract(&subtrahend.inner),
+        }
+    }
+
+    #[napi(js_name = "addWithContext")]
+    pub fn add_with_context(
+        &self,
+        augend: &BigDecimal,
+        precision: u32,
+        rounding_mode: u8,
+    ) -> Result<BigDecimal> {
+        let mc = math_context(precision, rounding_mode)?;
+        self.inner
+            .add_with_context(&augend.inner, mc)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi(js_name = "subtractWithContext")]
+    pub fn subtract_with_context(
+        &self,
+        subtrahend: &BigDecimal,
+        precision: u32,
+        rounding_mode: u8,
+    ) -> Result<BigDecimal> {
+        let mc = math_context(precision, rounding_mode)?;
+        self.inner
+            .subtract_with_context(&subtrahend.inner, mc)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub fn round(&self, precision: u32, rounding_mode: u8) -> Result<BigDecimal> {
+        let mc = math_context(precision, rounding_mode)?;
+        self.inner
+            .round(mc)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub fn set_scale(&self, new_scale: i32, rounding_mode: u8) -> Result<BigDecimal> {
+        let rm = RoundingMode::from_ordinal(rounding_mode)
+            .ok_or_else(|| Error::from_reason("Invalid rounding mode"))?;
+        self.inner
+            .set_scale(new_scale, rm)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub fn compare_to(&self, other: &BigDecimal) -> i32 {
+        self.inner.compare_to(&other.inner)
+    }
+
+    #[napi]
+    pub fn equals(&self, other: &BigDecimal) -> bool {
+        self.inner.equals(&other.inner)
+    }
+
+    #[napi]
+    pub fn max(&self, other: &BigDecimal) -> BigDecimal {
+        BigDecimal {
+            inner: self.inner.max(&other.inner),
+        }
+    }
+
+    #[napi]
+    pub fn min(&self, other: &BigDecimal) -> BigDecimal {
+        BigDecimal {
+            inner: self.inner.min(&other.inner),
+        }
+    }
+}
+
+/// Build a `MathContext` from a precision and a Java rounding-mode ordinal.
+fn math_context(precision: u32, rounding_mode: u8) -> Result<MathContext> {
+    let rm = RoundingMode::from_ordinal(rounding_mode)
+        .ok_or_else(|| Error::from_reason("Invalid rounding mode"))?;
+    Ok(MathContext::new(precision, rm))
 }

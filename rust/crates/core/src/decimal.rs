@@ -14,6 +14,7 @@ use std::cmp::Ordering;
 use std::fmt;
 
 use num_bigint::{BigInt, Sign};
+use num_integer::Integer;
 use num_traits::{ToPrimitive, Zero};
 
 use crate::context::MathContext;
@@ -104,6 +105,17 @@ impl Significand {
             }
         }
         Significand::from_bigint(self.to_bigint() * other.to_bigint())
+    }
+
+    /// Arithmetic negation, staying compact except for `i128::MIN`.
+    fn negate(&self) -> Significand {
+        match self {
+            Significand::Compact(c) => match c.checked_neg() {
+                Some(n) => Significand::Compact(n),
+                None => Significand::from_bigint(-BigInt::from(*c)),
+            },
+            Significand::Inflated(b) => Significand::from_bigint(-b.clone()),
+        }
     }
 
     /// `10^n` as a `Significand` (compact when it fits in i128).
@@ -241,6 +253,50 @@ fn do_round(val: BigDecimal, mc: MathContext) -> Result<BigDecimal, ArithmeticEr
 /// Java `checkScaleNonZero`: narrow an i64 scale to i32 or signal overflow.
 fn check_scale_nonzero(val: i64) -> Result<i32, ArithmeticError> {
     i32::try_from(val).map_err(|_| ArithmeticError::ScaleOverflow)
+}
+
+/// Remove trailing decimal zeros from `sig` while `scale > preferred_scale`,
+/// decrementing scale each time. Java's `createAndStripZerosToMatchScale`
+/// factors out powers of 2 and 5 for speed; this naive loop is identical in
+/// result.
+// ponytail: naive digit loop; upgrade to the 2/5 factoring only if profiling says so.
+fn strip_zeros_to_match_scale(sig: &Significand, scale: i32, preferred_scale: i64) -> BigDecimal {
+    let mut v = sig.to_bigint();
+    let mut scale = scale as i64;
+    let ten = BigInt::from(10u8);
+    while scale > preferred_scale && !v.is_zero() {
+        let (q, r) = v.div_rem(&ten);
+        if !r.is_zero() {
+            break;
+        }
+        v = q;
+        scale -= 1;
+    }
+    BigDecimal::new(Significand::from_bigint(v), scale as i32)
+}
+
+/// Ported from JDK `preAlign`: the "sticky bit" pre-shift. When the operands'
+/// digit positions are disjoint and the smaller one cannot be visible in the
+/// rounded result, the small operand is condensed to `sign * 10^-scale` so the
+/// addition rounds identically but cheaply. Returns `(big, small)`.
+fn pre_align(
+    lhs: &BigDecimal,
+    augend: &BigDecimal,
+    padding: i64,
+    mc: MathContext,
+) -> Result<(BigDecimal, BigDecimal), ArithmeticError> {
+    let (big, small) = if padding < 0 { (lhs, augend) } else { (augend, lhs) };
+
+    let est_result_ulp_scale =
+        big.scale as i64 - big.precision() as i64 + mc.precision as i64;
+    let small_high_digit_pos = small.scale as i64 - small.precision() as i64 + 1;
+    if small_high_digit_pos > big.scale as i64 + 2 && small_high_digit_pos > est_result_ulp_scale + 2
+    {
+        let new_scale = check_scale_nonzero((big.scale as i64).max(est_result_ulp_scale) + 3)?;
+        let condensed = BigDecimal::new(Significand::Compact(small.signum() as i128), new_scale);
+        return Ok((big.clone(), condensed));
+    }
+    Ok((big.clone(), small.clone()))
 }
 
 /// An arbitrary-precision signed decimal number with JDK `BigDecimal` semantics.
@@ -465,6 +521,179 @@ impl BigDecimal {
             return Ok(product);
         }
         do_round(product, mc)
+    }
+
+    /// Arithmetic negation; scale is preserved — Java `negate()`.
+    pub fn negate(&self) -> BigDecimal {
+        BigDecimal::new(self.int_val.negate(), self.scale)
+    }
+
+    /// `this - subtrahend`, exact — Java `subtract(BigDecimal)`.
+    pub fn subtract(&self, subtrahend: &BigDecimal) -> BigDecimal {
+        self.add(&subtrahend.negate())
+    }
+
+    /// `this + augend` rounded to `mc` — Java `add(BigDecimal, MathContext)`.
+    pub fn add_with_context(
+        &self,
+        augend: &BigDecimal,
+        mc: MathContext,
+    ) -> Result<BigDecimal, ArithmeticError> {
+        if mc.precision == 0 {
+            return Ok(self.add(augend));
+        }
+
+        let lhs_zero = self.signum() == 0;
+        let aug_zero = augend.signum() == 0;
+        if lhs_zero || aug_zero {
+            let preferred_scale = self.scale.max(augend.scale);
+            if lhs_zero && aug_zero {
+                return Ok(BigDecimal::new(Significand::Compact(0), preferred_scale));
+            }
+            let result = if lhs_zero {
+                do_round(augend.clone(), mc)?
+            } else {
+                do_round(self.clone(), mc)?
+            };
+            return Ok(match result.scale.cmp(&preferred_scale) {
+                Ordering::Equal => result,
+                Ordering::Greater => {
+                    strip_zeros_to_match_scale(&result.int_val, result.scale, preferred_scale as i64)
+                }
+                Ordering::Less => {
+                    let precision_diff = mc.precision as i64 - result.precision() as i64;
+                    let scale_diff = preferred_scale as i64 - result.scale as i64;
+                    let target = if precision_diff >= scale_diff {
+                        preferred_scale as i64
+                    } else {
+                        result.scale as i64 + precision_diff
+                    };
+                    let shift = (target - result.scale as i64) as u32;
+                    BigDecimal::new(result.int_val.mul_pow10(shift), target as i32)
+                }
+            });
+        }
+
+        let padding = self.scale as i64 - augend.scale as i64;
+        let (a, b) = if padding != 0 {
+            pre_align(self, augend, padding, mc)?
+        } else {
+            (self.clone(), augend.clone())
+        };
+        // matchScale: raise the lower-scale operand to the common (max) scale.
+        let common = a.scale.max(b.scale);
+        let av = a.int_val.mul_pow10((common - a.scale) as u32);
+        let bv = b.int_val.mul_pow10((common - b.scale) as u32);
+        do_round(BigDecimal::new(av.add(&bv), common), mc)
+    }
+
+    /// `this - subtrahend` rounded to `mc` — Java `subtract(BigDecimal, MathContext)`.
+    pub fn subtract_with_context(
+        &self,
+        subtrahend: &BigDecimal,
+        mc: MathContext,
+    ) -> Result<BigDecimal, ArithmeticError> {
+        if mc.precision == 0 {
+            return Ok(self.subtract(subtrahend));
+        }
+        self.add_with_context(&subtrahend.negate(), mc)
+    }
+
+    /// Round to `mc` — Java `round(MathContext)` (== `plus(mc)`).
+    pub fn round(&self, mc: MathContext) -> Result<BigDecimal, ArithmeticError> {
+        if mc.precision == 0 {
+            return Ok(self.clone());
+        }
+        do_round(self.clone(), mc)
+    }
+
+    /// Return a value numerically equal to this but with the given scale,
+    /// rounding per `mode` when digits must be dropped — Java `setScale`.
+    pub fn set_scale(
+        &self,
+        new_scale: i32,
+        mode: RoundingMode,
+    ) -> Result<BigDecimal, ArithmeticError> {
+        let old_scale = self.scale;
+        if new_scale == old_scale {
+            return Ok(self.clone());
+        }
+        if self.signum() == 0 {
+            return Ok(BigDecimal::new(Significand::Compact(0), new_scale));
+        }
+        if new_scale > old_scale {
+            let raise = check_scale_nonzero(new_scale as i64 - old_scale as i64)? as u32;
+            Ok(BigDecimal::new(self.int_val.mul_pow10(raise), new_scale))
+        } else {
+            let drop = check_scale_nonzero(old_scale as i64 - new_scale as i64)? as u32;
+            let iv = divide_and_round(&self.int_val, &Significand::ten_pow(drop), mode)?;
+            Ok(BigDecimal::new(iv, new_scale))
+        }
+    }
+
+    /// Three-way comparison by value (scale-independent) — Java `compareTo`.
+    pub fn compare_to(&self, other: &BigDecimal) -> i32 {
+        let xsign = self.signum();
+        let ysign = other.signum();
+        if xsign != ysign {
+            return if xsign > ysign { 1 } else { -1 };
+        }
+        if xsign == 0 {
+            return 0;
+        }
+        let cmp = self.compare_magnitude(other);
+        if xsign > 0 {
+            cmp
+        } else {
+            -cmp
+        }
+    }
+
+    /// Compare absolute values after aligning scales. JDK adds an adjusted-exponent
+    /// shortcut before inflating; that is a pure performance optimization.
+    // ponytail: no adjusted-exponent fast path — worst case allocates a big aligned
+    // magnitude; add the shortcut if compareTo ever shows up hot.
+    fn compare_magnitude(&self, other: &BigDecimal) -> i32 {
+        let (a, b): (BigInt, BigInt) = match self.scale.cmp(&other.scale) {
+            Ordering::Equal => (self.int_val.to_bigint(), other.int_val.to_bigint()),
+            Ordering::Greater => {
+                let shift = (self.scale as i64 - other.scale as i64) as u32;
+                (self.int_val.to_bigint(), other.int_val.mul_pow10(shift).to_bigint())
+            }
+            Ordering::Less => {
+                let shift = (other.scale as i64 - self.scale as i64) as u32;
+                (self.int_val.mul_pow10(shift).to_bigint(), other.int_val.to_bigint())
+            }
+        };
+        match a.magnitude().cmp(b.magnitude()) {
+            Ordering::Less => -1,
+            Ordering::Equal => 0,
+            Ordering::Greater => 1,
+        }
+    }
+
+    /// Exact equality: same value **and** same scale — Java `equals`.
+    /// (`2.0` and `2.00` are *not* equal, unlike `compareTo`.)
+    pub fn equals(&self, other: &BigDecimal) -> bool {
+        self.scale == other.scale && self.int_val == other.int_val
+    }
+
+    /// The larger of the two by value — Java `max` (returns `self` on a tie).
+    pub fn max(&self, other: &BigDecimal) -> BigDecimal {
+        if self.compare_to(other) >= 0 {
+            self.clone()
+        } else {
+            other.clone()
+        }
+    }
+
+    /// The smaller of the two by value — Java `min` (returns `self` on a tie).
+    pub fn min(&self, other: &BigDecimal) -> BigDecimal {
+        if self.compare_to(other) <= 0 {
+            self.clone()
+        } else {
+            other.clone()
+        }
     }
 
     /// Engineering-notation string — Java `toEngineeringString()`.
@@ -715,6 +944,62 @@ mod tests {
         assert_eq!(
             a.multiply(&a).to_string(),
             "10000000000000000000000000000000000000000"
+        );
+    }
+
+    #[test]
+    fn subtract_and_negate() {
+        assert_eq!(bd("2.5").subtract(&bd("0.50")).to_string(), "2.00");
+        assert_eq!(bd("1").subtract(&bd("3")).to_string(), "-2");
+        assert_eq!(bd("-1.5").negate().to_string(), "1.5");
+    }
+
+    #[test]
+    fn set_scale_raises_and_rounds() {
+        use RoundingMode::*;
+        assert_eq!(bd("2.5").set_scale(3, HalfUp).unwrap().to_string(), "2.500");
+        // drop with rounding
+        assert_eq!(bd("2.567").set_scale(2, HalfUp).unwrap().to_string(), "2.57");
+        assert_eq!(bd("2.567").set_scale(0, Down).unwrap().to_string(), "2");
+        // zero takes any scale
+        assert_eq!(bd("0").set_scale(2, HalfUp).unwrap().to_string(), "0.00");
+        // exact-drop under UNNECESSARY is fine; inexact throws
+        assert_eq!(bd("2.500").set_scale(1, Unnecessary).unwrap().to_string(), "2.5");
+        assert_eq!(
+            bd("2.567").set_scale(1, Unnecessary).unwrap_err(),
+            ArithmeticError::InexactResult
+        );
+    }
+
+    #[test]
+    fn compare_equals_max_min() {
+        // compareTo ignores scale; equals does not.
+        assert_eq!(bd("2.0").compare_to(&bd("2.00")), 0);
+        assert!(!bd("2.0").equals(&bd("2.00")));
+        assert!(bd("2.00").equals(&bd("2.00")));
+        assert_eq!(bd("1.1").compare_to(&bd("1.09")), 1);
+        assert_eq!(bd("-1").compare_to(&bd("1")), -1);
+        assert_eq!(bd("1.1").max(&bd("1.09")).to_string(), "1.1");
+        assert_eq!(bd("1.1").min(&bd("1.09")).to_string(), "1.09");
+    }
+
+    #[test]
+    fn add_with_context_rounds_and_handles_zero() {
+        use RoundingMode::*;
+        // rounded sum: 1.23 + 4.56 = 5.79 -> 2 sig, HALF_UP -> 5.8
+        assert_eq!(
+            bd("1.23").add_with_context(&bd("4.56"), mc(2, HalfUp)).unwrap().to_string(),
+            "5.8"
+        );
+        // zero augend: result is the other, rounded, at the preferred scale
+        assert_eq!(
+            bd("0.00").add_with_context(&bd("7"), mc(5, HalfUp)).unwrap().to_string(),
+            "7.00"
+        );
+        // sticky-bit territory: tiny operand far below the rounded result's ulp
+        assert_eq!(
+            bd("1").add_with_context(&bd("1e-40"), mc(3, HalfUp)).unwrap().to_string(),
+            "1.00"
         );
     }
 }
