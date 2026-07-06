@@ -237,6 +237,102 @@ impl BigDecimal {
             .map(|inner| BigDecimal { inner })
             .map_err(|e| Error::from_reason(e.to_string()))
     }
+
+    #[napi(js_name = "absWithContext")]
+    pub fn abs_with_context(&self, precision: u32, rounding_mode: u8) -> Result<BigDecimal> {
+        let mc = math_context(precision, rounding_mode)?;
+        self.inner
+            .abs_with_context(mc)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi(js_name = "negateWithContext")]
+    pub fn negate_with_context(&self, precision: u32, rounding_mode: u8) -> Result<BigDecimal> {
+        let mc = math_context(precision, rounding_mode)?;
+        self.inner
+            .negate_with_context(mc)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi(js_name = "plusWithContext")]
+    pub fn plus_with_context(&self, precision: u32, rounding_mode: u8) -> Result<BigDecimal> {
+        let mc = math_context(precision, rounding_mode)?;
+        self.inner
+            .plus_with_context(mc)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi(js_name = "powWithContext")]
+    pub fn pow_with_context(&self, n: i32, precision: u32, rounding_mode: u8) -> Result<BigDecimal> {
+        let mc = math_context(precision, rounding_mode)?;
+        self.inner
+            .pow_with_context(n, mc)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi(js_name = "movePointLeft")]
+    pub fn move_point_left(&self, n: i32) -> Result<BigDecimal> {
+        self.inner
+            .move_point_left(n)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi(js_name = "movePointRight")]
+    pub fn move_point_right(&self, n: i32) -> Result<BigDecimal> {
+        self.inner
+            .move_point_right(n)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi(js_name = "scaleByPowerOfTen")]
+    pub fn scale_by_power_of_ten(&self, n: i32) -> Result<BigDecimal> {
+        self.inner
+            .scale_by_power_of_ten(n)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub fn strip_trailing_zeros(&self) -> BigDecimal {
+        BigDecimal {
+            inner: self.inner.strip_trailing_zeros(),
+        }
+    }
+
+    #[napi]
+    pub fn ulp(&self) -> BigDecimal {
+        BigDecimal {
+            inner: self.inner.ulp(),
+        }
+    }
+
+    /// The unscaled value as a decimal string (facade converts to bigint).
+    #[napi(js_name = "unscaledValueString")]
+    pub fn unscaled_value_string(&self) -> String {
+        self.inner.unscaled_value().to_string()
+    }
+
+    #[napi(js_name = "toBigIntegerString")]
+    pub fn to_big_integer_string(&self) -> Result<String> {
+        self.inner
+            .to_big_integer()
+            .map(|b| b.to_string())
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi(js_name = "toBigIntegerExactString")]
+    pub fn to_big_integer_exact_string(&self) -> Result<String> {
+        self.inner
+            .to_big_integer_exact()
+            .map(|b| b.to_string())
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
 }
 
 /// Build a `MathContext` from a precision and a Java rounding-mode ordinal.

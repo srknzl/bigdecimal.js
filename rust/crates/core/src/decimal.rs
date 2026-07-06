@@ -976,6 +976,146 @@ impl BigDecimal {
         Ok(self.divide_and_remainder_with_context(divisor, mc)?.1)
     }
 
+    /// Absolute value, scale preserved — Java `abs()`.
+    pub fn abs(&self) -> BigDecimal {
+        if self.signum() < 0 {
+            self.negate()
+        } else {
+            self.clone()
+        }
+    }
+
+    /// `|this|` rounded to `mc` — Java `abs(MathContext)`.
+    pub fn abs_with_context(&self, mc: MathContext) -> Result<BigDecimal, ArithmeticError> {
+        if self.signum() < 0 {
+            self.negate().round(mc)
+        } else {
+            self.round(mc)
+        }
+    }
+
+    /// `-this` rounded to `mc` — Java `negate(MathContext)`.
+    pub fn negate_with_context(&self, mc: MathContext) -> Result<BigDecimal, ArithmeticError> {
+        self.negate().round(mc)
+    }
+
+    /// `+this` rounded to `mc` — Java `plus(MathContext)` (identical to `round`).
+    pub fn plus_with_context(&self, mc: MathContext) -> Result<BigDecimal, ArithmeticError> {
+        self.round(mc)
+    }
+
+    /// `this^n`, exact — Java `pow(int)`. `n` in `[0, 999999999]`.
+    pub fn pow(&self, n: i32) -> Result<BigDecimal, ArithmeticError> {
+        if !(0..=999_999_999).contains(&n) {
+            return Err(ArithmeticError::Overflow); // "Invalid operation"
+        }
+        let new_scale = check_scale_nonzero(self.scale as i64 * n as i64)?;
+        let pow = self.int_val.to_bigint().pow(n as u32);
+        Ok(BigDecimal::new(Significand::from_bigint(pow), new_scale))
+    }
+
+    /// `this^n` rounded to `mc` — Java `pow(int, MathContext)`, the ANSI
+    /// X3.274-1996 repeated-squaring algorithm.
+    pub fn pow_with_context(&self, n: i32, mc: MathContext) -> Result<BigDecimal, ArithmeticError> {
+        if mc.precision == 0 {
+            return self.pow(n);
+        }
+        if !(-999_999_999..=999_999_999).contains(&n) {
+            return Err(ArithmeticError::Overflow);
+        }
+        if n == 0 {
+            return Ok(BigDecimal::from_i128(1)); // x^0 == 1
+        }
+        let mag_abs = n.unsigned_abs();
+        let elength = mag_abs.to_string().len() as u32;
+        if elength > mc.precision {
+            return Err(ArithmeticError::Overflow); // X3.274 rule
+        }
+        let workmc = MathContext::new(mc.precision + elength + 1, mc.rounding_mode);
+
+        let mut acc = BigDecimal::from_i128(1); // accumulator
+        let mut seenbit = false;
+        let mut mag = mag_abs as i32; // n magnitude fits in i32 (< 2^30)
+        for i in 1.. {
+            mag = mag.wrapping_add(mag); // shift left 1 bit
+            if mag < 0 {
+                // top bit set
+                seenbit = true;
+                acc = acc.multiply_with_context(self, workmc)?;
+            }
+            if i == 31 {
+                break;
+            }
+            if seenbit {
+                let sq = acc.clone();
+                acc = acc.multiply_with_context(&sq, workmc)?;
+            }
+        }
+        if n < 0 {
+            acc = BigDecimal::from_i128(1).divide_with_context(&acc, workmc)?;
+        }
+        do_round(acc, mc)
+    }
+
+    /// Move the decimal point `n` places left — Java `movePointLeft(int)`. When the
+    /// resulting scale is negative it is normalized to 0 via `setScale(0)`.
+    pub fn move_point_left(&self, n: i32) -> Result<BigDecimal, ArithmeticError> {
+        if n == 0 && self.scale >= 0 {
+            return Ok(self.clone());
+        }
+        let new_scale = check_scale_nonzero(self.scale as i64 + n as i64)?;
+        let num = BigDecimal::new(self.int_val.clone(), new_scale);
+        if num.scale < 0 {
+            num.set_scale(0, RoundingMode::Unnecessary)
+        } else {
+            Ok(num)
+        }
+    }
+
+    /// Move the decimal point `n` places right — Java `movePointRight(int)`.
+    pub fn move_point_right(&self, n: i32) -> Result<BigDecimal, ArithmeticError> {
+        if n == 0 && self.scale >= 0 {
+            return Ok(self.clone());
+        }
+        let new_scale = check_scale_nonzero(self.scale as i64 - n as i64)?;
+        let num = BigDecimal::new(self.int_val.clone(), new_scale);
+        if num.scale < 0 {
+            num.set_scale(0, RoundingMode::Unnecessary)
+        } else {
+            Ok(num)
+        }
+    }
+
+    /// `this * 10^n`; scale becomes `this.scale() - n` — Java `scaleByPowerOfTen`.
+    pub fn scale_by_power_of_ten(&self, n: i32) -> Result<BigDecimal, ArithmeticError> {
+        let new_scale = check_scale_nonzero(self.scale as i64 - n as i64)?;
+        Ok(BigDecimal::new(self.int_val.clone(), new_scale))
+    }
+
+    /// Remove all trailing zeros — Java `stripTrailingZeros()`.
+    pub fn strip_trailing_zeros(&self) -> BigDecimal {
+        if self.int_val.is_zero() {
+            return BigDecimal::new(Significand::Compact(0), 0);
+        }
+        strip_zeros_to_match_scale(&self.int_val, self.scale, i64::MIN)
+    }
+
+    /// The size of an ulp: `1 * 10^-scale` — Java `ulp()`.
+    pub fn ulp(&self) -> BigDecimal {
+        BigDecimal::new(Significand::Compact(1), self.scale)
+    }
+
+    /// Convert to a `BigInteger`, discarding any fraction — Java `toBigInteger()`.
+    pub fn to_big_integer(&self) -> Result<BigInt, ArithmeticError> {
+        Ok(self.set_scale(0, RoundingMode::Down)?.int_val.to_bigint())
+    }
+
+    /// Convert to a `BigInteger`, erroring on a nonzero fraction — Java
+    /// `toBigIntegerExact()`.
+    pub fn to_big_integer_exact(&self) -> Result<BigInt, ArithmeticError> {
+        Ok(self.set_scale(0, RoundingMode::Unnecessary)?.int_val.to_bigint())
+    }
+
     /// Engineering-notation string — Java `toEngineeringString()`.
     pub fn to_engineering_string(&self) -> String {
         self.layout(false)
@@ -1312,6 +1452,44 @@ mod tests {
         assert_eq!(
             bd("-7").remainder_with_context(&bd("2"), mc(10, Down)).unwrap().to_string(),
             "-1"
+        );
+    }
+
+    #[test]
+    fn move_point_and_scale_by_power() {
+        assert_eq!(bd("1.234").move_point_left(2).unwrap().to_string(), "0.01234");
+        assert_eq!(bd("1.234").move_point_right(2).unwrap().to_string(), "123.4");
+        // negative-scale result normalizes to scale 0 (JDK 26 behavior)
+        assert_eq!(bd("1.5e3").move_point_left(0).unwrap().to_string(), "1500");
+        assert_eq!(bd("1.234").scale_by_power_of_ten(2).unwrap().to_string(), "123.4");
+        assert_eq!(bd("1.5e3").scale_by_power_of_ten(0).unwrap().to_string(), "1.5E+3");
+        // ulp / strip / toBigInteger
+        assert_eq!(bd("12.345").ulp().to_string(), "0.001");
+        assert_eq!(bd("600.0").strip_trailing_zeros().to_string(), "6E+2");
+        assert_eq!(bd("0.000").strip_trailing_zeros().to_string(), "0");
+        assert_eq!(bd("2.99").to_big_integer().unwrap().to_string(), "2");
+        assert_eq!(bd("3.00").to_big_integer_exact().unwrap().to_string(), "3");
+        assert!(bd("2.99").to_big_integer_exact().is_err());
+    }
+
+    #[test]
+    fn pow_and_abs_negate() {
+        use RoundingMode::*;
+        assert_eq!(bd("2").pow(10).unwrap().to_string(), "1024");
+        assert_eq!(bd("0.5").pow(2).unwrap().to_string(), "0.25");
+        // pow(mc): 2^-2 = 0.25 to 5 sig
+        assert_eq!(
+            bd("2").pow_with_context(-2, mc(5, HalfUp)).unwrap().to_string(),
+            "0.25"
+        );
+        assert_eq!(bd("-3.14").abs().to_string(), "3.14");
+        assert_eq!(
+            bd("-3.14").abs_with_context(mc(2, HalfUp)).unwrap().to_string(),
+            "3.1"
+        );
+        assert_eq!(
+            bd("3.14").negate_with_context(mc(2, HalfUp)).unwrap().to_string(),
+            "-3.1"
         );
     }
 
