@@ -1,7 +1,13 @@
 'use strict';
 const { Big } = require('../lib/bigdecimal.js');
 const chai = require('chai');
-const testCases = require('../util/output/toJSONTestCases.json');
+// toJSON() is defined to be identical to toPlainString(), so we reuse the
+// Java-verified toPlainString cases as the source of truth. The `null` case is
+// toJSON-specific (it exercises JSON.stringify passing null straight through).
+const testCases = [
+    ...require('../util/output/toPlainStringTestCases.json'),
+    { args: [null], result: null },
+];
 chai.should();
 
 describe('ToJSON test', function () {
@@ -18,7 +24,7 @@ describe('ToJSON test', function () {
                 }
             };
             if (test.result === 'errorThrown') {
-                toEngineeringStringOp.should.throw(
+                toJSONOp.should.throw(
                     undefined, undefined, `expected '${test.args[0]}'.toJSON() to throw`
                 );
                 continue;
