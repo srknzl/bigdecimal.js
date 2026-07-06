@@ -171,6 +171,72 @@ impl BigDecimal {
             inner: self.inner.min(&other.inner),
         }
     }
+
+    /// Exact division (throws on a non-terminating expansion).
+    #[napi]
+    pub fn divide(&self, divisor: &BigDecimal) -> Result<BigDecimal> {
+        self.inner
+            .divide_exact(&divisor.inner)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi(js_name = "divideWithScale")]
+    pub fn divide_with_scale(
+        &self,
+        divisor: &BigDecimal,
+        scale: i32,
+        rounding_mode: u8,
+    ) -> Result<BigDecimal> {
+        let rm = RoundingMode::from_ordinal(rounding_mode)
+            .ok_or_else(|| Error::from_reason("Invalid rounding mode"))?;
+        self.inner
+            .divide_at_scale(&divisor.inner, scale, rm)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi(js_name = "divideWithRounding")]
+    pub fn divide_with_rounding(
+        &self,
+        divisor: &BigDecimal,
+        rounding_mode: u8,
+    ) -> Result<BigDecimal> {
+        let rm = RoundingMode::from_ordinal(rounding_mode)
+            .ok_or_else(|| Error::from_reason("Invalid rounding mode"))?;
+        self.inner
+            .divide_with_rounding(&divisor.inner, rm)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi(js_name = "divideWithContext")]
+    pub fn divide_with_context(
+        &self,
+        divisor: &BigDecimal,
+        precision: u32,
+        rounding_mode: u8,
+    ) -> Result<BigDecimal> {
+        let mc = math_context(precision, rounding_mode)?;
+        self.inner
+            .divide_with_context(&divisor.inner, mc)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    #[napi(js_name = "divideToIntegralValueWithContext")]
+    pub fn divide_to_integral_value_with_context(
+        &self,
+        divisor: &BigDecimal,
+        precision: u32,
+        rounding_mode: u8,
+    ) -> Result<BigDecimal> {
+        let mc = math_context(precision, rounding_mode)?;
+        self.inner
+            .divide_to_integral_value_with_context(&divisor.inner, mc)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
 }
 
 /// Build a `MathContext` from a precision and a Java rounding-mode ordinal.

@@ -70,6 +70,14 @@ impl Significand {
         }
     }
 
+    /// The magnitude (absolute value) as a `BigUint`.
+    fn abs_magnitude(&self) -> num_bigint::BigUint {
+        match self {
+            Significand::Compact(c) => num_bigint::BigUint::from(c.unsigned_abs()),
+            Significand::Inflated(b) => b.magnitude().clone(),
+        }
+    }
+
     /// `self + other`, staying compact when possible and only promoting to
     /// `BigInt` on i128 overflow.
     fn add(&self, other: &Significand) -> Significand {
@@ -179,29 +187,29 @@ fn common_need_increment(
     })
 }
 
-/// Integer division `dividend / divisor` with JDK rounding, returning the rounded
-/// quotient. Ported from the no-preferred-scale `divideAndRound` variants used by
-/// `doRound`. `divisor` must be non-zero.
-fn divide_and_round(
+/// Integer division `dividend / divisor` with JDK rounding. Returns the rounded
+/// quotient and whether the division was exact (remainder zero). Ported from the
+/// JDK `divideAndRound` family. `divisor` must be non-zero.
+fn quotient_round(
     dividend: &Significand,
     divisor: &Significand,
     mode: RoundingMode,
-) -> Result<Significand, ArithmeticError> {
+) -> Result<(Significand, bool), ArithmeticError> {
     if let (Significand::Compact(a), Significand::Compact(b)) = (dividend, divisor) {
         let (a, b) = (*a, *b);
         let q = a / b; // truncates toward zero, matching Java
         let r = a % b;
         if r == 0 {
-            return Ok(Significand::Compact(q));
+            return Ok((Significand::Compact(q), true));
         }
         let qsign = if (a < 0) == (b < 0) { 1 } else { -1 };
         let cmp = cmp_frac_half_i128(r, b);
         let inc = common_need_increment(mode, qsign, cmp, q & 1 != 0)?;
         if !inc {
-            return Ok(Significand::Compact(q));
+            return Ok((Significand::Compact(q), false));
         }
         if let Some(q2) = q.checked_add(qsign as i128) {
-            return Ok(Significand::Compact(q2));
+            return Ok((Significand::Compact(q2), false));
         }
         // Increment overflowed i128 (vanishingly rare) — fall through to BigInt.
     }
@@ -211,7 +219,7 @@ fn divide_and_round(
     let q = &a / &b;
     let r = &a % &b;
     if r.is_zero() {
-        return Ok(Significand::from_bigint(q));
+        return Ok((Significand::from_bigint(q), true));
     }
     let qsign = if (a.sign() == Sign::Minus) == (b.sign() == Sign::Minus) {
         1
@@ -227,7 +235,75 @@ fn divide_and_round(
     let odd = q.magnitude().bit(0);
     let inc = common_need_increment(mode, qsign, cmp, odd)?;
     let q = if inc { q + BigInt::from(qsign) } else { q };
-    Ok(Significand::from_bigint(q))
+    Ok((Significand::from_bigint(q), false))
+}
+
+/// The no-preferred-scale `divideAndRound` used by `doRound`: just the rounded
+/// quotient.
+fn divide_and_round(
+    dividend: &Significand,
+    divisor: &Significand,
+    mode: RoundingMode,
+) -> Result<Significand, ArithmeticError> {
+    Ok(quotient_round(dividend, divisor, mode)?.0)
+}
+
+/// The preferred-scale `divideAndRound`: the rounded quotient at `scale`, and —
+/// when the division is exact and `scale != preferred_scale` — with trailing
+/// zeros stripped toward `preferred_scale`. Ported from the 5-arg JDK variant.
+fn divide_and_round_scaled(
+    dividend: &Significand,
+    divisor: &Significand,
+    scale: i32,
+    mode: RoundingMode,
+    preferred_scale: i64,
+) -> Result<BigDecimal, ArithmeticError> {
+    let (q, exact) = quotient_round(dividend, divisor, mode)?;
+    if exact && preferred_scale != scale as i64 {
+        Ok(strip_zeros_to_match_scale(&q, scale, preferred_scale))
+    } else {
+        Ok(BigDecimal::new(q, scale))
+    }
+}
+
+/// Java `saturateLong`: narrow to i32, clamping out-of-range to MIN/MAX.
+fn saturate_long(s: i64) -> i32 {
+    if s > i32::MAX as i64 {
+        i32::MAX
+    } else if s < i32::MIN as i64 {
+        i32::MIN
+    } else {
+        s as i32
+    }
+}
+
+/// `sign(|xs|·10^-xscale − |ys|·10^-yscale)` after normalizing both to `[0.1, 1)`
+/// — ported from JDK `compareMagnitudeNormalized`. Here `xscale`/`yscale` are the
+/// operands' *precisions*.
+fn compare_magnitude_normalized(
+    xs: &Significand,
+    xscale: i64,
+    ys: &Significand,
+    yscale: i64,
+) -> i32 {
+    let sdiff = xscale - yscale;
+    let xm = xs.abs_magnitude();
+    let ym = ys.abs_magnitude();
+    let (a, b) = if sdiff < 0 {
+        (xm * pow10_biguint((-sdiff) as u32), ym)
+    } else {
+        (xm, ym * pow10_biguint(sdiff as u32))
+    };
+    match a.cmp(&b) {
+        Ordering::Less => -1,
+        Ordering::Equal => 0,
+        Ordering::Greater => 1,
+    }
+}
+
+/// `10^n` as a `BigUint`.
+fn pow10_biguint(n: u32) -> num_bigint::BigUint {
+    num_bigint::BigUint::from(10u8).pow(n)
 }
 
 /// Rounds `val` to `mc`, ported from JDK `doRound(BigDecimal, MathContext)`:
@@ -696,6 +772,210 @@ impl BigDecimal {
         }
     }
 
+    /// `this / divisor` at the given `scale`, rounding per `mode`. Ported from the
+    /// private JDK `divide(dividend, dividendScale, divisor, divisorScale, scale,
+    /// roundingMode)` (all four compact/BigInteger variants are the same logic).
+    pub fn divide_at_scale(
+        &self,
+        divisor: &BigDecimal,
+        scale: i32,
+        mode: RoundingMode,
+    ) -> Result<BigDecimal, ArithmeticError> {
+        if divisor.int_val.is_zero() {
+            return Err(ArithmeticError::DivisionByZero);
+        }
+        let dividend_scale = self.scale as i64;
+        let divisor_scale = divisor.scale as i64;
+        let scale_i = scale as i64;
+        // preferred_scale == scale here, so no zero-stripping occurs.
+        if scale_i + divisor_scale > dividend_scale {
+            let raise = (scale_i + divisor_scale - dividend_scale) as u32;
+            let scaled_dividend = self.int_val.mul_pow10(raise);
+            divide_and_round_scaled(&scaled_dividend, &divisor.int_val, scale, mode, scale_i)
+        } else {
+            let raise = (dividend_scale - scale_i - divisor_scale) as u32;
+            let scaled_divisor = divisor.int_val.mul_pow10(raise);
+            divide_and_round_scaled(&self.int_val, &scaled_divisor, scale, mode, scale_i)
+        }
+    }
+
+    /// `this / divisor` at `this.scale()`, rounding per `mode` — Java
+    /// `divide(BigDecimal, RoundingMode)`.
+    pub fn divide_with_rounding(
+        &self,
+        divisor: &BigDecimal,
+        mode: RoundingMode,
+    ) -> Result<BigDecimal, ArithmeticError> {
+        self.divide_at_scale(divisor, self.scale, mode)
+    }
+
+    /// Exact `this / divisor` — Java `divide(BigDecimal)`. Errors with
+    /// `NonTerminatingDecimalExpansion` when the quotient does not terminate.
+    pub fn divide_exact(&self, divisor: &BigDecimal) -> Result<BigDecimal, ArithmeticError> {
+        if divisor.int_val.is_zero() {
+            return Err(ArithmeticError::DivisionByZero);
+        }
+        let preferred_scale = saturate_long(self.scale as i64 - divisor.scale as i64);
+        if self.int_val.is_zero() {
+            return Ok(BigDecimal::new(Significand::Compact(0), preferred_scale));
+        }
+        // Digit bound for a terminating expansion: precision + ceil(10*b.prec/3).
+        let prec = ((self.precision() as i64)
+            + (10 * divisor.precision() as i64 + 2) / 3)
+            .min(i32::MAX as i64) as u32;
+        let quotient = self
+            .divide_with_context(divisor, MathContext::new(prec, RoundingMode::Unnecessary))
+            .map_err(|e| match e {
+                ArithmeticError::InexactResult => ArithmeticError::NonTerminatingDecimalExpansion,
+                other => other,
+            })?;
+        // Exact divide can also add zeros to reach the preferred scale.
+        if preferred_scale > quotient.scale {
+            quotient.set_scale(preferred_scale, RoundingMode::Unnecessary)
+        } else {
+            Ok(quotient)
+        }
+    }
+
+    /// `this / divisor` rounded to `mc` — Java `divide(BigDecimal, MathContext)`.
+    /// Normalizes the operands into `[0.1, 1)` so the shared rounding kernel yields
+    /// exactly `mc.precision` significant digits.
+    pub fn divide_with_context(
+        &self,
+        divisor: &BigDecimal,
+        mc: MathContext,
+    ) -> Result<BigDecimal, ArithmeticError> {
+        let mcp = mc.precision;
+        if mcp == 0 {
+            return self.divide_exact(divisor);
+        }
+        if divisor.int_val.is_zero() {
+            return Err(ArithmeticError::DivisionByZero);
+        }
+        let preferred_scale = self.scale as i64 - divisor.scale as i64;
+        if self.int_val.is_zero() {
+            return Ok(BigDecimal::new(
+                Significand::Compact(0),
+                saturate_long(preferred_scale),
+            ));
+        }
+        let xs = &self.int_val;
+        let ys = &divisor.int_val;
+        let xscale = self.precision() as i64;
+        let mut yscale = divisor.precision() as i64;
+        // Constraint (b): ensure x' <= y' < 10*x' by treating divisor as *10.
+        if compare_magnitude_normalized(xs, xscale, ys, yscale) > 0 {
+            yscale -= 1;
+        }
+        let mcp_i = mcp as i64;
+        let scl = check_scale_nonzero(preferred_scale + yscale - xscale + mcp_i)?;
+        let quotient = if mcp_i + yscale - xscale > 0 {
+            let raise = (mcp_i + yscale - xscale) as u32;
+            let scaled_xs = xs.mul_pow10(raise);
+            divide_and_round_scaled(&scaled_xs, ys, scl, mc.rounding_mode, preferred_scale)?
+        } else {
+            let new_scale = xscale - mcp_i;
+            if new_scale == yscale {
+                divide_and_round_scaled(xs, ys, scl, mc.rounding_mode, preferred_scale)?
+            } else {
+                let raise = (new_scale - yscale) as u32;
+                let scaled_ys = ys.mul_pow10(raise);
+                divide_and_round_scaled(xs, &scaled_ys, scl, mc.rounding_mode, preferred_scale)?
+            }
+        };
+        // Only affects the 1.000... rounding-overflow case.
+        do_round(quotient, mc)
+    }
+
+    /// Integer part of `this / divisor`, exact — Java `divideToIntegralValue`.
+    pub fn divide_to_integral_value(
+        &self,
+        divisor: &BigDecimal,
+    ) -> Result<BigDecimal, ArithmeticError> {
+        let preferred_scale = saturate_long(self.scale as i64 - divisor.scale as i64);
+        if self.compare_magnitude(divisor) < 0 {
+            return Ok(BigDecimal::new(Significand::Compact(0), preferred_scale));
+        }
+        if self.int_val.is_zero() && !divisor.int_val.is_zero() {
+            return self.set_scale(preferred_scale, RoundingMode::Unnecessary);
+        }
+        let max_digits = ((self.precision() as i64)
+            + (10 * divisor.precision() as i64 + 2) / 3
+            + (self.scale as i64 - divisor.scale as i64).abs()
+            + 2)
+        .min(i32::MAX as i64) as u32;
+        let mut quotient =
+            self.divide_with_context(divisor, MathContext::new(max_digits, RoundingMode::Down))?;
+        if quotient.scale > 0 {
+            quotient = quotient.set_scale(0, RoundingMode::Down)?;
+            quotient = strip_zeros_to_match_scale(
+                &quotient.int_val,
+                quotient.scale,
+                preferred_scale as i64,
+            );
+        }
+        if quotient.scale < preferred_scale {
+            quotient = quotient.set_scale(preferred_scale, RoundingMode::Unnecessary)?;
+        }
+        Ok(quotient)
+    }
+
+    /// Integer part of `this / divisor` under `mc` — Java
+    /// `divideToIntegralValue(BigDecimal, MathContext)`.
+    pub fn divide_to_integral_value_with_context(
+        &self,
+        divisor: &BigDecimal,
+        mc: MathContext,
+    ) -> Result<BigDecimal, ArithmeticError> {
+        if mc.precision == 0 || self.compare_magnitude(divisor) < 0 {
+            return self.divide_to_integral_value(divisor);
+        }
+        let preferred_scale = saturate_long(self.scale as i64 - divisor.scale as i64) as i64;
+        let mut result =
+            self.divide_with_context(divisor, MathContext::new(mc.precision, RoundingMode::Down))?;
+        if result.scale < 0 {
+            let product = result.multiply(divisor);
+            if self.subtract(&product).compare_magnitude(divisor) >= 0 {
+                // Integer part needs more than mc.precision digits — "Division impossible".
+                return Err(ArithmeticError::Overflow);
+            }
+        } else if result.scale > 0 {
+            result = result.set_scale(0, RoundingMode::Down)?;
+        }
+        let precision_diff = mc.precision as i64 - result.precision() as i64;
+        if preferred_scale > result.scale as i64 && precision_diff > 0 {
+            let add = precision_diff.min(preferred_scale - result.scale as i64);
+            result.set_scale((result.scale as i64 + add) as i32, RoundingMode::Unnecessary)
+        } else {
+            Ok(strip_zeros_to_match_scale(
+                &result.int_val,
+                result.scale,
+                preferred_scale,
+            ))
+        }
+    }
+
+    /// `(divideToIntegralValue(mc), remainder)` — Java `divideAndRemainder(mc)`.
+    /// The remainder is exact: `this - quotient*divisor`.
+    pub fn divide_and_remainder_with_context(
+        &self,
+        divisor: &BigDecimal,
+        mc: MathContext,
+    ) -> Result<(BigDecimal, BigDecimal), ArithmeticError> {
+        let quotient = self.divide_to_integral_value_with_context(divisor, mc)?;
+        let remainder = self.subtract(&quotient.multiply(divisor));
+        Ok((quotient, remainder))
+    }
+
+    /// `this % divisor` under `mc` — Java `remainder(BigDecimal, MathContext)`.
+    pub fn remainder_with_context(
+        &self,
+        divisor: &BigDecimal,
+        mc: MathContext,
+    ) -> Result<BigDecimal, ArithmeticError> {
+        Ok(self.divide_and_remainder_with_context(divisor, mc)?.1)
+    }
+
     /// Engineering-notation string — Java `toEngineeringString()`.
     pub fn to_engineering_string(&self) -> String {
         self.layout(false)
@@ -981,6 +1261,58 @@ mod tests {
         assert_eq!(bd("-1").compare_to(&bd("1")), -1);
         assert_eq!(bd("1.1").max(&bd("1.09")).to_string(), "1.1");
         assert_eq!(bd("1.1").min(&bd("1.09")).to_string(), "1.09");
+    }
+
+    #[test]
+    fn divide_exact_and_nonterminating() {
+        assert_eq!(bd("1").divide_exact(&bd("8")).unwrap().to_string(), "0.125");
+        // preferred scale padding: 10/2 = 5, preferred scale 0
+        assert_eq!(bd("10").divide_exact(&bd("2")).unwrap().to_string(), "5");
+        // 1/3 does not terminate
+        assert_eq!(
+            bd("1").divide_exact(&bd("3")).unwrap_err(),
+            ArithmeticError::NonTerminatingDecimalExpansion
+        );
+        assert_eq!(
+            bd("1").divide_exact(&bd("0")).unwrap_err(),
+            ArithmeticError::DivisionByZero
+        );
+    }
+
+    #[test]
+    fn divide_at_scale_and_context() {
+        use RoundingMode::*;
+        // 1/3 to scale 4, HALF_UP
+        assert_eq!(
+            bd("1").divide_at_scale(&bd("3"), 4, HalfUp).unwrap().to_string(),
+            "0.3333"
+        );
+        // divide(mc): 2/3 to 5 sig digits
+        assert_eq!(
+            bd("2").divide_with_context(&bd("3"), mc(5, HalfUp)).unwrap().to_string(),
+            "0.66667"
+        );
+        // exact divide via mc strips to preferred scale: 10/4 = 2.5
+        assert_eq!(
+            bd("10").divide_with_context(&bd("4"), mc(10, HalfUp)).unwrap().to_string(),
+            "2.5"
+        );
+    }
+
+    #[test]
+    fn integral_value_and_remainder() {
+        use RoundingMode::*;
+        // 7 / 2 -> integer part 3, remainder 1
+        let q = bd("7").divide_to_integral_value_with_context(&bd("2"), mc(10, Down)).unwrap();
+        assert_eq!(q.to_string(), "3");
+        let (dq, dr) = bd("7").divide_and_remainder_with_context(&bd("2"), mc(10, Down)).unwrap();
+        assert_eq!(dq.to_string(), "3");
+        assert_eq!(dr.to_string(), "1");
+        // negative remainder keeps dividend sign: -7 % 2 = -1
+        assert_eq!(
+            bd("-7").remainder_with_context(&bd("2"), mc(10, Down)).unwrap().to_string(),
+            "-1"
+        );
     }
 
     #[test]
