@@ -25,6 +25,31 @@ impl BigDecimal {
             .map_err(|e| Error::from_reason(e.to_string()))
     }
 
+    /// Java `BigDecimal(BigInteger, int, MathContext)`: unscaled integer string +
+    /// scale, rounded to the given precision/rounding-mode.
+    #[napi(factory, js_name = "fromUnscaledScaleContext")]
+    pub fn from_unscaled_scale_context(
+        unscaled: String,
+        scale: i32,
+        precision: u32,
+        rounding_mode: u8,
+    ) -> Result<BigDecimal> {
+        let mc = math_context(precision, rounding_mode)?;
+        CoreBigDecimal::from_unscaled_string(&unscaled, scale, mc)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
+    /// Square root rounded to a `MathContext`.
+    #[napi]
+    pub fn sqrt(&self, precision: u32, rounding_mode: u8) -> Result<BigDecimal> {
+        let mc = math_context(precision, rounding_mode)?;
+        self.inner
+            .sqrt(mc)
+            .map(|inner| BigDecimal { inner })
+            .map_err(|e| Error::from_reason(e.to_string()))
+    }
+
     /// Exact addition (no rounding yet).
     #[napi]
     pub fn add(&self, augend: &BigDecimal) -> BigDecimal {
@@ -310,6 +335,11 @@ impl BigDecimal {
         BigDecimal {
             inner: self.inner.ulp(),
         }
+    }
+
+    #[napi]
+    pub fn number_value(&self) -> f64 {
+        self.inner.number_value()
     }
 
     /// The unscaled value as a decimal string (facade converts to bigint).

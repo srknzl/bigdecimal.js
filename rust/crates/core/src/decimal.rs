@@ -13,7 +13,7 @@
 use std::cmp::Ordering;
 use std::fmt;
 
-use num_bigint::{BigInt, Sign};
+use num_bigint::{BigInt, BigUint, Sign};
 use num_integer::Integer;
 use num_traits::{ToPrimitive, Zero};
 
@@ -1105,6 +1105,17 @@ impl BigDecimal {
         BigDecimal::new(Significand::Compact(1), self.scale)
     }
 
+    /// The nearest `f64` — Java `doubleValue()`. Rust's decimal parsing is
+    /// correctly rounded (round-to-nearest-even), matching Java's conversion;
+    /// out-of-range magnitudes saturate to ±infinity as in Java.
+    pub fn number_value(&self) -> f64 {
+        self.to_string().parse::<f64>().unwrap_or(if self.signum() < 0 {
+            f64::NEG_INFINITY
+        } else {
+            f64::INFINITY
+        })
+    }
+
     /// Convert to a `BigInteger`, discarding any fraction — Java `toBigInteger()`.
     pub fn to_big_integer(&self) -> Result<BigInt, ArithmeticError> {
         Ok(self.set_scale(0, RoundingMode::Down)?.int_val.to_bigint())
@@ -1114,6 +1125,165 @@ impl BigDecimal {
     /// `toBigIntegerExact()`.
     pub fn to_big_integer_exact(&self) -> Result<BigInt, ArithmeticError> {
         Ok(self.set_scale(0, RoundingMode::Unnecessary)?.int_val.to_bigint())
+    }
+
+    /// Construct from an unscaled `BigInteger` + scale, rounded to `mc` — Java's
+    /// `BigDecimal(BigInteger, int, MathContext)` constructor (== construct then
+    /// `doRound`).
+    pub fn from_bigint_scale_rounded(
+        unscaled: BigInt,
+        scale: i32,
+        mc: MathContext,
+    ) -> Result<BigDecimal, ArithmeticError> {
+        let bd = BigDecimal::new(Significand::from_bigint(unscaled), scale);
+        if mc.precision == 0 {
+            Ok(bd)
+        } else {
+            do_round(bd, mc)
+        }
+    }
+
+    /// Construct from an unscaled *integer* string + scale, rounded to `mc`. Used
+    /// by the binding for Java's `BigDecimal(BigInteger, int, MathContext)`.
+    pub fn from_unscaled_string(
+        unscaled: &str,
+        scale: i32,
+        mc: MathContext,
+    ) -> Result<BigDecimal, ArithmeticError> {
+        let bi = BigInt::parse_bytes(unscaled.as_bytes(), 10).ok_or(ArithmeticError::Overflow)?;
+        BigDecimal::from_bigint_scale_rounded(bi, scale, mc)
+    }
+
+    /// Whether this represents an integer value — Java `isInteger()`.
+    fn is_integer(&self) -> bool {
+        if self.scale <= 0 || self.int_val.is_zero() {
+            return true;
+        }
+        strip_zeros_to_match_scale(&self.int_val, self.scale, 0).scale == 0
+    }
+
+    /// Whether the value is `10^-scale` (unscaled magnitude 1) — Java `isPowerOfTen`.
+    fn is_power_of_ten(&self) -> bool {
+        matches!(self.int_val, Significand::Compact(1))
+    }
+
+    /// Move toward `preferred_scale` within the precision budget — Java
+    /// `adjustToPreferredScale`.
+    fn adjust_to_preferred_scale(self, preferred_scale: i32, max_precision: u32) -> BigDecimal {
+        if self.scale > preferred_scale {
+            strip_zeros_to_match_scale(&self.int_val, self.scale, preferred_scale as i64)
+        } else if self.scale < preferred_scale {
+            let max_scale = if max_precision == 0 {
+                preferred_scale
+            } else {
+                (preferred_scale as i64)
+                    .min(self.scale as i64 + (max_precision as i64 - self.precision() as i64))
+                    as i32
+            };
+            // Raising only — exact, never errors.
+            self.set_scale(max_scale, RoundingMode::Unnecessary).unwrap()
+        } else {
+            self
+        }
+    }
+
+    /// Square root rounded to `mc` — ported from JDK 26 `sqrt(MathContext)`. Reduces
+    /// to an integer radicand, uses `BigInteger::sqrt`, then rounds and adjusts to
+    /// the preferred scale `ceilDiv(scale, 2)`.
+    pub fn sqrt(&self, mc: MathContext) -> Result<BigDecimal, ArithmeticError> {
+        let signum = self.signum();
+        if signum != 1 {
+            return match signum {
+                -1 => Err(ArithmeticError::Overflow), // sqrt of negative
+                0 => Ok(BigDecimal::new(Significand::Compact(0), self.scale / 2)),
+                _ => unreachable!(),
+            };
+        }
+
+        // preferredScale = ceilDiv(scale, 2)
+        let preferred_scale = -((-(self.scale as i64)).div_euclid(2)) as i32;
+
+        let exact_requested = mc.rounding_mode == RoundingMode::Unnecessary || mc.precision == 0;
+        if exact_requested {
+            let stripped = self.strip_trailing_zeros();
+            let stripped_scale = stripped.scale;
+            if stripped_scale & 1 != 0 {
+                return Err(ArithmeticError::InexactResult); // not an exact square
+            }
+            if stripped.is_power_of_ten() {
+                let result = BigDecimal::new(Significand::Compact(1), stripped_scale >> 1);
+                return Ok(result.adjust_to_preferred_scale(preferred_scale, mc.precision));
+            }
+            let mag = stripped.int_val.abs_magnitude();
+            let s = mag.sqrt();
+            let rem = &mag - &(&s * &s);
+            let result =
+                BigDecimal::new(Significand::from_bigint(BigInt::from(s)), stripped_scale >> 1);
+            if !rem.is_zero() || (mc.precision != 0 && result.precision() > mc.precision) {
+                return Err(ArithmeticError::InexactResult);
+            }
+            return Ok(result.adjust_to_preferred_scale(preferred_scale, mc.precision));
+        }
+
+        // Inexact: normalize so the integer part yields enough digits.
+        let half_way = matches!(
+            mc.rounding_mode,
+            RoundingMode::HalfDown | RoundingMode::HalfUp | RoundingMode::HalfEven
+        );
+        let min_working_prec = ((mc.precision as i64 + if half_way { 1 } else { 0 }) << 1) - 1;
+        let mut norm_scale = min_working_prec - self.precision() as i64 + self.scale as i64;
+        norm_scale += norm_scale & 1; // must be even
+
+        let working_scale = self.scale as i64 - norm_scale;
+        if working_scale != working_scale as i32 as i64 {
+            return Err(ArithmeticError::ScaleOverflow);
+        }
+        let working = BigDecimal::new(self.int_val.clone(), working_scale as i32);
+        let working_mag = working.to_big_integer()?.magnitude().clone();
+
+        let mut result_scale = norm_scale >> 1;
+        let sqrt: BigInt;
+        if half_way {
+            let working_sqrt = working_mag.sqrt();
+            let (q, r10) = working_sqrt.div_rem(&BigUint::from(10u8));
+            result_scale -= 1;
+            let digit = r10.to_u32().unwrap();
+            let mut increment = false;
+            if digit > 5 {
+                increment = true;
+            } else if digit == 5 {
+                let ws_sq = &working_sqrt * &working_sqrt;
+                if mc.rounding_mode == RoundingMode::HalfUp
+                    || (mc.rounding_mode == RoundingMode::HalfEven && q.bit(0))
+                    || ws_sq != working_mag
+                    || !working.is_integer()
+                {
+                    increment = true;
+                }
+            }
+            sqrt = BigInt::from(if increment { q + 1u8 } else { q });
+        } else {
+            match mc.rounding_mode {
+                RoundingMode::Down | RoundingMode::Floor => sqrt = BigInt::from(working_mag.sqrt()),
+                RoundingMode::Up | RoundingMode::Ceiling => {
+                    let s = working_mag.sqrt();
+                    let rem = &working_mag - &(&s * &s);
+                    sqrt = BigInt::from(if !rem.is_zero() || !working.is_integer() {
+                        s + 1u8
+                    } else {
+                        s
+                    });
+                }
+                _ => unreachable!("half-way modes handled above"),
+            }
+        }
+
+        let scale = check_scale_nonzero(result_scale)?;
+        let mut result = BigDecimal::from_bigint_scale_rounded(sqrt, scale, mc)?;
+        if result.scale as i64 > preferred_scale as i64 {
+            result = strip_zeros_to_match_scale(&result.int_val, result.scale, preferred_scale as i64);
+        }
+        Ok(result)
     }
 
     /// Engineering-notation string — Java `toEngineeringString()`.
@@ -1470,6 +1640,40 @@ mod tests {
         assert_eq!(bd("2.99").to_big_integer().unwrap().to_string(), "2");
         assert_eq!(bd("3.00").to_big_integer_exact().unwrap().to_string(), "3");
         assert!(bd("2.99").to_big_integer_exact().is_err());
+    }
+
+    #[test]
+    fn sqrt_and_preferred_scale() {
+        use RoundingMode::*;
+        // exact perfect squares — note the JDK-26 preferred-scale behavior
+        assert_eq!(bd("4").sqrt(MathContext::UNLIMITED).unwrap().to_string(), "2");
+        assert_eq!(bd("4.0").sqrt(MathContext::UNLIMITED).unwrap().to_string(), "2.0");
+        assert_eq!(bd("0").sqrt(MathContext::UNLIMITED).unwrap().to_string(), "0");
+        // inexact, rounded to precision
+        assert_eq!(bd("2").sqrt(mc(10, HalfUp)).unwrap().to_string(), "1.414213562");
+        // non-exact under UNLIMITED errors
+        assert!(bd("2").sqrt(MathContext::UNLIMITED).is_err());
+        // negative errors
+        assert!(bd("-1").sqrt(mc(5, HalfUp)).is_err());
+    }
+
+    #[test]
+    fn number_value_matches_double() {
+        assert_eq!(bd("1").number_value(), 1.0);
+        assert_eq!(bd("-45").number_value(), -45.0);
+        assert_eq!(bd("6.1915").number_value(), 6.1915);
+        assert_eq!(bd("-0.0001").number_value(), -1.0e-4);
+        assert_eq!(bd("9e12").number_value(), 9.0e12);
+    }
+
+    #[test]
+    fn tostring_from_unscaled_scale() {
+        // Java BigDecimal(BigInteger, scale, mc)
+        let v = BigDecimal::from_unscaled_string("12345", 2, MathContext::UNLIMITED).unwrap();
+        assert_eq!(v.to_string(), "123.45");
+        let r = BigDecimal::from_unscaled_string("12345", 0, MathContext::new(3, RoundingMode::HalfUp))
+            .unwrap();
+        assert_eq!(r.to_string(), "1.23E+4");
     }
 
     #[test]
