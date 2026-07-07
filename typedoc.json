@@ -1,6 +1,9 @@
 {
   "out": "docs/",
   "customCss": "typedoc-custom.css",
+  "navigationLinks": {
+    "All versions": "https://srknzl.github.io/bigdecimal.js/"
+  },
   "entryPoints": ["src/bigdecimal.ts"],
   "excludeExternals": true,
   "excludeInternal": true,
