@@ -91,7 +91,8 @@ impl Significand {
 
     /// `self * 10^n`, staying compact when the multiplier and product both fit.
     fn mul_pow10(&self, n: u32) -> Significand {
-        if n == 0 {
+        if n == 0 || self.is_zero() {
+            // 0·10^n is 0 for any n; never materialize 10^n (n can be ~2^31).
             return self.clone();
         }
         if let Significand::Compact(a) = self {
@@ -331,6 +332,17 @@ fn check_scale_nonzero(val: i64) -> Result<i32, ArithmeticError> {
     i32::try_from(val).map_err(|_| ArithmeticError::ScaleOverflow)
 }
 
+/// Java `BigDecimal.checkScale` (instance): narrow to i32; when out of range,
+/// saturate to MIN/MAX if the value is zero (scale is then irrelevant), else
+/// signal overflow.
+fn check_scale(val: i64, is_zero: bool) -> Result<i32, ArithmeticError> {
+    match i32::try_from(val) {
+        Ok(v) => Ok(v),
+        Err(_) if is_zero => Ok(if val > 0 { i32::MAX } else { i32::MIN }),
+        Err(_) => Err(ArithmeticError::ScaleOverflow),
+    }
+}
+
 /// Remove trailing decimal zeros from `sig` while `scale > preferred_scale`,
 /// decrementing scale each time. Java's `createAndStripZerosToMatchScale`
 /// factors out powers of 2 and 5 for speed; this naive loop is identical in
@@ -493,6 +505,11 @@ impl BigDecimal {
             if exp_neg {
                 exp = -exp;
             }
+            // Java rejects an exponent whose magnitude exceeds a 32-bit int,
+            // independently of whether the resulting scale would fit.
+            if exp > i32::MAX as i64 || exp < i32::MIN as i64 {
+                return Err(ParseError::ExponentOverflow);
+            }
         }
 
         // scale = fractionDigits - exponent (Java's rule).
@@ -579,11 +596,13 @@ impl BigDecimal {
     }
 
     /// Exact product; `scale = this.scale + other.scale` — Java `multiply(BigDecimal)`.
-    // ponytail: i32 scale overflow on the exact path is unmodeled; the fixtures never
-    // approach it. Add a checked variant if one ever does.
+    // A zero product saturates its scale (Java `checkScale` on a zero value), matching
+    // e.g. `Big(0,MAX).multiply(Big(1,8))`. ponytail: a non-zero product whose scale
+    // overflows i32 would throw in Java; here it clamps (unmodeled, infallible
+    // signature) — the fixtures never approach it.
     pub fn multiply(&self, other: &BigDecimal) -> BigDecimal {
-        let product_scale = self.scale as i64 + other.scale as i64;
-        BigDecimal::new(self.int_val.mul(&other.int_val), product_scale as i32)
+        let sum = self.scale as i64 + other.scale as i64;
+        BigDecimal::new(self.int_val.mul(&other.int_val), saturate_long(sum))
     }
 
     /// `this * other` rounded to `mc` — Java `multiply(BigDecimal, MathContext)`.
@@ -1009,7 +1028,7 @@ impl BigDecimal {
         if !(0..=999_999_999).contains(&n) {
             return Err(ArithmeticError::Overflow); // "Invalid operation"
         }
-        let new_scale = check_scale_nonzero(self.scale as i64 * n as i64)?;
+        let new_scale = check_scale(self.scale as i64 * n as i64, self.int_val.is_zero())?;
         let pow = self.int_val.to_bigint().pow(n as u32);
         Ok(BigDecimal::new(Significand::from_bigint(pow), new_scale))
     }
@@ -1063,7 +1082,7 @@ impl BigDecimal {
         if n == 0 && self.scale >= 0 {
             return Ok(self.clone());
         }
-        let new_scale = check_scale_nonzero(self.scale as i64 + n as i64)?;
+        let new_scale = check_scale(self.scale as i64 + n as i64, self.int_val.is_zero())?;
         let num = BigDecimal::new(self.int_val.clone(), new_scale);
         if num.scale < 0 {
             num.set_scale(0, RoundingMode::Unnecessary)
@@ -1077,7 +1096,7 @@ impl BigDecimal {
         if n == 0 && self.scale >= 0 {
             return Ok(self.clone());
         }
-        let new_scale = check_scale_nonzero(self.scale as i64 - n as i64)?;
+        let new_scale = check_scale(self.scale as i64 - n as i64, self.int_val.is_zero())?;
         let num = BigDecimal::new(self.int_val.clone(), new_scale);
         if num.scale < 0 {
             num.set_scale(0, RoundingMode::Unnecessary)
@@ -1088,7 +1107,7 @@ impl BigDecimal {
 
     /// `this * 10^n`; scale becomes `this.scale() - n` — Java `scaleByPowerOfTen`.
     pub fn scale_by_power_of_ten(&self, n: i32) -> Result<BigDecimal, ArithmeticError> {
-        let new_scale = check_scale_nonzero(self.scale as i64 - n as i64)?;
+        let new_scale = check_scale(self.scale as i64 - n as i64, self.int_val.is_zero())?;
         Ok(BigDecimal::new(self.int_val.clone(), new_scale))
     }
 

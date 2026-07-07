@@ -73,7 +73,10 @@ describe('Sqrt JDK', function () {
 
             for (let scale = 0; scale <= 4; scale++) {
                 const scaledSquare = square.setScale(scale, RoundingMode.UNNECESSARY);
-                const expectedScale = Math.trunc(scale / 2);
+                // JDK 26 uses Math.ceilDiv(scale, 2) for the preferred scale
+                // (JDK 16 used truncating scale/2); for non-negative scale this
+                // is Math.ceil(scale/2).
+                const expectedScale = Math.ceil(scale / 2);
                 for (let precision = 0; precision <= 5; precision++) {
                     for (let rm = 0; rm < 8; rm++) {
                         const mc = MC(precision, rm);
