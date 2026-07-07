@@ -22,7 +22,7 @@ suite.add('Bigdecimal.js', function () {
     }
 }).add('BigNumber.js', function () {
     for (let i = 0; i < bigDecimalsBigNumber.length - 1; i++) {
-        bigDecimalsBigNumber[i].multipliedBy(bigDecimalsBigjs[i+1]);
+        bigDecimalsBigNumber[i].multipliedBy(bigDecimalsBigNumber[i+1]);
     }
 }).add('decimal.js', function () {
     for (let i = 0; i < bigDecimalsDecimal.length - 1; i++) {

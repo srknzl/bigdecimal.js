@@ -95,37 +95,38 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 
 ## Benchmark Results
 
-For now, benchmarked against [big.js](https://www.npmjs.com/package/big.js) and [bigdecimal](https://www.npmjs.com/package/bigdecimal).
+Benchmarked against [big.js](https://www.npmjs.com/package/big.js), [bigdecimal](https://www.npmjs.com/package/bigdecimal) (GWT-based), [bignumber.js](https://www.npmjs.com/package/bignumber.js) and [decimal.js](https://www.npmjs.com/package/decimal.js).
 
 * Test Machine:
-  * M1 2021 MacBook Air 
-  * 16 GB Ram
-  * MacOS Sonoma 14.2.1
-* Update Date: January 28th 2024
+  * Apple M1
+  * 8 GB Ram
+  * macOS 26.3
+  * Node.js 24
+* Update Date: July 7th 2026
 * Library versions used:  
-    * big.js 6.2.1
-    * (this library) bigdecimal.js 1.3.1
+    * big.js 7.0.1
+    * (this library) bigdecimal.js 1.3.2
     * bigdecimal 0.6.1
-    * bignumber.js: 9.1.2
-    * decimal.js:10.4.3
+    * bignumber.js: 11.1.5
+    * decimal.js: 10.6.0
 
 * Each operation is run with fixed set of decimal numbers composed of both simple and complex numbers.
 * Micro benchmark framework used is [benchmark](https://www.npmjs.com/package/benchmark). Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
-* For now, benchmarked the following operations, more operations will be added later.
+* A green percentage means the other library is faster than bigdecimal.js for that operation; red means it is slower.
 * Operations per second(op/s):
 
 | Operation | Bigdecimal.js | Big.js | BigNumber.js | decimal.js | GWTBased |
 | --- | --- | --- | --- | --- | --- |
-| Constructor | 43,962 ( - ) | 38,238 (<span style="color:red">-13%</span>) | 42,337 (<span style="color:red">-4%</span>) | 42,355 (<span style="color:red">-4%</span>) | 2,818 (<span style="color:red">-94%</span>) |
-| Add | 80,569 ( - ) | 18,406 (<span style="color:red">-77%</span>) | 100,734 (<span style="color:green">**+25%**</span>) | 59,815 (<span style="color:red">-26%</span>) | 90 (<span style="color:red">-100%</span>) |
-| Subtract | 73,518 ( - ) | 18,265 (<span style="color:red">-75%</span>) | 96,022 (<span style="color:green">**+31%**</span>) | 57,130 (<span style="color:red">-22%</span>) | 89 (<span style="color:red">-100%</span>) |
-| Multiply | 493,291 ( - ) | 33,422 (<span style="color:red">-93%</span>) | 26,810 (<span style="color:red">-95%</span>) | 79,995 (<span style="color:red">-84%</span>) | 2,609 (<span style="color:red">-99%</span>) |
-| Divide | 15,341 ( - ) | 1,129 (<span style="color:red">-93%</span>) | 11,721 (<span style="color:red">-24%</span>) | 13,301 (<span style="color:red">-13%</span>) | 645 (<span style="color:red">-96%</span>) |
-| Remainder | 9,362 ( - ) | 3,816 (<span style="color:red">-59%</span>) | 13,470 (<span style="color:green">**+44%**</span>) | 21,952 (<span style="color:green">**+134%**</span>) | 2,445 (<span style="color:red">-74%</span>) |
-| Positive pow | 27,403 ( - ) | 25 (<span style="color:red">-100%</span>) | 113 (<span style="color:red">-100%</span>) | 3,535 (<span style="color:red">-87%</span>) | 6 (<span style="color:red">-100%</span>) |
-| Negative pow | 4,863 ( - ) | 21 (<span style="color:red">-100%</span>) | 109 (<span style="color:red">-98%</span>) | 1,970 (<span style="color:red">-59%</span>) | 264 (<span style="color:red">-95%</span>) |
-| Abs | 782,251 ( - ) | 1,424,376 (<span style="color:green">**+82%**</span>) | 917,526 (<span style="color:green">**+17%**</span>) | 358,678 (<span style="color:red">-54%</span>) | 14,132 (<span style="color:red">-98%</span>) |
-| Compare | 546,243 ( - ) | 1,216,388 (<span style="color:green">**+123%**</span>) | 783,432 (<span style="color:green">**+43%**</span>) | 417,873 (<span style="color:red">-24%</span>) | 990,187 (<span style="color:green">**+81%**</span>) |
+| Constructor | 45,772 ( - ) | 41,981 (<span style="color:red">-8%</span>) | 47,907 (<span style="color:green">**+5%**</span>) | 46,106 (<span style="color:green">**+1%**</span>) | 3,156 (<span style="color:red">-93%</span>) |
+| Add | 117,297 ( - ) | 21,878 (<span style="color:red">-81%</span>) | 103,229 (<span style="color:red">-12%</span>) | 83,886 (<span style="color:red">-28%</span>) | 108 (<span style="color:red">-100%</span>) |
+| Subtract | 108,081 ( - ) | 21,546 (<span style="color:red">-80%</span>) | 102,484 (<span style="color:red">-5%</span>) | 76,841 (<span style="color:red">-29%</span>) | 107 (<span style="color:red">-100%</span>) |
+| Multiply | 849,163 ( - ) | 33,604 (<span style="color:red">-96%</span>) | 90,697 (<span style="color:red">-89%</span>) | 82,534 (<span style="color:red">-90%</span>) | 3,275 (<span style="color:red">-100%</span>) |
+| Divide | 24,634 ( - ) | 1,100 (<span style="color:red">-96%</span>) | 12,786 (<span style="color:red">-48%</span>) | 14,954 (<span style="color:red">-39%</span>) | 821 (<span style="color:red">-97%</span>) |
+| Remainder | 13,511 ( - ) | 3,847 (<span style="color:red">-72%</span>) | 15,206 (<span style="color:green">**+13%**</span>) | 23,497 (<span style="color:green">**+74%**</span>) | 3,109 (<span style="color:red">-77%</span>) |
+| Positive pow | 32,021 ( - ) | 26 (<span style="color:red">-100%</span>) | 118 (<span style="color:red">-100%</span>) | 3,647 (<span style="color:red">-89%</span>) | 7 (<span style="color:red">-100%</span>) |
+| Negative pow | 7,039 ( - ) | 22 (<span style="color:red">-100%</span>) | 113 (<span style="color:red">-98%</span>) | 2,020 (<span style="color:red">-71%</span>) | 335 (<span style="color:red">-95%</span>) |
+| Abs | 1,009,053 ( - ) | 1,826,905 (<span style="color:green">**+81%**</span>) | 990,234 (<span style="color:red">-2%</span>) | 342,904 (<span style="color:red">-66%</span>) | 17,230 (<span style="color:red">-98%</span>) |
+| Compare | 612,657 ( - ) | 1,216,071 (<span style="color:green">**+98%**</span>) | 931,315 (<span style="color:green">**+52%**</span>) | 411,884 (<span style="color:red">-33%</span>) | 1,190,166 (<span style="color:green">**+94%**</span>) |
 
 [npm-image]: https://img.shields.io/npm/v/bigdecimal.js.svg
 [npm-url]: https://npmjs.org/package/bigdecimal.js
