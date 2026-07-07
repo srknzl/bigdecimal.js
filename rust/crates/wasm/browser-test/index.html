@@ -1,0 +1,48 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>bigdecimal-wasm browser smoke</title>
+<pre id="result">running…</pre>
+<script type="module">
+  // Load the wasm-pack `web` target and exercise a batch of representative ops —
+  // including the JDK-26 drifts (sqrt(4.0)=2.0), MathContext division, pow, and
+  // error throwing — entirely in the browser engine. Writes RESULT:OK n/n or
+  // RESULT:FAIL … into #result so a headless runner can grep it.
+  import init, { BigDecimal as B } from '../pkg-web/bigdecimal_wasm.js';
+
+  const cases = [
+    ['1.5 + 2.5', () => B.fromString('1.5').add(B.fromString('2.5')).toString(), '4.0'],
+    ['10 / 3 mc(5,HALF_EVEN)', () => B.fromString('10').divideWithContext(B.fromString('3'), 5, 6).toString(), '3.3333'],
+    ['sqrt(4.0) exact', () => B.fromString('4.0').sqrt(0, 7).toString(), '2.0'],
+    ['2^10', () => B.fromString('2').powWithContext(10, 0, 7).toString(), '1024'],
+    ['1.005 round mc(3,HALF_UP)', () => B.fromString('1.005').round(3, 4).toString(), '1.01'],
+    ['setScale(2,HALF_UP)', () => B.fromString('2.345').setScale(2, 4).toString(), '2.35'],
+    ['stripTrailingZeros', () => B.fromString('600.0').stripTrailingZeros().toString(), '6E+2'],
+    ['compareTo', () => String(B.fromString('1.0').compareTo(B.fromString('1.00'))), '0'],
+    ['toEngineeringString', () => B.fromString('1.23E-8').toEngineeringString(), '12.3E-9'],
+    ['unscaledValue', () => B.fromString('1.500').unscaledValueString(), '1500'],
+  ];
+
+  function run() {
+    let ok = 0;
+    const fails = [];
+    for (const [name, fn, want] of cases) {
+      let got;
+      try { got = fn(); } catch (e) { got = 'THREW ' + (e && e.message || e); }
+      if (got === want) ok++; else fails.push(`${name}: got ${got} want ${want}`);
+    }
+    // error path must throw
+    let threw = false;
+    try { B.fromString('not a number'); } catch (e) { threw = true; }
+    if (threw) ok++; else fails.push('bad string did not throw');
+    const total = cases.length + 1;
+
+    const out = document.getElementById('result');
+    out.textContent = fails.length
+      ? `RESULT:FAIL ${ok}/${total}\n` + fails.join('\n')
+      : `RESULT:OK ${ok}/${total}`;
+  }
+
+  init().then(run).catch((e) => {
+    document.getElementById('result').textContent = 'RESULT:FAIL init ' + (e && e.message || e);
+  });
+</script>

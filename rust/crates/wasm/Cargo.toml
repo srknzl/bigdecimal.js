@@ -1,0 +1,16 @@
+[package]
+name = "bigdecimal-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+bigdecimal-core = { path = "../core" }
+wasm-bindgen = "0.2"
+
+# Smaller/faster panics in the browser bundle.
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false

@@ -1,9 +1,10 @@
 [workspace]
 resolver = "2"
-members = ["crates/core", "crates/napi"]
+members = ["crates/core", "crates/napi", "crates/wasm"]
 
 # The `core` crate is pure domain logic with no knowledge of any binding layer.
-# `napi` is the Node.js binding; the wasm binding is added in a later phase.
+# `napi` is the Node.js binding; `wasm` is the wasm-bindgen browser binding.
+# Both are thin adapters exposing the identical method surface the JS facade calls.
 
 [workspace.package]
 version = "0.1.0"
