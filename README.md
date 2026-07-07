@@ -4,7 +4,7 @@
 [![NPM Downloads][downloads-image]][downloads-url]
 [![codecov](https://codecov.io/gh/srknzl/bigdecimal.js/branch/main/graph/badge.svg?token=Y9PL8TFV2L)](https://codecov.io/gh/srknzl/bigdecimal.js)
 
-[BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal implementation for Node.js 10.4 and above.
+[BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal implementation for Node.js 10.4 and above, and for browsers that support native `BigInt` (Chrome 67+, Firefox 68+, Safari 14+).
 This implementation is inspired from java BigDecimal class. This implementation is faster than popular big decimal libraries for most operations.
 See [benchmarks results part below](https://github.com/srknzl/bigdecimal.js#benchmark-results) for comparison of each operation.
 
@@ -71,6 +71,35 @@ try {
     console.log(e); // RangeError: Non-terminating decimal expansion; no exact representable decimal result.
 }
 ```
+## Browser usage
+
+The library is pure JavaScript with zero runtime dependencies and uses native `BigInt`, so it runs in the browser with no polyfills. The only requirement is a browser with `BigInt` support (Chrome 67+, Firefox 68+, Safari 14+).
+
+With a bundler (Vite, webpack, esbuild, Rollup) just import it as usual:
+
+```javascript
+import { Big } from 'bigdecimal.js';
+```
+
+Without a bundler, import the ESM build straight from a CDN:
+
+```html
+<script type="module">
+  import { Big } from 'https://esm.sh/bigdecimal.js';
+  console.log(Big('0.1').add(Big('0.2')).toString()); // 0.3
+</script>
+```
+
+Or use the minified UMD bundle, which exposes a global `BigDecimalJS`:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/bigdecimal.js/lib/bigdecimal.umd.min.js"></script>
+<script>
+  const { Big } = BigDecimalJS;
+  console.log(Big('0.1').add(Big('0.2')).toString()); // 0.3
+</script>
+```
+
 ## Documentation
 
 * [API Documentation](https://srknzl.github.io/bigdecimal.js)

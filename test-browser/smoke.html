@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>bigdecimal.js browser smoke</title></head>
+<body>
+<pre id="result">RESULT:PENDING</pre>
+<!-- The minified UMD bundle exposes a global `BigDecimalJS`. -->
+<script src="../lib/bigdecimal.umd.min.js"></script>
+<script>
+  // Smallest end-to-end check that the browser build actually computes: a few
+  // representative ops (the classic 0.1+0.2, MathContext divide, pow), each
+  // asserted against its known BigDecimal result. Any mismatch or thrown error
+  // flips the marker to FAIL so the headless run (run.js) exits non-zero.
+  function check() {
+    const { Big, MC } = BigDecimalJS;
+    const cases = [
+      [Big('0.1').add(Big('0.2')).toString(), '0.3'],
+      [Big('1').divideWithMathContext(Big('3'), MC(3)).toString(), '0.333'],
+      [Big('2').pow(10).toString(), '1024'],
+      [Big('1.1111111111111111111111').add(Big('1.1111111111111111111111')).toString(),
+        '2.2222222222222222222222'],
+    ];
+    for (const [got, want] of cases) {
+      if (got !== want) throw new Error('expected ' + want + ' got ' + got);
+    }
+  }
+  const el = document.getElementById('result');
+  try {
+    check();
+    el.textContent = 'RESULT:OK';
+  } catch (e) {
+    el.textContent = 'RESULT:FAIL ' + e.message;
+  }
+</script>
+</body>
+</html>
