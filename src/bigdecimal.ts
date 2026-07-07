@@ -1200,7 +1200,7 @@ export class BigDecimal {
                 snd = BigDecimal.bigMultiplyPowerTen3(snd!, raise);
             }
         }
-        const sum = fst!.valueOf() + snd!.valueOf();
+        const sum = fst! + snd!;
         const sameSignum = (fst! === BigDecimal.zeroBigInt && snd! === BigDecimal.zeroBigInt) ||
             (fst! > BigDecimal.zeroBigInt && snd! > BigDecimal.zeroBigInt) ||
             (fst! < BigDecimal.zeroBigInt && snd! < BigDecimal.zeroBigInt);
@@ -1220,14 +1220,14 @@ export class BigDecimal {
             rscale = scale2;
             const scaledX = BigDecimal.integerMultiplyPowerTen(xs, raise);
             if (scaledX === BigDecimal.INFLATED) {
-                sum = snd!.valueOf() + BigDecimal.bigMultiplyPowerTen2(xs, raise).valueOf();
+                sum = snd! + BigDecimal.bigMultiplyPowerTen2(xs, raise);
             } else {
-                sum = snd!.valueOf() + BigInt(scaledX).valueOf();
+                sum = snd! + BigInt(scaledX);
             }
         } else { // if (sdiff > 0) {
             const raise = this.checkScale3(snd, sdiff);
             snd = BigDecimal.bigMultiplyPowerTen3(snd, raise);
-            sum = snd!.valueOf() + BigInt(xs);
+            sum = snd! + BigInt(xs);
         }
         return (sameSigns) ?
             new BigDecimal(sum, BigDecimal.INFLATED, rscale, 0) : BigDecimal.fromBigInt5(sum, rscale, 0);
@@ -1244,7 +1244,7 @@ export class BigDecimal {
             if (scaledX !== BigDecimal.INFLATED) {
                 return BigDecimal.add4(scaledX, ys, scale2);
             } else {
-                const bigsum = BigDecimal.bigMultiplyPowerTen2(xs, raise).valueOf() + BigInt(ys).valueOf();
+                const bigsum = BigDecimal.bigMultiplyPowerTen2(xs, raise) + BigInt(ys);
                 return ((xs ^ ys) >= 0) ?
                     new BigDecimal(bigsum, BigDecimal.INFLATED, scale2, 0) : BigDecimal.fromBigInt5(bigsum, scale2, 0);
             }
@@ -1254,7 +1254,7 @@ export class BigDecimal {
             if (scaledY !== BigDecimal.INFLATED) {
                 return BigDecimal.add4(xs, scaledY, scale1);
             } else {
-                const bigsum = BigDecimal.bigMultiplyPowerTen2(ys, raise).valueOf() + BigInt(xs).valueOf();
+                const bigsum = BigDecimal.bigMultiplyPowerTen2(ys, raise) + BigInt(xs);
                 return ((xs ^ ys) >= 0) ?
                     new BigDecimal(bigsum, BigDecimal.INFLATED, scale1, 0) : BigDecimal.fromBigInt5(bigsum, scale1, 0);
             }
@@ -1331,7 +1331,7 @@ export class BigDecimal {
      * @internal
      */
     private static compactValFor(value: bigint): number {
-        if (value.valueOf() > Number.MAX_SAFE_INTEGER || value.valueOf() < Number.MIN_SAFE_INTEGER) {
+        if (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) {
             return BigDecimal.INFLATED;
         }
         return Number(value);
@@ -1422,7 +1422,7 @@ export class BigDecimal {
         if (this.intCompact !== BigDecimal.INFLATED)
             return BigInt(10) ** BigInt(n) * BigInt(this.intCompact);
         else
-            return this.intVal!.valueOf() * BigInt(10) ** BigInt(n);
+            return this.intVal! * BigInt(10) ** BigInt(n);
     }
 
     /** @internal */
@@ -1435,9 +1435,9 @@ export class BigDecimal {
     private static bigMultiplyPowerTen3(value: bigint, n: number): bigint {
         if (n <= 0) return value;
         if (n < BigDecimal.TEN_POWERS_TABLE.length) {
-            return value!.valueOf() * BigInt(BigDecimal.TEN_POWERS_TABLE[n]);
+            return value! * BigInt(BigDecimal.TEN_POWERS_TABLE[n]);
         }
-        return BigInt(10) ** BigInt(n) * value.valueOf();
+        return BigInt(10) ** BigInt(n) * value;
     }
 
     /** @internal */
@@ -1521,7 +1521,7 @@ export class BigDecimal {
      * @internal
      */
     private static bigDigitLength(b: bigint) {
-        if (b < BigDecimal.zeroBigInt) b = b.valueOf() * BigDecimal.minusOneBigInt;
+        if (b < BigDecimal.zeroBigInt) b = b * BigDecimal.minusOneBigInt;
         return b.toString().length;
     }
 
@@ -1594,7 +1594,7 @@ export class BigDecimal {
         if (intCompact !== BigDecimal.INFLATED) {
             return BigDecimal.createAndStripZerosToMatchScale(intCompact, scale, preferredScale);
         } else {
-            return BigDecimal.createAndStripZerosToMatchScale2(intVal === null ? BigDecimal.INFLATED_BIGINT : intVal.valueOf(),
+            return BigDecimal.createAndStripZerosToMatchScale2(intVal === null ? BigDecimal.INFLATED_BIGINT : intVal,
                 scale, preferredScale);
         }
     }
@@ -1637,9 +1637,9 @@ export class BigDecimal {
     private static createAndStripZerosToMatchScale2(intVal: bigint, scale: number, preferredScale: number): BigDecimal {
         let qr: bigint[];
         while (BigDecimal.bigIntCompareMagnitude(intVal!, BigInt(10)) >= 0 && scale > preferredScale) {
-            if (intVal!.valueOf() % BigDecimal.twoBigInt === BigDecimal.oneBigInt)
+            if (intVal! % BigDecimal.twoBigInt === BigDecimal.oneBigInt)
                 break;
-            qr = [intVal!.valueOf() / BigInt(10), intVal!.valueOf() % BigInt(10)];
+            qr = [intVal! / BigInt(10), intVal! % BigInt(10)];
             if (BigDecimal.bigIntSignum(qr[1]) !== 0)
                 break;
             intVal = qr[0];
@@ -1725,7 +1725,7 @@ export class BigDecimal {
     negate(mc?: MathContext): BigDecimal {
         let result = this.intCompact === BigDecimal.INFLATED ?
             new BigDecimal(
-                BigDecimal.minusOneBigInt * this.intVal!.valueOf(), BigDecimal.INFLATED, this._scale, this._precision
+                BigDecimal.minusOneBigInt * this.intVal!, BigDecimal.INFLATED, this._scale, this._precision
             ) :
             BigDecimal.fromInteger2(-this.intCompact, this._scale, this._precision);
         if (mc) {
@@ -1799,7 +1799,7 @@ export class BigDecimal {
             lhs = arg[0];
             augend = arg[1];
         }
-        return BigDecimal.doRound2(lhs.inflated().valueOf() + augend.inflated().valueOf(), lhs._scale, mc);
+        return BigDecimal.doRound2(lhs.inflated() + augend.inflated(), lhs._scale, mc);
     }
 
     /**
@@ -1823,7 +1823,7 @@ export class BigDecimal {
                     return BigDecimal.add3(this.intCompact, this._scale, -subtrahend.intCompact, subtrahend._scale);
                 } else {
                     return BigDecimal.add2(
-                        this.intCompact, this._scale, BigDecimal.minusOneBigInt * subtrahend.intVal!.valueOf(), subtrahend._scale
+                        this.intCompact, this._scale, BigDecimal.minusOneBigInt * subtrahend.intVal!, subtrahend._scale
                     );
                 }
             } else {
@@ -1834,7 +1834,7 @@ export class BigDecimal {
                     return BigDecimal.add2(-subtrahend.intCompact, subtrahend._scale, this.intVal!, this._scale);
                 } else {
                     return BigDecimal.add1(
-                        this.intVal!, this._scale, BigDecimal.minusOneBigInt * subtrahend.intVal!.valueOf(), subtrahend._scale
+                        this.intVal!, this._scale, BigDecimal.minusOneBigInt * subtrahend.intVal!, subtrahend._scale
                     );
                 }
             }
@@ -2094,12 +2094,12 @@ export class BigDecimal {
         if (x === 0) {
             return BigDecimal.zeroValueOf(scale);
         }
-        return new BigDecimal(y!.valueOf() * BigInt(x), BigDecimal.INFLATED, scale, 0);
+        return new BigDecimal(y! * BigInt(x), BigDecimal.INFLATED, scale, 0);
     }
 
     /** @internal */
     private static multiply4(x: bigint, y: bigint, scale: number): BigDecimal {
-        return new BigDecimal(x!.valueOf() * y!.valueOf(), BigDecimal.INFLATED, scale, 0);
+        return new BigDecimal(x! * y!, BigDecimal.INFLATED, scale, 0);
     }
 
     /**
@@ -2129,12 +2129,12 @@ export class BigDecimal {
         if (x === 0) {
             return BigDecimal.zeroValueOf(scale);
         }
-        return BigDecimal.doRound2(y!.valueOf() * BigInt(x), scale, mc);
+        return BigDecimal.doRound2(y! * BigInt(x), scale, mc);
     }
 
     /** @internal */
     private static multiplyAndRound3(x: bigint, y: bigint, scale: number, mc: MathContext): BigDecimal {
-        return BigDecimal.doRound2(x!.valueOf() * y!.valueOf(), scale, mc);
+        return BigDecimal.doRound2(x! * y!, scale, mc);
     }
 
     /** @internal */
@@ -3263,7 +3263,7 @@ export class BigDecimal {
             // No need to calculate pow(n) if result will over/underflow.
             // Don't attempt to support "supernormal" numbers.
             const newScale = this.checkScale(this._scale * n);
-            return BigDecimal.fromBigInt5(this.inflated().valueOf() ** BigInt(n), newScale, 0);
+            return BigDecimal.fromBigInt5(this.inflated() ** BigInt(n), newScale, 0);
         }
         if (n < -999999999 || n > 999999999)
             throw new RangeError('Invalid operation');
@@ -3418,9 +3418,9 @@ export class BigDecimal {
      */
     private static bigIntCompareMagnitude(x: bigint, y: bigint): number {
         if (x < BigDecimal.zeroBigInt)
-            x = BigDecimal.minusOneBigInt * x.valueOf();
+            x = BigDecimal.minusOneBigInt * x;
         if (y < BigDecimal.zeroBigInt)
-            y = BigDecimal.minusOneBigInt * y.valueOf();
+            y = BigDecimal.minusOneBigInt * y;
         return (x < y) ? -1 : ((x === y) ? 0 : 1);
     }
 
@@ -3437,7 +3437,7 @@ export class BigDecimal {
             return new BigDecimal(null, qsign * numberForm, scale, 0);
         } else {
             return new BigDecimal(
-                BigInt(qsign) * bigInt.valueOf(), BigDecimal.INFLATED, scale, 0
+                BigInt(qsign) * bigInt, BigDecimal.INFLATED, scale, 0
             );
         }
     }
@@ -3472,11 +3472,11 @@ export class BigDecimal {
         // quotient sign
         const qsign = (BigDecimal.bigIntSignum(bdividend) !== BigDecimal.bigIntSignum(bdivisor)) ? -1 : 1;
 
-        if (bdividend < BigDecimal.zeroBigInt) bdividend = bdividend.valueOf() * BigDecimal.minusOneBigInt;
-        if (bdivisor < BigDecimal.zeroBigInt) bdivisor = bdivisor.valueOf() * BigDecimal.minusOneBigInt;
+        if (bdividend < BigDecimal.zeroBigInt) bdividend = bdividend * BigDecimal.minusOneBigInt;
+        if (bdivisor < BigDecimal.zeroBigInt) bdivisor = bdivisor * BigDecimal.minusOneBigInt;
 
-        let mq = bdividend.valueOf() / bdivisor.valueOf();
-        const mr = bdividend.valueOf() % bdivisor.valueOf();
+        let mq = bdividend / bdivisor;
+        const mr = bdividend % bdivisor;
         // record remainder is zero or not
         const isRemainderZero = mr === BigDecimal.zeroBigInt;
         if (!isRemainderZero) {
@@ -3490,7 +3490,7 @@ export class BigDecimal {
                 if (compactVal !== BigDecimal.INFLATED) {
                     return BigDecimal.createAndStripZerosToMatchScale(compactVal, scale, preferredScale);
                 }
-                const intVal = BigInt(qsign) * mq.valueOf();
+                const intVal = BigInt(qsign) * mq;
                 return BigDecimal.createAndStripZerosToMatchScale2(intVal, scale, preferredScale);
             } else {
                 return BigDecimal.bigIntToBigDecimal(mq, qsign, scale);
@@ -3507,7 +3507,7 @@ export class BigDecimal {
     ): boolean {
         const cmpFracHalf = BigDecimal.compareHalf(mr, mdivisor);
         return BigDecimal.commonNeedIncrement(
-            roundingMode, qsign, cmpFracHalf, mq.valueOf() % BigDecimal.twoBigInt === BigDecimal.oneBigInt
+            roundingMode, qsign, cmpFracHalf, mq % BigDecimal.twoBigInt === BigDecimal.oneBigInt
         );
     }
 
@@ -3518,7 +3518,7 @@ export class BigDecimal {
      * @private
      */
     private static compareHalf(first: bigint, second: bigint): number {
-        second = second.valueOf() / BigDecimal.twoBigInt;
+        second = second / BigDecimal.twoBigInt;
         if (first < second) return -1;
         if (first > second) return 1;
         return 0;
@@ -3541,9 +3541,9 @@ export class BigDecimal {
         const dividendSignum = BigDecimal.bigIntSignum(bdividend);
 
         if (divisorNegative) ldivisor *= -1;
-        if (dividendSignum === -1) bdividend = bdividend.valueOf() * BigDecimal.minusOneBigInt;
+        if (dividendSignum === -1) bdividend = bdividend * BigDecimal.minusOneBigInt;
 
-        let mq = bdividend.valueOf() / BigInt(ldivisor);
+        let mq = bdividend / BigInt(ldivisor);
         let mr: number;
 
         const bDividendNumber = Number(bdividend);
@@ -3551,7 +3551,7 @@ export class BigDecimal {
         if (Number.isSafeInteger(bDividendNumber)) {
             mr = bDividendNumber % ldivisor;
         } else {
-            mr = Number(bdividend.valueOf() % BigInt(ldivisor));
+            mr = Number(bdividend % BigInt(ldivisor));
         }
 
         // record remainder is zero or not
@@ -3569,7 +3569,7 @@ export class BigDecimal {
                 if (compactVal !== BigDecimal.INFLATED) {
                     return BigDecimal.createAndStripZerosToMatchScale(compactVal, scale, preferredScale);
                 }
-                const intVal = BigInt(qsign) * mq.valueOf();
+                const intVal = BigInt(qsign) * mq;
                 return BigDecimal.createAndStripZerosToMatchScale2(intVal, scale, preferredScale);
             } else {
                 return BigDecimal.bigIntToBigDecimal(mq, qsign, scale);
@@ -3590,7 +3590,7 @@ export class BigDecimal {
         }
 
         return BigDecimal.commonNeedIncrement(
-            roundingMode, qsign, cmpFracHalf, mq.valueOf() % BigDecimal.twoBigInt === BigDecimal.oneBigInt
+            roundingMode, qsign, cmpFracHalf, mq % BigDecimal.twoBigInt === BigDecimal.oneBigInt
         );
     }
 
@@ -3793,7 +3793,7 @@ export class BigDecimal {
      */
     private static bigIntAbs(val: bigint) {
         if (val < BigDecimal.zeroBigInt) {
-            return val.valueOf() * BigDecimal.minusOneBigInt;
+            return val * BigDecimal.minusOneBigInt;
         } else return val;
     }
 
@@ -4056,10 +4056,10 @@ export class BigDecimal {
         const dividendSignum = BigDecimal.bigIntSignum(bdividend);
         const divisorNegative = ldivisor < 0;
 
-        if (dividendSignum === -1) bdividend = bdividend.valueOf() * BigDecimal.minusOneBigInt;
+        if (dividendSignum === -1) bdividend = bdividend * BigDecimal.minusOneBigInt;
         if (divisorNegative) ldivisor *= -1;
 
-        let mq = bdividend.valueOf() / BigInt(ldivisor);
+        let mq = bdividend / BigInt(ldivisor);
         let r: number;
 
         const bDividendNumber = Number(bdividend);
@@ -4067,7 +4067,7 @@ export class BigDecimal {
         if (Number.isSafeInteger(bDividendNumber)) {
             r = bDividendNumber % ldivisor;
         } else {
-            r = Number(bdividend.valueOf() % BigInt(ldivisor));
+            r = Number(bdividend % BigInt(ldivisor));
         }
 
         // record remainder is zero or not
@@ -4092,11 +4092,11 @@ export class BigDecimal {
         const bdividendSignum = BigDecimal.bigIntSignum(bdividend);
         const bdivisorSignum = BigDecimal.bigIntSignum(bdivisor);
 
-        if (bdividend < BigDecimal.zeroBigInt) bdividend = bdividend.valueOf() * BigDecimal.minusOneBigInt;
-        if (bdivisor < BigDecimal.zeroBigInt) bdivisor = bdivisor.valueOf() * BigDecimal.minusOneBigInt;
+        if (bdividend < BigDecimal.zeroBigInt) bdividend = bdividend * BigDecimal.minusOneBigInt;
+        if (bdivisor < BigDecimal.zeroBigInt) bdivisor = bdivisor * BigDecimal.minusOneBigInt;
 
-        let mq = bdividend.valueOf() / bdivisor.valueOf();
-        const mr = bdividend.valueOf() % bdivisor.valueOf();
+        let mq = bdividend / bdivisor;
+        const mr = bdividend % bdivisor;
         const isRemainderZero = mr === BigDecimal.zeroBigInt; // record remainder is zero or not
         const qsign = (bdividendSignum !== bdivisorSignum) ? -1 : 1; // quotient sign
         if (!isRemainderZero) {
