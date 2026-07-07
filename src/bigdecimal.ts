@@ -1307,9 +1307,13 @@ export class BigDecimal {
      *         is negative, zero, or positive.
      */
     signum(): number {
-        const intCompactSignum = this.intCompact > 0 ? 1 : (this.intCompact < 0 ? -1 : 0);
-        const intValSignum = BigDecimal.bigIntSignum(this.intVal!);
-        return this.intCompact !== BigDecimal.INFLATED ? intCompactSignum : intValSignum;
+        // Compact is the common case; only touch the BigInt path when inflated
+        // so we don't do a wasted BigInt comparison on every call (hot path for
+        // abs/compareTo/add).
+        if (this.intCompact !== BigDecimal.INFLATED) {
+            return this.intCompact > 0 ? 1 : (this.intCompact < 0 ? -1 : 0);
+        }
+        return BigDecimal.bigIntSignum(this.intVal!);
     }
 
     /**
