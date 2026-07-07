@@ -1,5 +1,6 @@
 {
   "out": "docs/",
+  "customCss": "typedoc-custom.css",
   "entryPoints": ["src/bigdecimal.ts"],
   "excludeExternals": true,
   "excludeInternal": true,
