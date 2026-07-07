@@ -1410,3 +1410,12 @@ img {
         top: 42px;
     }
 }
+
+/* Keep wide README tables (e.g. the benchmark table) inside the content column
+   instead of overflowing under the right-hand "On This Page" sidebar. */
+.tsd-typography table {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+}
