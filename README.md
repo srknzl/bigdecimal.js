@@ -117,16 +117,16 @@ Benchmarked against [big.js](https://www.npmjs.com/package/big.js), [bigdecimal]
 
 | Operation | Bigdecimal.js | Big.js | BigNumber.js | decimal.js | GWTBased |
 | --- | --- | --- | --- | --- | --- |
-| Constructor | 45,772 ( - ) | 41,981 (<span style="color:red">-8%</span>) | 47,907 (<span style="color:green">**+5%**</span>) | 46,106 (<span style="color:green">**+1%**</span>) | 3,156 (<span style="color:red">-93%</span>) |
-| Add | 117,297 ( - ) | 21,878 (<span style="color:red">-81%</span>) | 103,229 (<span style="color:red">-12%</span>) | 83,886 (<span style="color:red">-28%</span>) | 108 (<span style="color:red">-100%</span>) |
-| Subtract | 108,081 ( - ) | 21,546 (<span style="color:red">-80%</span>) | 102,484 (<span style="color:red">-5%</span>) | 76,841 (<span style="color:red">-29%</span>) | 107 (<span style="color:red">-100%</span>) |
-| Multiply | 849,163 ( - ) | 33,604 (<span style="color:red">-96%</span>) | 90,697 (<span style="color:red">-89%</span>) | 82,534 (<span style="color:red">-90%</span>) | 3,275 (<span style="color:red">-100%</span>) |
-| Divide | 24,634 ( - ) | 1,100 (<span style="color:red">-96%</span>) | 12,786 (<span style="color:red">-48%</span>) | 14,954 (<span style="color:red">-39%</span>) | 821 (<span style="color:red">-97%</span>) |
-| Remainder | 13,511 ( - ) | 3,847 (<span style="color:red">-72%</span>) | 15,206 (<span style="color:green">**+13%**</span>) | 23,497 (<span style="color:green">**+74%**</span>) | 3,109 (<span style="color:red">-77%</span>) |
-| Positive pow | 32,021 ( - ) | 26 (<span style="color:red">-100%</span>) | 118 (<span style="color:red">-100%</span>) | 3,647 (<span style="color:red">-89%</span>) | 7 (<span style="color:red">-100%</span>) |
-| Negative pow | 7,039 ( - ) | 22 (<span style="color:red">-100%</span>) | 113 (<span style="color:red">-98%</span>) | 2,020 (<span style="color:red">-71%</span>) | 335 (<span style="color:red">-95%</span>) |
-| Abs | 1,009,053 ( - ) | 1,826,905 (<span style="color:green">**+81%**</span>) | 990,234 (<span style="color:red">-2%</span>) | 342,904 (<span style="color:red">-66%</span>) | 17,230 (<span style="color:red">-98%</span>) |
-| Compare | 612,657 ( - ) | 1,216,071 (<span style="color:green">**+98%**</span>) | 931,315 (<span style="color:green">**+52%**</span>) | 411,884 (<span style="color:red">-33%</span>) | 1,190,166 (<span style="color:green">**+94%**</span>) |
+| Constructor | 45,887 ( - ) | 42,897 (<span style="color:red">-7%</span>) | 48,456 (<span style="color:green">**+6%**</span>) | 45,833 ( - ) | 3,205 (<span style="color:red">-93%</span>) |
+| Add | 118,793 ( - ) | 22,569 (<span style="color:red">-81%</span>) | 107,339 (<span style="color:red">-10%</span>) | 86,834 (<span style="color:red">-27%</span>) | 105 (<span style="color:red">-100%</span>) |
+| Subtract | 110,650 ( - ) | 22,453 (<span style="color:red">-80%</span>) | 102,303 (<span style="color:red">-8%</span>) | 80,321 (<span style="color:red">-27%</span>) | 108 (<span style="color:red">-100%</span>) |
+| Multiply | 847,935 ( - ) | 33,828 (<span style="color:red">-96%</span>) | 91,129 (<span style="color:red">-89%</span>) | 82,154 (<span style="color:red">-90%</span>) | 3,279 (<span style="color:red">-100%</span>) |
+| Divide | 26,041 ( - ) | 1,105 (<span style="color:red">-96%</span>) | 12,644 (<span style="color:red">-51%</span>) | 15,206 (<span style="color:red">-42%</span>) | 814 (<span style="color:red">-97%</span>) |
+| Remainder | 13,824 ( - ) | 3,878 (<span style="color:red">-72%</span>) | 15,079 (<span style="color:green">**+9%**</span>) | 23,919 (<span style="color:green">**+73%**</span>) | 3,091 (<span style="color:red">-78%</span>) |
+| Positive pow | 31,912 ( - ) | 26 (<span style="color:red">-100%</span>) | 118 (<span style="color:red">-100%</span>) | 3,626 (<span style="color:red">-89%</span>) | 7 (<span style="color:red">-100%</span>) |
+| Negative pow | 7,139 ( - ) | 22 (<span style="color:red">-100%</span>) | 113 (<span style="color:red">-98%</span>) | 2,036 (<span style="color:red">-71%</span>) | 335 (<span style="color:red">-95%</span>) |
+| Abs | 3,555,797 ( - ) | 1,820,078 (<span style="color:red">-49%</span>) | 994,210 (<span style="color:red">-72%</span>) | 356,897 (<span style="color:red">-90%</span>) | 17,287 (<span style="color:red">-100%</span>) |
+| Compare | 2,195,934 ( - ) | 1,222,181 (<span style="color:red">-44%</span>) | 933,381 (<span style="color:red">-57%</span>) | 423,271 (<span style="color:red">-81%</span>) | 1,197,847 (<span style="color:red">-45%</span>) |
 
 [npm-image]: https://img.shields.io/npm/v/bigdecimal.js.svg
 [npm-url]: https://npmjs.org/package/bigdecimal.js
