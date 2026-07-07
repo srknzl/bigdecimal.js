@@ -2632,7 +2632,10 @@ export class BigDecimal {
             // The code below favors relative simplicity over checking
             // for special cases that could run faster.
 
-            const preferredScale = Math.trunc(this._scale / 2);
+            // JDK 26: preferred scale is Math.ceilDiv(scale, 2) (was truncating
+            // scale/2 pre-26; e.g. sqrt(4.0) is now 2.0, not 2). Math.ceil(scale/2)
+            // is exact for int32 scales and equals ceilDiv for a positive divisor.
+            const preferredScale = Math.ceil(this._scale / 2);
             const zeroWithFinalPreferredScale = BigDecimal.fromInteger3(0, preferredScale);
 
             // First phase of numerical normalization, strip trailing
@@ -3603,7 +3606,7 @@ export class BigDecimal {
      * @throws RangeError if scale overflows.
      */
     movePointLeft(n: number): BigDecimal {
-        if (n === 0) return this;
+        if (n === 0 && this._scale >= 0) return this;
 
         // Cannot use movePointRight(-n) in case of n==BigDecimal.MIN_INT_VALUE
         const newScale = this.checkScale(this._scale + n);
@@ -3626,7 +3629,7 @@ export class BigDecimal {
      * @throws RangeError if scale overflows.
      */
     movePointRight(n: number): BigDecimal {
-        if (n === 0) return this;
+        if (n === 0 && this._scale >= 0) return this;
 
         // Cannot use movePointLeft(-n) in case of n==BigDecimal.MIN_INT_VALUE
         const newScale = this.checkScale(this._scale - n);
