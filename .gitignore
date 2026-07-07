@@ -17,3 +17,5 @@ index.js.map
 *.jar
 *.log
 Gemfile.lock
+.DS_Store
+rust
