@@ -4484,7 +4484,11 @@ export class BigDecimal {
     }
 }
 
-interface BigDecimalConstructor {
+/**
+ * Type of the {@link Big} constructor function, which builds a {@link BigDecimal}
+ * and can be invoked with or without new.
+ */
+export interface BigDecimalConstructor {
     (n: BigDecimal | bigint | number | string, scale?: number, mc?: MathContext): BigDecimal;
 
     new(n: BigDecimal | bigint | number | string, scale?: number, mc?: MathContext): BigDecimal;
@@ -4549,7 +4553,11 @@ export const Big = <BigDecimalConstructor> function _Big(
     return BigDecimal.fromValue(n, scale, mc);
 };
 
-interface MathContextConstructor {
+/**
+ * Type of the {@link MC} constructor function, which builds a {@link MathContext}
+ * and can be invoked with or without new.
+ */
+export interface MathContextConstructor {
     (precision: number, roundingMode?: RoundingMode): MathContext;
 
     new(precision: number, roundingMode?: RoundingMode): MathContext;

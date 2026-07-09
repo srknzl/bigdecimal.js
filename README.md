@@ -175,6 +175,22 @@ Benchmarked against [big.js](https://www.npmjs.com/package/big.js), [bigdecimal]
 
 bigdecimal.js is the fastest in 23 of 27 operations. It trails decimal.js on `remainder`/`divideToIntegralValue`, and big.js on `round`/`setScale`.
 
+### Other engines: Bun (JavaScriptCore)
+
+The table above is measured on Node.js, i.e. V8. Because bigdecimal.js builds on native `BigInt`, relative results depend on the engine's `BigInt` implementation. Running the same suite on the same machine under Bun 1.3.14 (JavaScriptCore, the engine of Safari), bigdecimal.js is the fastest in 22 of 27 operations, and its absolute throughput is often higher than on V8 — for example ToString reaches 18.3M ops/sec (10.7M on V8), NumberValue 5.7M (760K on V8) and Divide 50K (40K on V8).
+
+Operations where the outcome differs on JavaScriptCore:
+
+| Operation | Node.js (V8) | Bun (JavaScriptCore) |
+| --- | --- | --- |
+| Constructor | 🏆 **Bigdecimal.js** (2.0×) | 🏆 **Big.js** (1.0×) — JavaScriptCore parses decimal strings into `BigInt` more slowly than V8 |
+| Round | 🏆 **Big.js** (3.5×) | 🏆 **decimal.js** (2.0×) |
+| SetScale | 🏆 **Big.js** (2.2×) | 🏆 **decimal.js** (1.1×), Bigdecimal.js a close second |
+| DivideToIntegralValue | 🏆 **decimal.js** (2.0×) | 🏆 **decimal.js** (1.4×) |
+| Remainder | 🏆 **decimal.js** (1.6×) | 🏆 **decimal.js** (1.2×) |
+
+To reproduce, run the suite with Bun: `bun benchmarks/index.js`.
+
 [npm-image]: https://img.shields.io/npm/v/bigdecimal.js.svg
 [npm-url]: https://npmjs.org/package/bigdecimal.js
 [downloads-image]: https://img.shields.io/npm/dm/bigdecimal.js.svg
