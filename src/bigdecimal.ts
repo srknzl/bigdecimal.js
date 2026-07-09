@@ -462,6 +462,14 @@ export class MathContext {
  * `BigDecimal` arithmetic.
  *
  */
+
+/**
+ * Registered symbol Node.js uses to look up a custom `util.inspect` /
+ * `console.log` representation. Harmless in browsers.
+ * @internal
+ */
+const inspectCustomSymbol: unique symbol = Symbol.for('nodejs.util.inspect.custom');
+
 export class BigDecimal {
     /** @internal */
     private static readonly zeroBigInt = BigInt(0);
@@ -788,24 +796,22 @@ export class BigDecimal {
                 }
             }
         } else {
-            const coeff = [];
+            const start = offset; // digits and at most one dot run from here to the exponent mark or end
+            let dotPos = -1;
             for (; len > 0; offset++, len--) {
                 c = input[offset];
                 // have digit
                 if (c >= '0' && c <= '9') {
-                    // First compact case, we need not to preserve the character
-                    // and we can just compute the value in place.
                     if (c === '0') {
                         if (prec === 0) {
-                            coeff[idx] = c;
                             prec = 1;
                         } else if (idx !== 0) {
-                            coeff[idx++] = c;
+                            idx++;
                             prec++;
                         } // else c must be a redundant leading zero
                     } else {
                         if (prec !== 1 || idx !== 0) prec++; // prec unchanged if preceded by 0s
-                        coeff[idx++] = c;
+                        idx++;
                     }
                     if (dot) scl++;
                     continue;
@@ -816,6 +822,7 @@ export class BigDecimal {
                         throw new RangeError('String contains more than one decimal point.');
                     }
                     dot = true;
+                    dotPos = offset;
                     continue;
                 }
                 // exponent expected
@@ -836,8 +843,11 @@ export class BigDecimal {
             if (exp !== 0) { // had significant exponent
                 scl = BigDecimal.adjustScale(scl, exp);
             }
-            const stringValue = coeff.join('');
-            // Remove leading zeros from precision (digits count)
+            // Slice the digit run out of the input instead of rebuilding it
+            // character by character; BigInt tolerates leading zeros.
+            const stringValue = dotPos < 0
+                ? input.slice(start, offset)
+                : input.slice(start, dotPos) + input.slice(dotPos + 1, offset);
             if (isneg) rb = BigInt('-' + stringValue);
             else rb = BigInt(stringValue);
             rs = BigDecimal.compactValFor(rb);
@@ -1114,14 +1124,12 @@ export class BigDecimal {
      * @internal
      */
     private static integerDigitLength(value: number): number {
-        let length = 0;
-        let n = Math.abs(value);
-
-        do {
-            n /= 10;
-            length++;
-        } while (n >= 1);
-        return length;
+        const n = Math.abs(value);
+        const table = BigDecimal.TEN_POWERS_TABLE;
+        for (let i = 1; i < table.length; i++) {
+            if (n < table[i]) return i;
+        }
+        return 16; // callers only pass values up to MAX_SAFE_INTEGER, which has 16 digits
     }
 
     /**
@@ -3833,6 +3841,15 @@ export class BigDecimal {
             this.stringCache = sc = this.layoutString(true);
         }
         return sc;
+    }
+
+    /**
+     * Makes Node.js `console.log` and `util.inspect` print the numeric value
+     * (e.g. `BigDecimal('1.23')`) instead of the internal fields.
+     * @internal
+     */
+    [inspectCustomSymbol](): string {
+        return 'BigDecimal(\'' + this.toString() + '\')';
     }
 
     /**
