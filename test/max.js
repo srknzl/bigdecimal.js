@@ -31,6 +31,12 @@ describe('Max test', function () {
         }
     });
 
+    it('should accept number, string and bigint arguments', function () {
+        Big('2.5').max(3).toString().should.be.equal('3');
+        Big('2.5').max('2.4').toString().should.be.equal('2.5');
+        Big('2.5').max(BigInt(3)).toString().should.be.equal('3');
+    });
+
     it('should throw on invalid argument', function () {
         for (const test of invalidTests) {
             (() => {

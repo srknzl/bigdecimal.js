@@ -473,6 +473,9 @@ export class BigDecimal {
     private static readonly twoBigInt = BigInt(2);
 
     /** @internal */
+    private static readonly tenBigInt = BigInt(10);
+
+    /** @internal */
     private static readonly minusOneBigInt = BigInt(-1);
 
     /** @internal */
@@ -519,7 +522,7 @@ export class BigDecimal {
         new BigDecimal(BigInt(7), 7, 0, 1),
         new BigDecimal(BigInt(8), 8, 0, 1),
         new BigDecimal(BigInt(9), 9, 0, 1),
-        new BigDecimal(BigInt(10), 10, 0, 2),
+        new BigDecimal(BigDecimal.tenBigInt, 10, 0, 2),
     ];
 
     /** @internal */
@@ -566,6 +569,36 @@ export class BigDecimal {
         100000000000000,
         1000000000000000,
     ];
+
+    /**
+     * Cache of `BigInt` powers of ten, expanded on demand by {@link bigTenToThe}.
+     * @internal
+     */
+    private static BIG_TEN_POWERS_TABLE: bigint[] = [BigDecimal.oneBigInt, BigDecimal.tenBigInt];
+
+    /**
+     * Largest exponent cached in {@link BIG_TEN_POWERS_TABLE}, to bound memory use.
+     * @internal
+     */
+    private static readonly BIG_TEN_POWERS_TABLE_MAX = 1024;
+
+    /**
+     * Returns 10 to the power n, as a `BigInt`. Results are cached up to
+     * n = {@link BIG_TEN_POWERS_TABLE_MAX}; the table grows by doubling.
+     * @internal
+     */
+    private static bigTenToThe(n: number): bigint {
+        const table = BigDecimal.BIG_TEN_POWERS_TABLE;
+        if (n < table.length) return table[n];
+        if (n <= BigDecimal.BIG_TEN_POWERS_TABLE_MAX) {
+            let newLen = table.length * 2;
+            while (newLen <= n) newLen *= 2;
+            if (newLen > BigDecimal.BIG_TEN_POWERS_TABLE_MAX + 1) newLen = BigDecimal.BIG_TEN_POWERS_TABLE_MAX + 1;
+            for (let i = table.length; i < newLen; i++) table[i] = table[i - 1] * BigDecimal.tenBigInt;
+            return table[n];
+        }
+        return BigDecimal.tenBigInt ** BigInt(n);
+    }
 
     /** @internal */
     private static readonly HALF_NUMBER_MAX_VALUE = Number.MAX_SAFE_INTEGER / 2;
@@ -1317,6 +1350,33 @@ export class BigDecimal {
     }
 
     /**
+     * Checks whether this `BigDecimal` is zero.
+     *
+     * @return true if the value of this `BigDecimal` is zero, false otherwise.
+     */
+    isZero(): boolean {
+        return this.signum() === 0;
+    }
+
+    /**
+     * Checks whether this `BigDecimal` is positive.
+     *
+     * @return true if the value of this `BigDecimal` is greater than zero, false otherwise.
+     */
+    isPositive(): boolean {
+        return this.signum() > 0;
+    }
+
+    /**
+     * Checks whether this `BigDecimal` is negative.
+     *
+     * @return true if the value of this `BigDecimal` is less than zero, false otherwise.
+     */
+    isNegative(): boolean {
+        return this.signum() < 0;
+    }
+
+    /**
      * Returns unscaled value of this `BigDecimal` as `BigInt`
      * @internal
      */
@@ -1388,7 +1448,7 @@ export class BigDecimal {
         if (tenPow < BigDecimal.TEN_POWERS_TABLE.length)
             intVal = BigDecimal.divideAndRound5(intVal, BigDecimal.TEN_POWERS_TABLE[tenPow], roundingMode);
         else
-            intVal = BigDecimal.divideAndRound6(intVal, BigInt(10) ** BigInt(tenPow), roundingMode);
+            intVal = BigDecimal.divideAndRound6(intVal, BigDecimal.bigTenToThe(tenPow), roundingMode);
         return intVal;
     }
 
@@ -1419,25 +1479,19 @@ export class BigDecimal {
     private bigMultiplyPowerTen(n: number): bigint {
         if (n <= 0)
             return this.inflated();
-        if (this.intCompact !== BigDecimal.INFLATED)
-            return BigInt(10) ** BigInt(n) * BigInt(this.intCompact);
-        else
-            return this.intVal! * BigInt(10) ** BigInt(n);
+        return this.inflated() * BigDecimal.bigTenToThe(n);
     }
 
     /** @internal */
     private static bigMultiplyPowerTen2(value: number, n: number): bigint {
         if (n <= 0) return BigInt(value);
-        return BigInt(10) ** BigInt(n) * BigInt(value);
+        return BigDecimal.bigTenToThe(n) * BigInt(value);
     }
 
     /** @internal */
     private static bigMultiplyPowerTen3(value: bigint, n: number): bigint {
         if (n <= 0) return value;
-        if (n < BigDecimal.TEN_POWERS_TABLE.length) {
-            return value! * BigInt(BigDecimal.TEN_POWERS_TABLE[n]);
-        }
-        return BigInt(10) ** BigInt(n) * value;
+        return BigDecimal.bigTenToThe(n) * value;
     }
 
     /** @internal */
@@ -1516,13 +1570,27 @@ export class BigDecimal {
         return val;
     }
 
+    /** @internal */
+    private static readonly LOG10_2 = 0.3010299956639812; // Math.log10(2)
+
     /**
-     * Returns length of a bigint
+     * Returns the number of decimal digits of a bigint, without converting it
+     * to a decimal string. The bit length is derived from the hexadecimal
+     * string (linear-time, unlike decimal conversion), the digit count is
+     * estimated via log10(2) and corrected with at most a couple of bigint
+     * comparisons against cached powers of ten.
      * @internal
      */
     private static bigDigitLength(b: bigint) {
-        if (b < BigDecimal.zeroBigInt) b = b * BigDecimal.minusOneBigInt;
-        return b.toString().length;
+        if (b < BigDecimal.zeroBigInt) b = -b;
+        if (b < BigDecimal.tenBigInt) return 1;
+        const hex = b.toString(16);
+        const bitLength = (hex.length - 1) * 4 + (32 - Math.clz32(parseInt(hex.charAt(0), 16)));
+        // 2^(bitLength-1) <= b < 2^bitLength, so the true digit count is d or d+1
+        let d = Math.floor((bitLength - 1) * BigDecimal.LOG10_2) + 1;
+        while (b >= BigDecimal.bigTenToThe(d)) d++;
+        while (b < BigDecimal.bigTenToThe(d - 1)) d--;
+        return d;
     }
 
     /**
@@ -1636,10 +1704,10 @@ export class BigDecimal {
      */
     private static createAndStripZerosToMatchScale2(intVal: bigint, scale: number, preferredScale: number): BigDecimal {
         let qr: bigint[];
-        while (BigDecimal.bigIntCompareMagnitude(intVal!, BigInt(10)) >= 0 && scale > preferredScale) {
+        while (BigDecimal.bigIntCompareMagnitude(intVal!, BigDecimal.tenBigInt) >= 0 && scale > preferredScale) {
             if (intVal! % BigDecimal.twoBigInt === BigDecimal.oneBigInt)
                 break;
-            qr = [intVal! / BigInt(10), intVal! % BigInt(10)];
+            qr = [intVal! / BigDecimal.tenBigInt, intVal! % BigDecimal.tenBigInt];
             if (BigDecimal.bigIntSignum(qr[1]) !== 0)
                 break;
             intVal = qr[0];
@@ -3169,7 +3237,7 @@ export class BigDecimal {
                     );
                 } else {
                     return BigDecimal.divideAndRound3(
-                        this.inflated(), BigInt(10) ** BigInt(drop), newScale, roundingMode, newScale
+                        this.inflated(), BigDecimal.bigTenToThe(drop), newScale, roundingMode, newScale
                     );
                 }
             }
@@ -3190,7 +3258,7 @@ export class BigDecimal {
                     );
                 else
                     return BigDecimal.divideAndRound3(
-                        this.intVal!, BigInt(10) ** BigInt(drop), newScale, roundingMode, newScale
+                        this.intVal!, BigDecimal.bigTenToThe(drop), newScale, roundingMode, newScale
                     );
             }
         }
@@ -3644,29 +3712,35 @@ export class BigDecimal {
     /**
      * Returns the minimum of this `BigDecimal` and `val`.
      *
-     * @param val value with which the minimum is to be computed.
+     * @param val value with which the minimum is to be computed. This value will
+     * be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
      * @return the `BigDecimal` whose value is the lesser of this
      *         `BigDecimal` and `val`.  If they are equal,
      *         as defined by the {@link compareTo}
      *         method, `this` is returned.
      * @see    {@link compareTo}
      */
-    min(val: BigDecimal): BigDecimal {
-        return (this.compareTo(val) <= 0 ? this : val);
+    min(val: BigDecimal | bigint | number | string): BigDecimal {
+        const other = BigDecimal.convertToBigDecimal(val);
+        return (this.compareTo(other) <= 0 ? this : other);
     }
 
     /**
      * Returns the maximum of this `BigDecimal` and `val`.
      *
-     * @param val value with which the maximum is to be computed.
+     * @param val value with which the maximum is to be computed. This value will
+     * be converted to a `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
      * @return the `BigDecimal` whose value is the greater of this
      *         `BigDecimal` and `val`.  If they are equal,
      *         as defined by the {@link compareTo}
      *         method, `this` is returned.
      * @see    {@link compareTo}
      */
-    max(val: BigDecimal): BigDecimal {
-        return (this.compareTo(val) >= 0 ? this : val);
+    max(val: BigDecimal | bigint | number | string): BigDecimal {
+        const other = BigDecimal.convertToBigDecimal(val);
+        return (this.compareTo(other) >= 0 ? this : other);
     }
 
     /**
@@ -4250,7 +4324,7 @@ export class BigDecimal {
         if (n < BigDecimal.TEN_POWERS_TABLE.length)
             return BigDecimal.fromInteger3(sign * BigDecimal.TEN_POWERS_TABLE[n], scale);
         else {
-            let unscaledVal = BigInt(10) ** BigInt(n);
+            let unscaledVal = BigDecimal.bigTenToThe(n);
             if (sign === -1) {
                 unscaledVal = unscaledVal * BigDecimal.minusOneBigInt;
             }
