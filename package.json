@@ -1,6 +1,6 @@
 {
   "name": "bigdecimal.js",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "A BigDecimal implementation with native BigInts",
   "exports": {
     "types": "./lib/bigdecimal.d.ts",
