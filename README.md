@@ -127,6 +127,39 @@ are set per operation via `MathContext` (`MC`) and `RoundingMode` — and `divid
 **throws** a `RangeError` on a non-terminating result unless you pass a scale or a
 `MathContext` (use `divideWithMathContext` for the latter).
 
+## Lossless JSON
+
+JSON is the weak spot of every decimal library: `JSON.parse` rounds numbers to
+IEEE-754 doubles *before* your code runs, and `JSON.stringify` turns a
+`BigDecimal` into a string (via `toJSON()`), which changes the wire type for
+consumers expecting a JSON number (Java's Jackson serializes `BigDecimal` as a
+bare number by default, OpenAPI `number` schemas, etc.).
+
+Modern engines (Node.js ≥ 21, Chrome ≥ 114) fix both directions:
+
+```javascript
+const { Big, BigDecimal } = require('bigdecimal.js');
+
+// Parse losslessly: context.source is the exact number text from the input.
+const order = JSON.parse('{"price":0.1000000000000000000001}', (key, value, context) =>
+    typeof value === 'number' && context ? Big(context.source) : value);
+order.price.toString(); // '0.1000000000000000000001' — nothing rounded
+
+// Stringify as a bare JSON number with full precision. Must be a regular
+// function reading this[key]: JSON.stringify calls toJSON() *before* the
+// replacer, so `value` is already a string at this point.
+function decimalReplacer(key, value) {
+    return this[key] instanceof BigDecimal ? JSON.rawJSON(this[key].toString()) : value;
+}
+JSON.stringify({ price: Big('0.10') }, decimalReplacer); // '{"price":0.10}'
+```
+
+`toString()` output is always valid JSON number syntax, so the replacer is safe
+for every value. In real payloads, scope the reviver to known keys — the one
+above converts every number in the document. Feature-detect with
+`typeof JSON.rawJSON === 'function'`; on older engines the default behavior
+(serialize as a JSON string) still round-trips exactly, just as a string.
+
 ## Browser usage
 
 The library is pure JavaScript with zero runtime dependencies and uses native `BigInt`, so it runs in the browser with no polyfills. The only requirement is a browser with `BigInt` support (Chrome 67+, Firefox 68+, Safari 14+).
