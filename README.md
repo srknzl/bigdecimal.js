@@ -97,8 +97,9 @@ Big('1234.5').toFormat('en-US', { style: 'currency', currency: 'USD' }); // "$1,
 ```
 
 > `toFormat` passes the value to `Intl.NumberFormat` as a string, so integer
-> precision is preserved; full-precision string formatting needs Node ≥ 16 or a
-> current browser. By default it shows every decimal the value has (Intl otherwise
+> precision is preserved; full-precision string formatting needs Node ≥ 20 or a
+> current browser (older engines fall back to double precision past 15–17
+> significant digits). By default it shows every decimal the value has (Intl otherwise
 > caps at 3), except for `currency`/`percent` styles where Intl's own rules apply.
 > Anything you pass in `options` overrides these defaults.
 

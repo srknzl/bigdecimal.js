@@ -94,6 +94,11 @@ describe('toFormat', function () {
         );
     });
     it('preserves integer precision beyond a double', function () {
+        // Intl.NumberFormat formats string inputs at full precision only from
+        // Node 20 (ECMA-402 NumberFormat v3); older engines round via double.
+        const v3 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0, useGrouping: false })
+            .format('9007199254740993') === '9007199254740993';
+        if (!v3) this.skip();
         const s = '12345678901234567890.12';
         Big(s).toFormat('en-US').should.equal('12,345,678,901,234,567,890.12');
     });
