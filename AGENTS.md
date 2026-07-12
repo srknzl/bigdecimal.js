@@ -1,4 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
+
+> **`CLAUDE.md` is a duplicate of this file. If you update this file, update `CLAUDE.md` too.**
 
 BigDecimal for JS/TS, built on native `BigInt`. A faithful port of Java's
 `java.math.BigDecimal` — API names and arithmetic semantics mirror the JDK, and
