@@ -3,10 +3,18 @@
   "version": "1.5.2",
   "description": "A BigDecimal implementation with native BigInts",
   "exports": {
-    "types": "./lib/bigdecimal.d.ts",
-    "browser": "./lib/bigdecimal.mjs",
-    "import": "./lib/bigdecimal.mjs",
-    "require": "./lib/bigdecimal.js"
+    "browser": {
+      "types": "./lib/bigdecimal.d.mts",
+      "default": "./lib/bigdecimal.mjs"
+    },
+    "import": {
+      "types": "./lib/bigdecimal.d.mts",
+      "default": "./lib/bigdecimal.mjs"
+    },
+    "require": {
+      "types": "./lib/bigdecimal.d.ts",
+      "default": "./lib/bigdecimal.js"
+    }
   },
   "main": "lib/bigdecimal.js",
   "module": "lib/bigdecimal.mjs",
@@ -28,8 +36,8 @@
     "lint": "eslint --cache --fix .",
     "benchmark": "node benchmarks",
     "generate-test-files": "node util/generateTestFiles.js",
-    "prepareESM": "mv lib/esm/bigdecimal.js lib/bigdecimal.mjs && rm -rf lib/esm",
-    "prepublish": "npm run compile"
+    "prepareESM": "mv lib/esm/bigdecimal.js lib/bigdecimal.mjs && mv lib/esm/bigdecimal.d.ts lib/bigdecimal.d.mts && rm -rf lib/esm",
+    "prepublishOnly": "npm run compile"
   },
   "keywords": [
     "bigdecimal",
@@ -44,7 +52,8 @@
     "lib/bigdecimal.js",
     "lib/bigdecimal.mjs",
     "lib/bigdecimal.umd.min.js",
-    "lib/bigdecimal.d.ts"
+    "lib/bigdecimal.d.ts",
+    "lib/bigdecimal.d.mts"
   ],
   "types": "lib/bigdecimal.d.ts",
   "repository": {
