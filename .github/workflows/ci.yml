@@ -39,7 +39,9 @@ jobs:
         run: |
           npm run test:browser
       - name: Publish to Codecov
-        if: matrix.node-version == 22
+        # Dependabot-triggered runs get no repo secrets, so the token is empty
+        # and the upload is rejected — skip it there.
+        if: matrix.node-version == 22 && github.actor != 'dependabot[bot]'
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
