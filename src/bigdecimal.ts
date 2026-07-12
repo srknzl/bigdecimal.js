@@ -3853,6 +3853,19 @@ export class BigDecimal {
     }
 
     /**
+     * Coerces this `BigDecimal` when JS needs a primitive: the `'string'` and
+     * `'default'` hints (template literals, string concatenation, `String(x)`)
+     * return the exact {@link toString} value; the `'number'` hint (`+x`, `x * 2`,
+     * `Math.max`) returns {@link numberValue}, which is **lossy** for values that
+     * do not fit a double. Use {@link numberValue} / {@link toString} explicitly
+     * when the coercion path is not obvious.
+     * @internal
+     */
+    [Symbol.toPrimitive](hint: string): string | number {
+        return hint === 'number' ? this.numberValue() : this.toString();
+    }
+
+    /**
      * Returns a string representation of this `BigDecimal`,
      * using engineering notation if an exponent is needed.
      *
@@ -4072,6 +4085,160 @@ export class BigDecimal {
             buf += intString;
         }
         return buf.toString();
+    }
+
+    /**
+     * Lays out an absolute significand digit-string into a JS-style fixed or
+     * exponential string (lowercase `e`, signed exponent, one digit before the
+     * point). `adjusted` is the base-ten exponent of the leading digit
+     * (`precision - 1 - scale`). Shared by {@link toExponential} and
+     * {@link toPrecision}.
+     * @internal
+     */
+    private static layoutJsString(neg: boolean, digits: string, adjusted: number, useExp: boolean): string {
+        let body: string;
+        if (useExp) {
+            body = digits.length > 1 ? digits[0] + '.' + digits.slice(1) : digits;
+            body += 'e' + (adjusted >= 0 ? '+' : '-') + Math.abs(adjusted);
+        } else if (adjusted < 0) { // 0.00ddd form
+            body = '0.' + '0'.repeat(-adjusted - 1) + digits;
+        } else {
+            const intLen = adjusted + 1;
+            if (intLen >= digits.length) {
+                body = digits + '0'.repeat(intLen - digits.length);
+            } else {
+                body = digits.slice(0, intLen) + '.' + digits.slice(intLen);
+            }
+        }
+        return neg ? '-' + body : body;
+    }
+
+    /**
+     * Returns a string with exactly `fractionDigits` digits after the decimal
+     * point, never using exponent notation (mirrors `Number.prototype.toFixed`,
+     * but exact). Rounding uses `roundingMode` (default `HALF_UP`).
+     *
+     * @param fractionDigits number of digits after the decimal point; a
+     *        non-negative integer. Defaults to `0`.
+     * @param roundingMode rounding mode to apply. Defaults to `RoundingMode.HALF_UP`.
+     * @return a fixed-point string representation of this `BigDecimal`.
+     * @throws RangeError if `fractionDigits` is not a non-negative integer.
+     */
+    toFixed(fractionDigits = 0, roundingMode: RoundingMode = RoundingMode.HALF_UP): string {
+        if (!Number.isInteger(fractionDigits) || fractionDigits < 0) {
+            throw new RangeError('fractionDigits must be a non-negative integer');
+        }
+        return this.setScale(fractionDigits, roundingMode).toPlainString();
+    }
+
+    /**
+     * Returns this `BigDecimal` in JS exponential notation, e.g. `"1.2345e+3"`
+     * (mirrors `Number.prototype.toExponential`, but exact). If `fractionDigits`
+     * is given there are exactly that many digits after the point; if omitted, as
+     * many digits as needed to represent the value uniquely are used. Rounding
+     * uses `roundingMode` (default `HALF_UP`).
+     *
+     * @param fractionDigits number of digits after the decimal point; a
+     *        non-negative integer. If omitted, minimal digits are used.
+     * @param roundingMode rounding mode to apply. Defaults to `RoundingMode.HALF_UP`.
+     * @return an exponential-notation string representation of this `BigDecimal`.
+     * @throws RangeError if `fractionDigits` is given and is not a non-negative integer.
+     */
+    toExponential(fractionDigits?: number, roundingMode: RoundingMode = RoundingMode.HALF_UP): string {
+        if (fractionDigits !== undefined && (!Number.isInteger(fractionDigits) || fractionDigits < 0)) {
+            throw new RangeError('fractionDigits must be a non-negative integer');
+        }
+        const neg = this.signum() < 0;
+        let digits: string;
+        let adjusted: number;
+        if (this.signum() === 0) {
+            digits = '0';
+            adjusted = 0;
+        } else if (fractionDigits === undefined) {
+            const v = this.stripTrailingZeros();
+            digits = BigDecimal.bigIntAbs(v.unscaledValue()).toString();
+            adjusted = v.precision() - 1 - v.scale();
+        } else {
+            const v = this.round(new MathContext(fractionDigits + 1, roundingMode));
+            digits = BigDecimal.bigIntAbs(v.unscaledValue()).toString();
+            adjusted = v.precision() - 1 - v.scale();
+        }
+        if (fractionDigits !== undefined) { // pad/truncate to exactly fractionDigits+1 significant digits
+            digits = digits.length >= fractionDigits + 1
+                ? digits.slice(0, fractionDigits + 1)
+                : digits + '0'.repeat(fractionDigits + 1 - digits.length);
+        }
+        return BigDecimal.layoutJsString(neg, digits, adjusted, true);
+    }
+
+    /**
+     * Returns this `BigDecimal` rounded to `precision` significant digits, using
+     * fixed or exponential notation as `Number.prototype.toPrecision` would
+     * (exact rounding, no float error). If `precision` is omitted, this is
+     * equivalent to {@link toString}. Rounding uses `roundingMode` (default
+     * `HALF_UP`).
+     *
+     * @param precision number of significant digits; a positive integer. If
+     *        omitted, {@link toString} is returned.
+     * @param roundingMode rounding mode to apply. Defaults to `RoundingMode.HALF_UP`.
+     * @return a string representation of this `BigDecimal` with `precision`
+     *         significant digits.
+     * @throws RangeError if `precision` is given and is not a positive integer.
+     */
+    toPrecision(precision?: number, roundingMode: RoundingMode = RoundingMode.HALF_UP): string {
+        if (precision === undefined) return this.toString();
+        if (!Number.isInteger(precision) || precision < 1) {
+            throw new RangeError('precision must be a positive integer');
+        }
+        const neg = this.signum() < 0;
+        let digits: string;
+        let adjusted: number;
+        if (this.signum() === 0) {
+            digits = '0';
+            adjusted = 0;
+        } else {
+            const v = this.round(new MathContext(precision, roundingMode));
+            digits = BigDecimal.bigIntAbs(v.unscaledValue()).toString();
+            adjusted = v.precision() - 1 - v.scale();
+        }
+        digits = digits.length >= precision // pad/truncate to exactly `precision` significant digits
+            ? digits.slice(0, precision)
+            : digits + '0'.repeat(precision - digits.length);
+        const useExp = adjusted < -6 || adjusted >= precision;
+        return BigDecimal.layoutJsString(neg, digits, adjusted, useExp);
+    }
+
+    /**
+     * Formats this `BigDecimal` for humans using the built-in
+     * [`Intl.NumberFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat),
+     * so grouping separators, decimal marks, currency and percent formatting all
+     * follow the given locale. The value is passed to Intl as a string, so no
+     * precision is lost on the integer part.
+     *
+     * By default every decimal place the value has is shown (Intl otherwise caps
+     * at 3). When `options.style` is `'currency'` or `'percent'`, Intl's own
+     * fraction-digit rules apply instead. Anything you set in `options` overrides
+     * these defaults.
+     *
+     * Note: full-precision string formatting requires a modern runtime
+     * (Node >= 16 or a current browser); older engines than the library's stated
+     * floor may format the string as a float.
+     *
+     * @param locales BCP 47 locale string(s), as accepted by `Intl.NumberFormat`.
+     * @param options `Intl.NumberFormatOptions`; values here override the defaults above.
+     * @return a locale-formatted string representation of this `BigDecimal`.
+     */
+    toFormat(locales?: string | string[], options?: Intl.NumberFormatOptions): string {
+        const style = options?.style;
+        const keepAll = style !== 'currency' && style !== 'percent';
+        // ponytail: Intl caps maximumFractionDigits at 100; clamp — tiny display loss only beyond 100 dp.
+        const defaults = keepAll
+            ? { maximumFractionDigits: Math.min(Math.max(this.scale(), 0), 100) }
+            : {};
+        const format = new Intl.NumberFormat(locales, { ...defaults, ...options }).format;
+        // Intl.NumberFormat.format accepts a string at runtime (full precision), but the
+        // es2020 lib types only declare number | bigint — cast to the string overload we use.
+        return (format as unknown as (value: string) => string)(this.toPlainString());
     }
 
     /**

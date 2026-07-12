@@ -18,7 +18,9 @@ for (const op of operations) {
     }
     attachEventsAndRun(suite);
     const hz = {};
-    suite.forEach((bench) => { hz[bench.name] = bench.hz; });
+    suite.forEach((bench) => {
+        hz[bench.name] = bench.hz;
+    });
     results.push({ name: op.name, hz });
 }
 
@@ -35,8 +37,11 @@ for (const { name, hz } of results) {
     for (const lib of libNames) {
         const h = hz[lib];
         if (h == null) continue;
-        if (h > bestHz) { secondHz = bestHz; best = lib; bestHz = h; }
-        else if (h > secondHz) { secondHz = h; }
+        if (h > bestHz) {
+            secondHz = bestHz; best = lib; bestHz = h;
+        } else if (h > secondHz) {
+            secondHz = h;
+        }
     }
     const cells = libNames.map((lib) => {
         const h = hz[lib];

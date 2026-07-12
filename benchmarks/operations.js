@@ -19,14 +19,14 @@ const {
 } = require('./test_numbers');
 
 // Rounding-mode constants (HALF_UP) per library's own encoding.
-const HU = RoundingMode.HALF_UP;   // bigdecimal.js (4)
-const BIGJS_HU = 1;                // big.js
-const BN_HU = 4;                   // bignumber.js
-const DEC_HU = 4;                  // decimal.js
-const GWT_HU = 4;                  // bigdecimal (GWT) accepts the int ordinal
+const HU = RoundingMode.HALF_UP; // bigdecimal.js (4)
+const BIGJS_HU = 1; // big.js
+const BN_HU = 4; // bignumber.js
+const DEC_HU = 4; // decimal.js
+const GWT_HU = 4; // bigdecimal (GWT) accepts the int ordinal
 const gwtMc = (p) => new GWTMathContext(`precision=${p} roundingMode=HALF_UP`);
 
-const PREC = 50;   // working precision for divide / sqrt / negative pow
+const PREC = 50; // working precision for divide / sqrt / negative pow
 const MUL_PREC = 99;
 
 // Non-negative operands for sqrt (each library's own type).
@@ -36,8 +36,12 @@ const posBN = bigDecimalsBigNumber.map((x) => x.abs());
 const posDec = bigDecimalsDecimal.map((x) => x.abs());
 
 // Loop helpers. `pairs` walks consecutive operands; `each` walks single values.
-const pairs = (arr, fn) => { for (let i = 0; i < arr.length - 1; i++) fn(arr[i], arr[i + 1], i); };
-const each = (arr, fn) => { for (let i = 0; i < arr.length; i++) fn(arr[i], i); };
+const pairs = (arr, fn) => {
+    for (let i = 0; i < arr.length - 1; i++) fn(arr[i], arr[i + 1], i);
+};
+const each = (arr, fn) => {
+    for (let i = 0; i < arr.length; i++) fn(arr[i], i);
+};
 
 const ctorValues = [...bigDecimalStrings, ...bigDecimalStrings.map((v) => Number(v))];
 const posExp = [0, 1, 2, 10, 99];
@@ -174,7 +178,7 @@ const operations = [
         },
     },
     {
-        name: 'Round',   // to significant digits (MathContext-style)
+        name: 'Round', // to significant digits (MathContext-style)
         libs: {
             'Bigdecimal.js': () => each(bigDecimals, (a) => a.round(MC(20, HU))),
             'Big.js': () => each(bigDecimalsBigjs, (a) => a.prec(20, BIGJS_HU)),
@@ -183,7 +187,7 @@ const operations = [
         },
     },
     {
-        name: 'SetScale',   // round to a fixed number of decimal places
+        name: 'SetScale', // round to a fixed number of decimal places
         libs: {
             'Bigdecimal.js': () => each(bigDecimals, (a) => a.setScale(10, HU)),
             'Big.js': () => each(bigDecimalsBigjs, (a) => a.round(10, BIGJS_HU)),

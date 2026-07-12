@@ -71,6 +71,62 @@ try {
     console.log(e); // RangeError: Non-terminating decimal expansion; no exact representable decimal result.
 }
 ```
+
+## Formatting output
+
+Besides the Java-style `toString` / `toEngineeringString` / `toPlainString`, there
+are JS-convention formatting methods. All rounding defaults to `RoundingMode.HALF_UP`
+and takes an optional `RoundingMode` argument:
+
+```javascript
+const { Big } = require('bigdecimal.js');
+const x = Big('1234.56789');
+
+x.toFixed(2);        // "1234.57"   — exactly N decimals, never exponential
+x.toExponential(2);  // "1.23e+3"   — JS exponential notation
+x.toPrecision(3);    // "1.23e+3"   — N significant digits (fixed or exponential)
+
+// Locale-aware formatting via the built-in Intl.NumberFormat (no dependency):
+x.toFormat('en-US');                                        // "1,234.56789"
+x.toFormat('de-DE');                                        // "1.234,56789"
+Big('1234.5').toFormat('en-US', { style: 'currency', currency: 'USD' }); // "$1,234.50"
+
+// Value coercion (Symbol.toPrimitive): string contexts are exact, numeric ones are lossy
+`${x}`;   // "1234.56789"  (exact — same as toString())
++x;       // 1234.56789    (lossy numberValue(), like other JS number coercion)
+```
+
+> `toFormat` passes the value to `Intl.NumberFormat` as a string, so integer
+> precision is preserved; full-precision string formatting needs Node ≥ 16 or a
+> current browser. By default it shows every decimal the value has (Intl otherwise
+> caps at 3), except for `currency`/`percent` styles where Intl's own rules apply.
+> Anything you pass in `options` overrides these defaults.
+
+## Migrating from decimal.js / bignumber.js / big.js
+
+The API mirrors Java's `BigDecimal`, so method names differ from other JS decimal
+libraries. Common equivalents:
+
+| decimal.js / bignumber.js | bigdecimal.js |
+|---|---|
+| `new Decimal('1.5')` / `BigNumber('1.5')` | `Big('1.5')` (with or without `new`) |
+| `x.plus(y)` / `x.minus(y)` | `x.add(y)` / `x.subtract(y)` |
+| `x.times(y)` / `x.div(y)` | `x.multiply(y)` / `x.divide(y, scale?, roundingMode?)` |
+| `x.mod(y)` / `x.pow(n)` | `x.remainder(y)` / `x.pow(n)` |
+| `x.abs()` / `x.neg()` / `x.sqrt()` | `x.abs()` / `x.negate()` / `x.sqrt(mc)` |
+| `x.cmp(y)` / `x.eq(y)` | `x.compareTo(y)` / `x.equals(y)` |
+| `x.gt(y)` / `x.gte(y)` / `x.lt(y)` / `x.lte(y)` | same names (`gt`/`gte`/`lt`/`lte`) |
+| `x.isZero()` / `x.isNeg()` / `x.isPos()` | `x.isZero()` / `x.isNegative()` / `x.isPositive()` |
+| `x.toNumber()` | `x.numberValue()` |
+| `x.toFixed(n)` / `x.toExponential(n)` / `x.toPrecision(n)` | same names |
+| `x.toFormat(...)` (bignumber.js) | `x.toFormat(locales, options)` (Intl-based) |
+| `Decimal.ROUND_HALF_UP` | `RoundingMode.HALF_UP` |
+
+Two differences to note: there is **no global config** — precision and rounding
+are set per operation via `MathContext` (`MC`) and `RoundingMode` — and `divide`
+**throws** a `RangeError` on a non-terminating result unless you pass a scale or a
+`MathContext` (use `divideWithMathContext` for the latter).
+
 ## Browser usage
 
 The library is pure JavaScript with zero runtime dependencies and uses native `BigInt`, so it runs in the browser with no polyfills. The only requirement is a browser with `BigInt` support (Chrome 67+, Firefox 68+, Safari 14+).

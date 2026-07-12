@@ -21,7 +21,7 @@ describe('ToJSON test', function () {
                     valueOfToJSON: bigdecimalArg === null ? null : bigdecimalArg.toJSON(),
                     valueOfStringify: JSON.stringify(bigdecimalArg),
                     valueOfParseJson: JSON.parse(JSON.stringify({ money: bigdecimalArg })).money,
-                }
+                };
             };
             if (test.result === 'errorThrown') {
                 toJSONOp.should.throw(
