@@ -56,6 +56,15 @@
     "lib/bigdecimal.d.mts"
   ],
   "types": "lib/bigdecimal.d.ts",
+  "overrides": {
+    "serialize-javascript": "^7.0.5",
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^9.0.7"
+    },
+    "typedoc": {
+      "minimatch": "^9.0.7"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/srknzl/bigdecimal.js.git"
