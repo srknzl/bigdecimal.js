@@ -3177,6 +3177,28 @@ export class BigDecimal {
     }
 
     /**
+     * Converts this `BigDecimal` to a `number`, throwing an error if any
+     * information would be lost. This is the safe counterpart of
+     * {@link numberValue}, which silently rounds to the nearest `number`;
+     * analogous to Java's `*ValueExact` family (compare {@link toBigIntExact}).
+     *
+     * The conversion is considered exact when converting the returned
+     * `number` back to a `BigDecimal` yields a value equal to this one, i.e.
+     * `Big(this.numberValueExact())` equals `this` by {@link compareTo}.
+     *
+     * @return a `number` that converts back to a `BigDecimal` equal to this one.
+     * @throws RangeError if this `BigDecimal` has no exact `number`
+     *         representation.
+     */
+    numberValueExact(): number {
+        const value = this.numberValue();
+        if (!Number.isFinite(value) || this.compareTo(BigDecimal.fromValue(value)) !== 0) {
+            throw new RangeError('Value does not have an exact number representation');
+        }
+        return value;
+    }
+
+    /**
      * Returns a `BigDecimal` rounded according to the
      * `MathContext` settings.  If the precision setting is 0 then
      * no rounding takes place.
