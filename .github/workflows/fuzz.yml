@@ -1,0 +1,48 @@
+name: Differential fuzz vs JDK
+# Weekly re-run of the Java-differential test generation with fresh random
+# inputs (util/generateTestFiles.js is randomized), so "matches Java" keeps
+# being verified continuously instead of only when someone regenerates by hand.
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '26'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: |
+          npm ci
+      - name: Compile
+        run: |
+          npm run compile
+      - name: Generate fresh random cases via the Java oracle
+        run: |
+          javac -d util/batch util/batch/Main.java
+          rm -f util/output/*.json
+          npm run generate-test-files
+      - name: Run differential tests
+        run: |
+          npm test
+      - name: Upload diverging cases
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-cases
+          path: util/output/

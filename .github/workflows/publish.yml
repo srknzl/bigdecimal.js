@@ -1,0 +1,37 @@
+name: Publish to npm
+# Publishes with provenance via npm trusted publishing (OIDC) when a GitHub
+# release is published. Requires the GitHub Actions trusted publisher to be
+# configured for this repo/workflow in the npm package settings; no token.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Install
+        run: |
+          npm ci
+      - name: Compile
+        run: |
+          npm run compile
+      - name: Tests
+        run: |
+          npm test
+      - name: Publish
+        run: |
+          npm publish --provenance --access public
