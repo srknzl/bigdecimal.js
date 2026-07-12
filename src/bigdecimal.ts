@@ -2054,7 +2054,7 @@ export class BigDecimal {
             let quotient;
             try {
                 quotient = this.divideWithMathContext(divisor, mc);
-            } catch (e) {
+            } catch {
                 throw new RangeError('Non-terminating decimal expansion; ' +
                     'no exact representable decimal result.');
             }
@@ -2104,7 +2104,7 @@ export class BigDecimal {
                 let quotient: BigDecimal;
                 try {
                     quotient = this.divideWithMathContext(divisor, mc);
-                } catch (e) {
+                } catch {
                     throw new RangeError('Non-terminating decimal expansion; no exact representable decimal result.');
                 }
 
