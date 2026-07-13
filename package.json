@@ -61,7 +61,8 @@
   ],
   "types": "lib/bigdecimal.d.ts",
   "overrides": {
-    "serialize-javascript": "^7.0.5"
+    "serialize-javascript": "^7.0.5",
+    "vite": "^6.4.3"
   },
   "repository": {
     "type": "git",
