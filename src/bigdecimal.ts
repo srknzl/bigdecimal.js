@@ -1822,6 +1822,11 @@ export class BigDecimal {
      * See the {@link Big | constructor} to learn more about the conversion.
      * @param mc the context to use.
      * @return `this + augend`, rounded as necessary.
+     * @example
+     * ```ts
+     * Big('0.1').add('0.2').toString(); // '0.3'
+     * Big('1.0').add('2.00').toString(); // '3.00' (scale is the max of the two)
+     * ```
      */
     add(augend: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
         augend = BigDecimal.convertToBigDecimal(augend);
@@ -1890,6 +1895,10 @@ export class BigDecimal {
      * See the {@link Big | constructor} to learn more about the conversion.
      * @param mc the context to use.
      * @return `this - subtrahend`, rounded as necessary.
+     * @example
+     * ```ts
+     * Big('0.3').subtract('0.1').toString(); // '0.2'
+     * ```
      */
     subtract(subtrahend: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
         subtrahend = BigDecimal.convertToBigDecimal(subtrahend);
@@ -1928,6 +1937,11 @@ export class BigDecimal {
      * See the {@link Big | constructor} to learn more about the conversion.
      * @param mc the context to use.
      * @return `this * multiplicand`, rounded as necessary.
+     * @example
+     * ```ts
+     * Big('19.99').multiply(3).toString(); // '59.97'
+     * Big('1.5').multiply('1.5').toString(); // '2.25' (scale is the sum of the two)
+     * ```
      */
     multiply(multiplicand: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
         multiplicand = BigDecimal.convertToBigDecimal(multiplicand);
@@ -1980,6 +1994,12 @@ export class BigDecimal {
      * * If `roundingMode==RoundingMode.UNNECESSARY` and the specified scale is insufficient to represent the result
      *   of the division exactly.
      * * If scale is given but rounding mode is not given.
+     * @example
+     * ```ts
+     * Big('1').divide('4').toString(); // '0.25' — exact, terminates
+     * Big('1').divide('3', 5, RoundingMode.HALF_UP).toString(); // '0.33333'
+     * Big('1').divide('3'); // throws RangeError — non-terminating, no scale given
+     * ```
      */
     divide(divisor: BigDecimal | bigint | number | string, scale?: number, roundingMode?: RoundingMode): BigDecimal {
         divisor = BigDecimal.convertToBigDecimal(divisor);
@@ -2083,6 +2103,11 @@ export class BigDecimal {
      * @throws RangeError if the exact quotient does not have a
      *         terminating decimal expansion, including dividing by zero
      * @return `this / divisor`
+     * @example
+     * ```ts
+     * Big('1').divideWithMathContext('3', MC(5)).toString(); // '0.33333'
+     * Big('1').divideWithMathContext('3', MC(5, RoundingMode.UP)).toString(); // '0.33334'
+     * ```
      */
     divideWithMathContext(divisor: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
         divisor = BigDecimal.convertToBigDecimal(divisor);
@@ -3026,6 +3051,12 @@ export class BigDecimal {
      * @see {@link greaterThanOrEquals}
      * @see {@link lowerThan}
      * @see {@link lowerThanOrEquals}
+     * @example
+     * ```ts
+     * Big('2.0').compareTo('2.00'); // 0 — equal in value, scale is ignored
+     * Big('1').compareTo('2'); // -1
+     * [Big('3'), Big('1'), Big('2')].sort((a, b) => a.compareTo(b)); // 1, 2, 3
+     * ```
      */
     compareTo(val: BigDecimal | bigint | number | string): number {
         val = BigDecimal.convertToBigDecimal(val);
@@ -3210,6 +3241,11 @@ export class BigDecimal {
      * @return a `BigDecimal` rounded according to the
      *         `MathContext` settings.
      * @see    {@link plus}
+     * @example
+     * ```ts
+     * Big('123.456').round(MC(4)).toString(); // '123.5' — 4 significant digits
+     * Big('123.456').round(MC(2, RoundingMode.FLOOR)).toString(); // '1.2E+2'
+     * ```
      */
     round(mc: MathContext): BigDecimal {
         return this.plus(mc);
@@ -3236,6 +3272,12 @@ export class BigDecimal {
      *         and the specified scaling operation would require
      *         rounding.
      * @see {@link RoundingMode}
+     * @example
+     * ```ts
+     * Big('2.345').setScale(2, RoundingMode.HALF_UP).toString(); // '2.35'
+     * Big('2').setScale(2).toString(); // '2.00' — add trailing zeros (exact, no rounding)
+     * Big('2.345').setScale(2, RoundingMode.HALF_EVEN).toString(); // '2.34'
+     * ```
      */
     setScale(newScale: number, roundingMode: RoundingMode = RoundingMode.UNNECESSARY): BigDecimal {
         if (roundingMode < RoundingMode.UP || roundingMode > RoundingMode.UNNECESSARY)
@@ -4145,6 +4187,12 @@ export class BigDecimal {
      * @param roundingMode rounding mode to apply. Defaults to `RoundingMode.HALF_UP`.
      * @return a fixed-point string representation of this `BigDecimal`.
      * @throws RangeError if `fractionDigits` is not a non-negative integer.
+     * @example
+     * ```ts
+     * Big('1234.56789').toFixed(2); // '1234.57'
+     * Big('2.5').toFixed(0, RoundingMode.HALF_EVEN); // '2' — banker's rounding
+     * Big('1').toFixed(3); // '1.000'
+     * ```
      */
     toFixed(fractionDigits = 0, roundingMode: RoundingMode = RoundingMode.HALF_UP): string {
         if (!Number.isInteger(fractionDigits) || fractionDigits < 0) {
@@ -4243,12 +4291,18 @@ export class BigDecimal {
      * these defaults.
      *
      * Note: full-precision string formatting requires a modern runtime
-     * (Node >= 16 or a current browser); older engines than the library's stated
+     * (Node >= 20 or a current browser); older engines than the library's stated
      * floor may format the string as a float.
      *
      * @param locales BCP 47 locale string(s), as accepted by `Intl.NumberFormat`.
      * @param options `Intl.NumberFormatOptions`; values here override the defaults above.
      * @return a locale-formatted string representation of this `BigDecimal`.
+     * @example
+     * ```ts
+     * Big('1234.5').toFormat('en-US'); // '1,234.5'
+     * Big('1234.5').toFormat('de-DE'); // '1.234,5'
+     * Big('1234.5').toFormat('en-US', { style: 'currency', currency: 'USD' }); // '$1,234.50'
+     * ```
      */
     toFormat(locales?: string | string[], options?: Intl.NumberFormatOptions): string {
         const style = options?.style;
