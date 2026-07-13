@@ -1,19 +1,67 @@
-name: API Docs
+name: Docs Site
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+# Allow the workflow to deploy to GitHub Pages.
 permissions:
   contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; don't cancel an in-progress run.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
-  Generate-Docs:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # VitePress lastUpdated reads git history
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
       - name: Install
+        run: npm ci
+      - name: Build docs site (compile lib + TypeDoc API + VitePress)
+        run: npm run docs:build
+      - name: Include archived versioned API docs (migrated from gh-pages)
         run: |
-          npm ci
-      - name: Generate docs
-        run: |
-          npm run docs
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin gh-pages
+          # gh-pages holds api/<version>/docs/ TypeDoc archives for every past release.
+          # Version dirs are named by number, so they never collide with the new
+          # VitePress /api/ pages (classes, enums, interfaces, variables, index.html).
+          git archive origin/gh-pages:api | tar -x -C website/.vitepress/dist/api
+          # Strand-proofing: prepend a banner linking back to the latest docs so visitors
+          # who land on an old page from a search engine can escape to the current site.
+          # Note: the banner text contains '#' (hex colors), so use '|' as the sed
+          # delimiter. It appears nowhere in the banner.
+          BANNER='<div style="background:linear-gradient(90deg,#c026d3,#6366f1);color:#fff;text-align:center;padding:8px 12px;font:14px/1.4 system-ui,-apple-system,sans-serif">📖 These are the docs for an older version. <a href="/bigdecimal.js/" style="color:#fff;text-decoration:underline;font-weight:700">View the latest BigDecimal.js documentation →</a></div>'
+          find website/.vitepress/dist/api -path '*/docs/*.html' -print0 \
+            | xargs -0 sed -i "s|<body[^>]*>|&${BANNER}|"
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: website/.vitepress/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

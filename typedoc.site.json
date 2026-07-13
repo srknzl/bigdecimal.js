@@ -1,0 +1,18 @@
+{
+  "entryPoints": ["src/bigdecimal.ts"],
+  "out": "website/api",
+  "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
+  "readme": "none",
+  "excludeExternals": true,
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "entryPointStrategy": "Expand",
+  "hideBreadcrumbs": true,
+  "useCodeBlocks": true,
+  "docsRoot": "./website",
+  "sidebar": {
+    "autoConfiguration": true,
+    "pretty": true
+  }
+}

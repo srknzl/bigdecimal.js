@@ -6,6 +6,11 @@ lib/
 .eslintcache
 docs
 
+# VitePress docs site: build artifacts + generated API reference
+website/.vitepress/dist
+website/.vitepress/cache
+website/api
+
 # coverage
 .nyc_output
 coverage

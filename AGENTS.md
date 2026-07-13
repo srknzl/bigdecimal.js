@@ -70,6 +70,31 @@ library produces the identical string (or throws). `test/jdk/` holds ported JDK 
 Regenerate with `npm run generate-test-files` (needs `java` on PATH; see `util/README.md`).
 Don't hand-edit the generated JSON — change the generator or the Java oracle instead.
 
+## Documentation site
+
+The docs live in **`website/`** — a VitePress site (not `docs/`, which is TypeDoc's
+gitignored raw HTML output). It's the published home at `srknzl.github.io/bigdecimal.js/`,
+deployed on push to `main` by `.github/workflows/generate-docs.yml` (Pages source is set to
+"GitHub Actions", not the old `gh-pages` branch).
+
+- **Build/preview:** `npm run docs:build` / `npm run docs:dev` — each compiles `lib/`, then
+  generates the API reference as markdown from `src/bigdecimal.ts` JSDoc into `website/api/`
+  (TypeDoc + `typedoc.site.json`), then runs VitePress. Never hand-edit `website/api/` — it's
+  generated; change the JSDoc instead. Prose pages are hand-written markdown under
+  `website/{guide,cookbook,migration}/` plus the landing `index.md`.
+- **All site tooling is `devDependencies`.** The published package's `files` (5) and `exports`
+  stay untouched — the zero-runtime-dependency guarantee is non-negotiable.
+- **Live snippets:** a ```` ```js-live ```` fenced block renders as the interactive
+  `<Playground>` (CodeMirror, runs the local `lib/bigdecimal.mjs` via a Vite alias), with an
+  "Open in StackBlitz" export. Snippet rules: no `import` lines, `console.log` for multi-output,
+  and the last bare expression is auto-printed. Prefer `js-live` over the old `:code="..."` form.
+- **Versioned API archive:** the workflow migrates the pre-1.6 TypeDoc archives from the
+  `gh-pages` branch (`api/<version>/docs/`) into the deploy and injects a "back to latest"
+  banner; the nav version dropdown and `website/versions.md` link them.
+- **Gotchas:** config is `website/.vitepress/config.mts` (**must** be `.mts` — VitePress is
+  ESM-only, this package is CommonJS). The banner-injection `sed` in the workflow uses `|` as
+  its delimiter because the banner's inline styles contain `#` hex colors.
+
 ## Performance notes
 
 Fastest of the compared libraries on most operations. Known laggards are **algorithmic**, not
