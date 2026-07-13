@@ -46,8 +46,12 @@ jobs:
           # Note: the banner text contains '#' (hex colors), so use '|' as the sed
           # delimiter. It appears nowhere in the banner.
           BANNER='<div style="background:linear-gradient(90deg,#c026d3,#6366f1);color:#fff;text-align:center;padding:8px 12px;font:14px/1.4 system-ui,-apple-system,sans-serif">📖 These are the docs for an older version. <a href="/bigdecimal.js/" style="color:#fff;text-decoration:underline;font-weight:700">View the latest BigDecimal.js documentation →</a></div>'
+          # Two rewrites per page: (1) prepend the banner; (2) repoint TypeDoc's built-in
+          # "All versions" nav button from the site root to the /versions listing page.
           find website/.vitepress/dist/api -path '*/docs/*.html' -print0 \
-            | xargs -0 sed -i "s|<body[^>]*>|&${BANNER}|"
+            | xargs -0 sed -i \
+                -e "s|<body[^>]*>|&${BANNER}|" \
+                -e 's|bigdecimal\.js/">All versions|bigdecimal.js/versions">All versions|'
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
