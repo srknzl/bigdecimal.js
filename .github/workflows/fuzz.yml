@@ -2,6 +2,8 @@ name: Differential fuzz vs JDK
 # Weekly re-run of the Java-differential test generation with fresh random
 # inputs (util/generateTestFiles.js is randomized), so "matches Java" keeps
 # being verified continuously instead of only when someone regenerates by hand.
+# The generator logs its RNG seed in the "Generate" step; any divergence is
+# replayable locally with TEST_GEN_SEED=<seed> npm run generate-test-files.
 on:
   schedule:
     - cron: '0 3 * * 1'
