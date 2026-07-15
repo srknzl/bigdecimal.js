@@ -7,6 +7,40 @@ All notable changes to `bigdecimal.js` are documented here. The format is based 
 For releases before 1.6.0, see the
 [GitHub Releases](https://github.com/srknzl/bigdecimal.js/releases) page.
 
+## [1.7.0]
+
+### Fixed
+
+Four correctness bugs at the compact/inflated representation boundary, ±(2⁵³ − 1).
+The compact fast path ports JDK idioms that rely on Java `long`'s asymmetric
+two's-complement range; JS safe integers are symmetric
+(`Number.MIN_SAFE_INTEGER === -Number.MAX_SAFE_INTEGER`), which broke exactly at
+the boundary:
+
+- Compact additions overflowing past −(2⁵³ − 1) were silently wrong by one
+  (e.g. `Big(-9007199254740989).add(-4)`); only positive overflow was guarded.
+- Quotients equal to `-9007199254740991` could produce a corrupt instance whose
+  `toString()` threw a `TypeError`.
+- The same-sign test `(xs ^ ys) >= 0` (valid on Java `long`) truncates to int32 in
+  JS; a misclassified pair could make `compareTo`/`sameValue` report two equal
+  values as unequal.
+- `divideToIntegralValue`/`remainder`/`divideAndRemainder` with operands of equal
+  magnitude `±9007199254740991` returned quotient `0` instead of `±1`
+  (magnitude comparison assumed an inflated significand is strictly larger than a
+  compact one).
+
+### Added
+
+- Java's exact narrowing conversions, faithfully ported (nonzero fractional part or
+  out-of-range throws `RangeError`, mirroring `ArithmeticException`):
+  `intValueExact()`, `shortValueExact()`, `byteValueExact()` returning `number`, and
+  `longValueExact()` returning `bigint` (Java `long` exceeds the safe range of `number`).
+- JDK-name aliases for drop-in familiarity when porting Java code: `doubleValue()`,
+  `toBigInteger()`, `toBigIntegerExact()`.
+- The Java-oracle test generator now always includes deterministic adversarial seeds at
+  the compact/inflated boundary and the Java integral-type range edges; all differential
+  fixtures regenerated against JDK 26 (these seeds are what caught the fourth bug above).
+
 ## [1.6.1]
 
 ### Added
@@ -59,5 +93,6 @@ For releases before 1.6.0, see the
 See [GitHub Releases](https://github.com/srknzl/bigdecimal.js/releases) and the
 [tag history](https://github.com/srknzl/bigdecimal.js/tags) for 1.5.2 and earlier.
 
+[1.7.0]: https://github.com/srknzl/bigdecimal.js/compare/v1.6.1...v1.7.0
 [1.6.1]: https://github.com/srknzl/bigdecimal.js/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/srknzl/bigdecimal.js/compare/v1.5.2...v1.6.0

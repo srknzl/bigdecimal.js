@@ -43,7 +43,7 @@ export default defineConfig({
       { text: 'API', link: '/api/', activeMatch: '/api/' },
       { text: 'Playground', link: '/playground' },
       {
-        text: 'v1.6.1',
+        text: 'v1.7.0',
         items: [
           {
             text: 'This release',
