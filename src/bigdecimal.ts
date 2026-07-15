@@ -4006,6 +4006,40 @@ export class BigDecimal {
     }
 
     /**
+     * Returns this `BigDecimal` clamped to the range `[min, max]`:
+     * `min` if this is less than `min`, `max` if this is greater than
+     * `max`, and `this` otherwise. Comparison is by {@link compareTo},
+     * so scale is ignored (`0.0` fits the range `['0', '1']`).
+     *
+     * This is a JS-convention convenience with no `java.math.BigDecimal`
+     * equivalent (it mirrors Java 21's `Math.clamp`).
+     *
+     * @param min lower bound, inclusive. This value will be converted to a
+     * `BigDecimal` before the operation.
+     * See the {@link Big | constructor} to learn more about the conversion.
+     * @param max upper bound, inclusive. Converted like `min`.
+     * @return this `BigDecimal` if it is within the range, otherwise the
+     *         nearer of `min` and `max`.
+     * @throws RangeError if `min` is greater than `max`.
+     * @example
+     * ```ts
+     * Big('11.5').clamp(0, 10).toString(); // '10'
+     * Big('-3').clamp('0.5', '10').toString(); // '0.5'
+     * Big('7').clamp(0n, 10n).toString(); // '7'
+     * ```
+     */
+    clamp(min: BigDecimal | bigint | number | string, max: BigDecimal | bigint | number | string): BigDecimal {
+        const lower = BigDecimal.convertToBigDecimal(min);
+        const upper = BigDecimal.convertToBigDecimal(max);
+        if (lower.compareTo(upper) > 0) {
+            throw new RangeError(`Clamp min ${lower.toString()} is greater than max ${upper.toString()}`);
+        }
+        if (this.compareTo(lower) < 0) return lower;
+        if (this.compareTo(upper) > 0) return upper;
+        return this;
+    }
+
+    /**
      * Returns the string representation of this `BigDecimal`,
      * using scientific notation if an exponent is needed.
      *

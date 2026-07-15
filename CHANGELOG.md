@@ -37,6 +37,9 @@ the boundary:
   `longValueExact()` returning `bigint` (Java `long` exceeds the safe range of `number`).
 - JDK-name aliases for drop-in familiarity when porting Java code: `doubleValue()`,
   `toBigInteger()`, `toBigIntegerExact()`.
+- `clamp(min, max)` — returns the value clamped to the inclusive range, comparing by
+  value like `compareTo` (a JS-convention convenience mirroring Java 21's `Math.clamp`;
+  `java.math.BigDecimal` itself has no equivalent). Throws `RangeError` if `min > max`.
 - The Java-oracle test generator now always includes deterministic adversarial seeds at
   the compact/inflated boundary and the Java integral-type range edges; all differential
   fixtures regenerated against JDK 26 (these seeds are what caught the fourth bug above).
