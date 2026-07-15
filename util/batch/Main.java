@@ -71,6 +71,14 @@ public class Main {
                 return new BigDecimal(a[0]).toBigInteger().toString();
             case "ToBigIntExact":
                 return new BigDecimal(a[0]).toBigIntegerExact().toString();
+            case "LongValueExact":
+                return String.valueOf(new BigDecimal(a[0]).longValueExact());
+            case "IntValueExact":
+                return String.valueOf(new BigDecimal(a[0]).intValueExact());
+            case "ShortValueExact":
+                return String.valueOf(new BigDecimal(a[0]).shortValueExact());
+            case "ByteValueExact":
+                return String.valueOf(new BigDecimal(a[0]).byteValueExact());
             case "ToEngineeringString":
                 return new BigDecimal(a[0]).toEngineeringString();
             case "ToPlainString":

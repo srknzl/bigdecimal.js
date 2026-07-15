@@ -486,6 +486,12 @@ export class BigDecimal {
     /** @internal */
     private static readonly minusOneBigInt = BigInt(-1);
 
+    /** Java Long.MIN_VALUE, the lower bound of {@link longValueExact}. @internal */
+    private static readonly longMinValue = BigInt('-9223372036854775808');
+
+    /** Java Long.MAX_VALUE, the upper bound of {@link longValueExact}. @internal */
+    private static readonly longMaxValue = BigInt('9223372036854775807');
+
     /** @internal */
     private readonly intVal: bigint | null;
 
@@ -3251,6 +3257,114 @@ export class BigDecimal {
     }
 
     /**
+     * Alias for {@link numberValue} under the JDK name
+     * `BigDecimal.doubleValue()`, for drop-in familiarity when porting Java
+     * code. JS `number` is an IEEE 754 double, so the semantics are identical.
+     *
+     * @return this `BigDecimal` converted to a `number`.
+     * @see {@link numberValue}
+     */
+    doubleValue(): number {
+        return this.numberValue();
+    }
+
+    /**
+     * Converts this `BigDecimal` to a `bigint` within Java `long` range,
+     * checking for lost information. Faithful port of the JDK's
+     * `longValueExact()`: throws if this `BigDecimal` has a nonzero
+     * fractional part or is out of the range
+     * [-2<sup>63</sup>, 2<sup>63</sup>-1].
+     *
+     * Returns `bigint` rather than `number` because Java `long` exceeds the
+     * safe-integer range of `number`; see {@link intValueExact} for a
+     * `number`-returning variant.
+     *
+     * @return this `BigDecimal` converted to a `bigint`.
+     * @throws RangeError if `this` has a nonzero fractional part or will not
+     *         fit in a Java `long`.
+     * @example
+     * ```ts
+     * Big('123').longValueExact(); // 123n
+     * Big('1e30').longValueExact(); // throws RangeError
+     * ```
+     */
+    longValueExact(): bigint {
+        // Fast path for zero-scale compacts; every safe integer fits in a long.
+        if (this.intCompact !== BigDecimal.INFLATED && this._scale === 0) {
+            return BigInt(this.intCompact);
+        }
+        // More than 19 digits in the integer part cannot possibly fit.
+        if (this.precision() - this._scale > 19) {
+            throw new RangeError('Overflow');
+        }
+        // Throws RangeError if there is a nonzero fractional part.
+        const value = this.setScale(0, RoundingMode.UNNECESSARY).inflated();
+        if (value < BigDecimal.longMinValue || value > BigDecimal.longMaxValue) {
+            throw new RangeError('Overflow');
+        }
+        return value;
+    }
+
+    /**
+     * Converts this `BigDecimal` to a 32-bit integer `number`, checking for
+     * lost information. Faithful port of the JDK's `intValueExact()`: throws
+     * if this `BigDecimal` has a nonzero fractional part or is out of the
+     * range [-2<sup>31</sup>, 2<sup>31</sup>-1].
+     *
+     * @return this `BigDecimal` converted to a `number`.
+     * @throws RangeError if `this` has a nonzero fractional part or will not
+     *         fit in a 32-bit integer.
+     * @example
+     * ```ts
+     * Big('42.000').intValueExact(); // 42
+     * Big('42.5').intValueExact(); // throws RangeError
+     * ```
+     */
+    intValueExact(): number {
+        const value = this.longValueExact();
+        if (value < BigInt(BigDecimal.MIN_INT_VALUE) || value > BigInt(BigDecimal.MAX_INT_VALUE)) {
+            throw new RangeError('Overflow');
+        }
+        return Number(value);
+    }
+
+    /**
+     * Converts this `BigDecimal` to a 16-bit integer `number`, checking for
+     * lost information. Faithful port of the JDK's `shortValueExact()`:
+     * throws if this `BigDecimal` has a nonzero fractional part or is out of
+     * the range [-32768, 32767].
+     *
+     * @return this `BigDecimal` converted to a `number`.
+     * @throws RangeError if `this` has a nonzero fractional part or will not
+     *         fit in a 16-bit integer.
+     */
+    shortValueExact(): number {
+        const value = this.longValueExact();
+        if (value < BigInt(-32768) || value > BigInt(32767)) {
+            throw new RangeError('Overflow');
+        }
+        return Number(value);
+    }
+
+    /**
+     * Converts this `BigDecimal` to an 8-bit integer `number`, checking for
+     * lost information. Faithful port of the JDK's `byteValueExact()`: throws
+     * if this `BigDecimal` has a nonzero fractional part or is out of the
+     * range [-128, 127].
+     *
+     * @return this `BigDecimal` converted to a `number`.
+     * @throws RangeError if `this` has a nonzero fractional part or will not
+     *         fit in an 8-bit integer.
+     */
+    byteValueExact(): number {
+        const value = this.longValueExact();
+        if (value < BigInt(-128) || value > BigInt(127)) {
+            throw new RangeError('Overflow');
+        }
+        return Number(value);
+    }
+
+    /**
      * Returns a `BigDecimal` rounded according to the
      * `MathContext` settings.  If the precision setting is 0 then
      * no rounding takes place.
@@ -4370,6 +4484,31 @@ export class BigDecimal {
     toBigIntExact(): bigint {
         // round to an integer, with Exception if decimal part non-0
         return this.setScale(0, RoundingMode.UNNECESSARY).inflated();
+    }
+
+    /**
+     * Alias for {@link toBigInt} under the JDK name
+     * `BigDecimal.toBigInteger()`, for drop-in familiarity when porting Java
+     * code.
+     *
+     * @return this `BigDecimal` converted to a `BigInt`.
+     * @see {@link toBigInt}
+     */
+    toBigInteger(): bigint {
+        return this.toBigInt();
+    }
+
+    /**
+     * Alias for {@link toBigIntExact} under the JDK name
+     * `BigDecimal.toBigIntegerExact()`, for drop-in familiarity when porting
+     * Java code.
+     *
+     * @return this `BigDecimal` converted to a `BigInt`.
+     * @throws RangeError if `this` has a nonzero fractional part.
+     * @see {@link toBigIntExact}
+     */
+    toBigIntegerExact(): bigint {
+        return this.toBigIntExact();
     }
 
     /**

@@ -43,9 +43,12 @@ const c = Big(10) // no TEN/ONE/ZERO constants — just Big(n)
 | `scale()` / `precision()` / `signum()` | same |
 | `unscaledValue()` → `BigInteger` | `unscaledValue()` → `bigint` |
 | `compareTo` / `equals` / `min` / `max` | same (identical semantics) |
-| `doubleValue()` | `numberValue()` |
-| `intValueExact()` / `longValueExact()` | `numberValueExact()` |
-| `toBigInteger()` / `toBigIntegerExact()` | `toBigInt()` / `toBigIntExact()` |
+| `doubleValue()` | `numberValue()` (alias: `doubleValue()`) |
+| `intValueExact()` / `shortValueExact()` / `byteValueExact()` | same → `number` |
+| `longValueExact()` | same → `bigint` (Java `long` exceeds safe `number` range) |
+| `intValue()` / `longValue()` (truncate + wrap around) | none — the silent two's-complement wraparound is a bug farm; use `toBigInt()` and mask, or the `*ValueExact` family |
+| `floatValue()` | none — JS has no float32; use `Math.fround(x.numberValue())` |
+| `toBigInteger()` / `toBigIntegerExact()` | `toBigInt()` / `toBigIntExact()` (aliases: `toBigInteger()` / `toBigIntegerExact()`) |
 | `toString` / `toPlainString` / `toEngineeringString` | same |
 | `MathContext.DECIMAL64` etc. | `MathContext.DECIMAL64` etc. |
 | `RoundingMode.HALF_EVEN` etc. | `RoundingMode.HALF_EVEN` etc. |

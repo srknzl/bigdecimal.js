@@ -146,6 +146,30 @@ const testCaseMethods = {
         twoResult: false,
         randomize: false
     },
+    LongValueExact: {
+        argsFn: (first) => [first],
+        twoOp: false,
+        twoResult: false,
+        randomize: false
+    },
+    IntValueExact: {
+        argsFn: (first) => [first],
+        twoOp: false,
+        twoResult: false,
+        randomize: false
+    },
+    ShortValueExact: {
+        argsFn: (first) => [first],
+        twoOp: false,
+        twoResult: false,
+        randomize: false
+    },
+    ByteValueExact: {
+        argsFn: (first) => [first],
+        twoOp: false,
+        twoResult: false,
+        randomize: false
+    },
     Pow: {
         argsFn: (first) => [
             first,
