@@ -77,7 +77,7 @@
     "url": "https://github.com/srknzl/bigdecimal.js/issues"
   },
   "engines": {
-    "node": ">=10.4.0"
+    "node": ">=18"
   },
   "homepage": "https://srknzl.github.io/bigdecimal.js/",
   "devDependencies": {

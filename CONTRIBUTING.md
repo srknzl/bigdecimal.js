@@ -19,7 +19,7 @@ immutability, dual representation).
 
 ## Prerequisites
 
-- **Node.js ≥ 18** (CI runs 18/20/22/24; the library itself supports Node ≥ 10.4).
+- **Node.js ≥ 18** (CI runs 18/20/22/24; the library itself supports Node ≥ 18).
 - **Java (JDK 26)** on your `PATH` — only needed to *regenerate* differential test fixtures.
 
 ## Setup

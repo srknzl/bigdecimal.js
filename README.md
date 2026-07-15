@@ -4,7 +4,7 @@
 [![NPM Downloads][downloads-image]][downloads-url]
 [![codecov](https://codecov.io/gh/srknzl/bigdecimal.js/branch/main/graph/badge.svg?token=Y9PL8TFV2L)](https://codecov.io/gh/srknzl/bigdecimal.js)
 
-[BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal implementation for Node.js 10.4 and above, and for browsers that support native `BigInt` (Chrome 67+, Firefox 68+, Safari 14+).
+[BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal implementation for Node.js 18 and above, and for browsers that support native `BigInt` (Chrome 67+, Firefox 68+, Safari 14+).
 This implementation is inspired from java BigDecimal class. This implementation is faster than popular big decimal libraries for most operations.
 See [benchmarks results part below](https://github.com/srknzl/bigdecimal.js#benchmark-results) for comparison of each operation.
 
