@@ -36,7 +36,7 @@
     "docs:dev": "npm run compile && npm run docs:api && vitepress dev website",
     "docs:build": "npm run compile && npm run docs:api && vitepress build website",
     "docs:preview": "vitepress preview website",
-    "lint:ci": "eslint --ext .ts .",
+    "lint:ci": "eslint .",
     "lint": "eslint --cache --fix .",
     "benchmark": "node benchmarks",
     "generate-test-files": "node util/generateTestFiles.js",
