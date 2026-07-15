@@ -1,7 +1,7 @@
 # Installation
 
 BigDecimal.js is pure JavaScript with **zero runtime dependencies** and uses native
-`BigInt`, so it runs anywhere `BigInt` does — Node.js 10.4+ and every modern browser
+`BigInt`, so it runs anywhere `BigInt` does — Node.js 18+ and every modern browser
 (Chrome 67+, Firefox 68+, Safari 14+). No polyfills, no build config.
 
 The package ships CommonJS, ESM, and a minified UMD bundle, with TypeScript declarations

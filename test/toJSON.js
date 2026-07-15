@@ -32,9 +32,13 @@ describe('ToJSON test', function () {
             const actual = toJSONOp();
             const expected = JSON.stringify(test.result);
 
-            chai.assert.equal(JSON.stringify(actual.valueOfToJSON), expected, `expected '${JSON.stringify(actual.valueOfToJSON)}' to be '${expected}', The actual value is '${test.args[0]}'.toJSON()`);
-            chai.assert.equal(actual.valueOfStringify, expected, `expected '${actual.valueOfStringify}' to be '${expected}', The actual value is JSON.stringify('${test.args[0]}')`);
-            chai.assert.equal(JSON.stringify(actual.valueOfParseJson), expected, `expected '${JSON.stringify(actual.valueOfParseJson)}' to be '${expected}', The actual value is JSON.parse('${test.args[0]}')`);
+            chai.assert.equal(JSON.stringify(actual.valueOfToJSON), expected, `expected '${JSON.stringify(actual.valueOfToJSON)}'
+             to be '${expected}', The actual value is '${test.args[0]}'.toJSON()`);
+            chai.assert.equal(actual.valueOfStringify, expected, `expected '${actual.valueOfStringify}' to be '${expected}',
+                 The actual value is JSON.stringify('${test.args[0]}')`);
+            chai.assert.equal(
+                JSON.stringify(actual.valueOfParseJson), expected, `expected '${JSON.stringify(actual.valueOfParseJson)}'
+                 to be '${expected}', The actual value is JSON.parse('${test.args[0]}')`);
         }
     });
 });

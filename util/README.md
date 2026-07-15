@@ -33,3 +33,8 @@ OpenJDK 64-Bit Server VM (build 26.0.1+8-34, mixed mode, sharing)
 To regenerate: ensure `java` (JDK 26) is on `PATH`, recompile the dispatcher with
 `javac -d util/batch util/batch/Main.java`, delete `util/output/*.json`, then
 `npm run generate-test-files`.
+
+Generation is randomized but reproducible: every run logs its RNG seed, and
+`TEST_GEN_SEED=<seed> npm run generate-test-files` replays that run exactly
+(same seed ⇒ byte-identical json). The weekly fuzz workflow's seed is in its
+"Generate" step log.

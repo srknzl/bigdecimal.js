@@ -6,6 +6,21 @@ const { spawnSync } = require('child_process');
 
 const testNumbers = require('./testNumbers');
 
+// Seedable RNG (mulberry32) so generated fixtures and fuzz failures are reproducible:
+// every run logs its seed, and TEST_GEN_SEED=<seed> replays the run exactly.
+const seed = process.env.TEST_GEN_SEED !== undefined
+    ? Number(process.env.TEST_GEN_SEED) >>> 0
+    : require('crypto').randomInt(2 ** 32);
+console.log(`Random seed: ${seed} (set TEST_GEN_SEED=${seed} to reproduce this run)`);
+
+let rngState = seed;
+function random() {
+    rngState = rngState + 0x6D2B79F5 | 0;
+    let t = Math.imul(rngState ^ rngState >>> 15, 1 | rngState);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+}
+
 const repeatCountForRandomTests = 10;
 const maxPrecision = 1000;
 const smallScale = 1000;
@@ -111,31 +126,31 @@ async function generateJsonFile(name, randomize, outputDir, twoResult, testNumbe
 
 const testCaseMethods = {
     Abs: {
-        argsFn: (first) => [first, Math.floor(Math.random() * maxPrecision), Math.floor(Math.random() * maxRoundingMode)],
+        argsFn: (first) => [first, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
         twoOp: false,
         twoResult: false,
         randomize: true
     },
     MovePointLeft: {
-        argsFn: (first) => [first, Math.floor(Math.random() * (maxPoint - minPoint + 1) + minPoint)],
+        argsFn: (first) => [first, Math.floor(random() * (maxPoint - minPoint + 1) + minPoint)],
         twoOp: false,
         twoResult: false,
         randomize: true
     },
     MovePointRight: {
-        argsFn: (first) => [first, Math.floor(Math.random() * (maxPoint - minPoint + 1) + minPoint)],
+        argsFn: (first) => [first, Math.floor(random() * (maxPoint - minPoint + 1) + minPoint)],
         twoOp: false,
         twoResult: false,
         randomize: true
     },
     Negate: {
-        argsFn: (first) => [first, Math.floor(Math.random() * maxPrecision), Math.floor(Math.random() * maxRoundingMode)],
+        argsFn: (first) => [first, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
         twoOp: false,
         twoResult: false,
         randomize: true
     },
     Plus: {
-        argsFn: (first) => [first, Math.floor(Math.random() * maxPrecision), Math.floor(Math.random() * maxRoundingMode)],
+        argsFn: (first) => [first, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
         twoOp: false,
         twoResult: false,
         randomize: true
@@ -146,37 +161,61 @@ const testCaseMethods = {
         twoResult: false,
         randomize: false
     },
+    LongValueExact: {
+        argsFn: (first) => [first],
+        twoOp: false,
+        twoResult: false,
+        randomize: false
+    },
+    IntValueExact: {
+        argsFn: (first) => [first],
+        twoOp: false,
+        twoResult: false,
+        randomize: false
+    },
+    ShortValueExact: {
+        argsFn: (first) => [first],
+        twoOp: false,
+        twoResult: false,
+        randomize: false
+    },
+    ByteValueExact: {
+        argsFn: (first) => [first],
+        twoOp: false,
+        twoResult: false,
+        randomize: false
+    },
     Pow: {
         argsFn: (first) => [
             first,
-            Math.floor(Math.random() * 2 * maxPowNumber) - maxPowNumber,
-            Math.floor(Math.random() * maxPrecision),
-            Math.floor(Math.random() * maxRoundingMode)
+            Math.floor(random() * 2 * maxPowNumber) - maxPowNumber,
+            Math.floor(random() * maxPrecision),
+            Math.floor(random() * maxRoundingMode)
         ],
         twoOp: false,
         twoResult: false,
         randomize: true
     },
     Add: {
-        argsFn: ([f, s]) => [f, s, Math.floor(Math.random() * maxPrecision), Math.floor(Math.random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
     },
     Subtract: {
-        argsFn: ([f, s]) => [f, s, Math.floor(Math.random() * maxPrecision), Math.floor(Math.random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
     },
     Multiply: {
-        argsFn: ([f, s]) => [f, s, Math.floor(Math.random() * maxPrecision), Math.floor(Math.random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
     },
     Divide: {
-        argsFn: ([f, s]) => [f, s, Math.floor(Math.random() * maxPrecision), Math.floor(Math.random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
@@ -190,7 +229,7 @@ const testCaseMethods = {
     },
     // Divide that has divisor and rounding mode
     Divide3: {
-        argsFn: ([f, s]) => [f, s, Math.floor(Math.random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
@@ -198,25 +237,25 @@ const testCaseMethods = {
     // Divide that has divisor, scale and rounding mode
     Divide4: {
         argsFn: ([f, s]) =>
-            [f, s, Math.floor(Math.random() * smallScale) - smallScale, Math.floor(Math.random() * maxRoundingMode)],
+            [f, s, Math.floor(random() * smallScale) - smallScale, Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
     },
     DivideToIntegralValue: {
-        argsFn: ([f, s]) => [f, s, Math.floor(Math.random() * maxPrecision), Math.floor(Math.random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
     },
     Remainder: {
-        argsFn: ([f, s]) => [f, s, Math.floor(Math.random() * maxPrecision), Math.floor(Math.random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
     },
     DivideAndRemainder: {
-        argsFn: ([f, s]) => [f, s, Math.floor(Math.random() * maxPrecision), Math.floor(Math.random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: true,
         randomize: true
@@ -248,9 +287,9 @@ const testCaseMethods = {
     ToString: {
         argsFn: (f) => [
             f,
-            Math.floor(Math.random() * maxScale) - minScale,
-            Math.floor(Math.random() * maxPrecision),
-            Math.floor(Math.random() * maxRoundingMode),
+            Math.floor(random() * maxScale) - minScale,
+            Math.floor(random() * maxPrecision),
+            Math.floor(random() * maxRoundingMode),
         ],
         twoOp: false,
         twoResult: false,
@@ -265,8 +304,8 @@ const testCaseMethods = {
     Round: {
         argsFn: (f) => [
             f,
-            Math.floor(Math.random() * maxPrecision),
-            Math.floor(Math.random() * maxRoundingMode),
+            Math.floor(random() * maxPrecision),
+            Math.floor(random() * maxRoundingMode),
         ],
         twoOp: false,
         twoResult: false,
@@ -275,7 +314,7 @@ const testCaseMethods = {
     ScaleByPowerOfTen: {
         argsFn: (f) => [
             f,
-            Math.floor(Math.random() * smallScale) - smallScale
+            Math.floor(random() * smallScale) - smallScale
         ],
         twoOp: false,
         twoResult: false,
@@ -284,8 +323,8 @@ const testCaseMethods = {
     SetScale: {
         argsFn: (f) => [
             f,
-            Math.floor(Math.random() * smallScale) - smallScale,
-            Math.floor(Math.random() * maxRoundingMode),
+            Math.floor(random() * smallScale) - smallScale,
+            Math.floor(random() * maxRoundingMode),
         ],
         twoOp: false,
         twoResult: false,
@@ -302,8 +341,8 @@ const testCaseMethods = {
     Sqrt: {
         argsFn: (f) => [
             f,
-            Math.floor(Math.random() * maxPrecision),
-            Math.floor(Math.random() * maxRoundingMode),
+            Math.floor(random() * maxPrecision),
+            Math.floor(random() * maxRoundingMode),
         ],
         twoOp: false,
         twoResult: false,
@@ -363,12 +402,12 @@ const testCaseMethods = {
  * Generates random bigint
  */
 function generateRandomBigInt() {
-    const opCount = Math.floor(Math.random() * 10) + 1; // do [1, 10] operations
+    const opCount = Math.floor(random() * 10) + 1; // do [1, 10] operations
 
     let result = 1n;
 
     for (let i = 0; i < opCount; i++) {
-        const randomBigInt = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+        const randomBigInt = BigInt(Math.floor(random() * Number.MAX_SAFE_INTEGER));
         result *= randomBigInt;
     }
     return result;

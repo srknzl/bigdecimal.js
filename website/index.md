@@ -22,7 +22,7 @@ hero:
 features:
   - icon: ⚡
     title: Fastest of the pack
-    details: Built on native BigInt — the fastest in 23 of 27 benchmarked operations against big.js, bignumber.js and decimal.js.
+    details: Built on native BigInt — the fastest in 25 of 27 benchmarked operations against big.js, bignumber.js and decimal.js.
     link: https://github.com/srknzl/bigdecimal.js#benchmark-results
     linkText: See the benchmarks
   - icon: 🎯

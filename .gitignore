@@ -21,3 +21,5 @@ Gemfile.lock
 
 .DS_Store
 rust
+# Local improvement roadmap (not published)
+IMPROVEMENT-PLAN.md

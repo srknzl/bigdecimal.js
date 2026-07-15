@@ -43,7 +43,7 @@ export default defineConfig({
       { text: 'API', link: '/api/', activeMatch: '/api/' },
       { text: 'Playground', link: '/playground' },
       {
-        text: 'v1.6.1',
+        text: 'v1.7.0',
         items: [
           {
             text: 'This release',
@@ -77,6 +77,7 @@ export default defineConfig({
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Installation', link: '/guide/installation' },
             { text: 'Core Concepts', link: '/guide/core-concepts' },
+            { text: 'Performance', link: '/guide/performance' },
           ],
         },
         {
@@ -84,6 +85,7 @@ export default defineConfig({
           items: [
             { text: 'Formatting Output', link: '/guide/formatting' },
             { text: 'Lossless JSON', link: '/guide/lossless-json' },
+            { text: 'Error Handling', link: '/guide/error-handling' },
           ],
         },
         { text: 'Try it live', items: [{ text: 'Playground', link: '/playground' }] },
