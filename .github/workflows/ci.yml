@@ -42,7 +42,7 @@ jobs:
         # Dependabot-triggered runs get no repo secrets, so the token is empty
         # and the upload is rejected — skip it there.
         if: matrix.node-version == 22 && github.actor != 'dependabot[bot]'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           fail_ci_if_error: true
           files: coverage/lcov.info
