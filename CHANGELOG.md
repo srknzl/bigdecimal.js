@@ -59,6 +59,14 @@ verified against 840,000 randomized cross-checks vs 1.6.1 with zero result chang
   for half-way modes, and digit counts derived by comparison instead of string
   conversion — `round` **+62%**, `setScale` **+17%**, `pow` with negative exponents **+34%**.
 
+### Changed / Tooling
+
+- The source now compiles under `noUncheckedIndexedAccess`, `noImplicitReturns`,
+  `noFallthroughCasesInSwitch`, and `noUnusedLocals`/`noUnusedParameters`, and is
+  linted with typescript-eslint's type-checked rules on ESLint 9 flat config
+  (previously the TypeScript source was not linted at all). No published-package
+  changes.
+
 ## [1.6.1]
 
 ### Added
