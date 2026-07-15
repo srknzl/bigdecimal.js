@@ -59,6 +59,14 @@ verified against 840,000 randomized cross-checks vs 1.6.1 with zero result chang
   for half-way modes, and digit counts derived by comparison instead of string
   conversion — `round` **+62%**, `setScale` **+17%**, `pow` with negative exponents **+34%**.
 
+### Changed
+
+- `MathContext` now throws `RangeError` for an invalid rounding mode, like every
+  other validation failure in the library (it was the single place that threw
+  `TypeError`). Update any `catch` that matched on the error type.
+- New docs page: [Error Handling](https://srknzl.github.io/bigdecimal.js/guide/error-handling)
+  — the `RangeError` ≙ Java `ArithmeticException` mapping and every throwing condition.
+
 ### Changed / Tooling
 
 - The source now compiles under `noUncheckedIndexedAccess`, `noImplicitReturns`,

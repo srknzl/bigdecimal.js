@@ -84,6 +84,7 @@ export default defineConfig({
           items: [
             { text: 'Formatting Output', link: '/guide/formatting' },
             { text: 'Lossless JSON', link: '/guide/lossless-json' },
+            { text: 'Error Handling', link: '/guide/error-handling' },
           ],
         },
         { text: 'Try it live', items: [{ text: 'Playground', link: '/playground' }] },

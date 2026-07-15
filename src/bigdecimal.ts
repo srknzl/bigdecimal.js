@@ -182,7 +182,7 @@ export class MathContext {
         if (precision < 0) {
             throw new RangeError('MathContext precision cannot be less than 0');
         } else if (!RoundingMode[roundingMode]) {
-            throw new TypeError(`RoundingMode is invalid: ${roundingMode}`);
+            throw new RangeError(`RoundingMode is invalid: ${roundingMode}`);
         }
         this.precision = precision;
         this.roundingMode = roundingMode;
