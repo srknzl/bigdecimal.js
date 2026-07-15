@@ -41,6 +41,24 @@ the boundary:
   the compact/inflated boundary and the Java integral-type range edges; all differential
   fixtures regenerated against JDK 26 (these seeds are what caught the fourth bug above).
 
+### Changed / Performance
+
+Algorithmic rework of the former benchmark laggards (measured on Apple M1, Node 24;
+verified against 840,000 randomized cross-checks vs 1.6.1 with zero result changes):
+
+- `divideToIntegralValue` computes the integer quotient directly with one native
+  truncating `BigInt` division on aligned significands, replacing the ported JDK
+  bounded-precision divide-then-truncate pipeline — **~12× faster**, and `remainder` /
+  `divideAndRemainder` inherit it (**~8× faster**). Both were the slowest operations
+  vs other libraries; both are now the fastest.
+- Trailing-zero stripping works in 15-digit chunks behind an O(1) binary
+  trailing-zero probe instead of one bigint division per digit — `divide` **+40%**,
+  `stripTrailingZeros` **+15%**, and every operation that normalizes scales benefits.
+- The rounding pipeline does fewer bigint operations per round: cached power-of-ten
+  divisors, the HALF_EVEN parity test only on an actual tie, half-way comparison only
+  for half-way modes, and digit counts derived by comparison instead of string
+  conversion — `round` **+62%**, `setScale` **+17%**, `pow` with negative exponents **+34%**.
+
 ## [1.6.1]
 
 ### Added

@@ -1464,7 +1464,7 @@ export class BigDecimal {
      */
     private static divideAndRoundByTenPow(intVal: bigint, tenPow: number, roundingMode: number): bigint {
         if (tenPow < BigDecimal.TEN_POWERS_TABLE.length)
-            intVal = BigDecimal.divideAndRound5(intVal, BigDecimal.TEN_POWERS_TABLE[tenPow], roundingMode);
+            intVal = BigDecimal.divideAndRound5(intVal, tenPow, roundingMode);
         else
             intVal = BigDecimal.divideAndRound6(intVal, BigDecimal.bigTenToThe(tenPow), roundingMode);
         return intVal;
@@ -1568,7 +1568,10 @@ export class BigDecimal {
                         prec = BigDecimal.integerDigitLength(compactVal);
                         break;
                     }
-                    prec = BigDecimal.bigDigitLength(intVal!);
+                    // Dropping `drop` digits from a prec-digit value leaves exactly
+                    // mcp digits, or mcp+1 when a rounding carry reached 10^mcp.
+                    prec = BigDecimal.bigIntCompareMagnitude(intVal, BigDecimal.bigTenToThe(mcp)) >= 0 ?
+                        mcp + 1 : mcp;
                     drop = prec - mcp;
                 }
             }
@@ -1633,7 +1636,10 @@ export class BigDecimal {
                     if (compactVal !== BigDecimal.INFLATED) {
                         break;
                     }
-                    prec = BigDecimal.bigDigitLength(intVal);
+                    // Dropping `drop` digits from a prec-digit value leaves exactly
+                    // mcp digits, or mcp+1 when a rounding carry reached 10^mcp.
+                    prec = BigDecimal.bigIntCompareMagnitude(intVal, BigDecimal.bigTenToThe(mcp)) >= 0 ?
+                        mcp + 1 : mcp;
                     drop = prec - mcp;
                 }
             }
@@ -1721,17 +1727,40 @@ export class BigDecimal {
      * @internal
      */
     private static createAndStripZerosToMatchScale2(intVal: bigint, scale: number, preferredScale: number): BigDecimal {
-        let qr: bigint[];
-        while (BigDecimal.bigIntCompareMagnitude(intVal!, BigDecimal.tenBigInt) >= 0 && scale > preferredScale) {
-            if (intVal! % BigDecimal.twoBigInt === BigDecimal.oneBigInt)
-                break;
-            qr = [intVal! / BigDecimal.tenBigInt, intVal! % BigDecimal.tenBigInt];
-            if (BigDecimal.bigIntSignum(qr[1]) !== 0)
-                break;
-            intVal = qr[0];
-            scale = this.checkScale3(intVal, scale - 1);
+        // Strip trailing zeros in chunks of up to 15 digits instead of one
+        // bigint division per digit. Every decimal zero contributes a factor of
+        // two, so the binary trailing-zero count of the low bits — an O(1)
+        // probe, no bigint division — bounds how many digits can possibly be
+        // stripped; the common no-zeros case exits on it for free.
+        if (intVal !== BigDecimal.zeroBigInt) {
+            while (scale > preferredScale) {
+                const low32 = Number(BigInt.asUintN(32, intVal));
+                const maxByTwos = low32 === 0 ? 15 : 31 - Math.clz32(low32 & -low32);
+                if (maxByTwos === 0) // odd => no trailing zero
+                    break;
+                const k = Math.min(maxByTwos, 15, scale - preferredScale);
+                let r = Math.abs(Number(intVal % BigDecimal.bigTenToThe(k)));
+                let tz: number; // trailing zeros in the low k-digit chunk
+                if (r === 0) {
+                    tz = k;
+                } else {
+                    tz = 0;
+                    while (r % 10 === 0) {
+                        r /= 10;
+                        tz++;
+                    }
+                }
+                if (tz === 0)
+                    break;
+                if (scale - tz < BigDecimal.MIN_INT_VALUE)
+                    throw new RangeError('Scale too less');
+                intVal = intVal / BigDecimal.bigTenToThe(tz);
+                scale -= tz;
+                if (tz < 15) // a nonzero digit or the factor-of-two bound ends the run
+                    break;
+            }
         }
-        return BigDecimal.fromBigInt5(intVal!, scale, 0);
+        return BigDecimal.fromBigInt5(intVal, scale, 0);
     }
 
     /**
@@ -2453,19 +2482,34 @@ export class BigDecimal {
 
             if (this.signum() === 0 && divisor.signum() !== 0)
                 return this.setScale(preferredScale, RoundingMode.UNNECESSARY);
+            if (divisor.signum() === 0)
+                throw new RangeError('Division by zero');
 
-            // Perform a divide with enough digits to round to a correct
-            // integer value; then remove any fractional digits
-            const maxDigits = Math.min(
-                this.precision() + Math.ceil(10.0 * divisor.precision() / 3.0) + Math.abs(this._scale - divisor._scale) + 2,
-                Number.MAX_SAFE_INTEGER
-            );
-            let quotient = this.divideWithMathContext(divisor, new MathContext(maxDigits, RoundingMode.DOWN));
-            if (quotient._scale > 0) {
-                quotient = quotient.setScale(0, RoundingMode.DOWN);
-                quotient = BigDecimal.stripZerosToMatchScale(
-                    quotient.intVal!, quotient.intCompact, quotient._scale, preferredScale
-                );
+            // The integer part of the quotient does not depend on rounding, so
+            // compute it directly: align the significands to a common scale and
+            // divide with native truncating division.
+            const raise = divisor._scale - this._scale;
+            let quotient: BigDecimal | null = null;
+            const xs = this.intCompact;
+            const ys = divisor.intCompact;
+            if (xs !== BigDecimal.INFLATED && ys !== BigDecimal.INFLATED) {
+                // Compact path: Math.trunc(a / b) is exact for safe-integer operands.
+                const scaledX = raise >= 0 ? BigDecimal.integerMultiplyPowerTen(xs, raise) : xs;
+                const scaledY = raise >= 0 ? ys : BigDecimal.integerMultiplyPowerTen(ys, -raise);
+                if (scaledX !== BigDecimal.INFLATED && scaledY !== BigDecimal.INFLATED) {
+                    quotient = BigDecimal.createAndStripZerosToMatchScale(
+                        Math.trunc(scaledX / scaledY), 0, preferredScale
+                    );
+                }
+            }
+            if (quotient === null) {
+                const q = raise >= 0 ?
+                    this.bigMultiplyPowerTen(raise) / divisor.inflated() :
+                    this.inflated() / divisor.bigMultiplyPowerTen(-raise);
+                const compactQ = BigDecimal.compactValFor(q);
+                quotient = compactQ !== BigDecimal.INFLATED ?
+                    BigDecimal.createAndStripZerosToMatchScale(compactQ, 0, preferredScale) :
+                    BigDecimal.createAndStripZerosToMatchScale2(q, 0, preferredScale);
             }
 
             if (quotient._scale < preferredScale) {
@@ -3707,7 +3751,7 @@ export class BigDecimal {
      * @internal
      */
     private static bigIntToBigDecimal(bigInt: bigint, qsign: number, scale: number): BigDecimal {
-        if (bigInt <= BigInt(Number.MAX_SAFE_INTEGER) && bigInt >= BigInt(Number.MIN_SAFE_INTEGER)) {
+        if (bigInt <= Number.MAX_SAFE_INTEGER && bigInt >= Number.MIN_SAFE_INTEGER) {
             const numberForm = qsign * Number(bigInt);
             // MIN_SAFE_INTEGER is the INFLATED sentinel; that value must carry its bigint form.
             if (numberForm !== BigDecimal.INFLATED) {
@@ -3728,7 +3772,7 @@ export class BigDecimal {
      * @internal
      */
     private static bigIntToCompactValue(bigInt: bigint, qsign: number): number {
-        if (bigInt <= BigInt(Number.MAX_SAFE_INTEGER) && bigInt >= BigInt(Number.MIN_SAFE_INTEGER)) {
+        if (bigInt <= Number.MAX_SAFE_INTEGER && bigInt >= Number.MIN_SAFE_INTEGER) {
             return qsign * Number(bigInt);
         } else {
             return BigDecimal.INFLATED;
@@ -3751,8 +3795,8 @@ export class BigDecimal {
         // quotient sign
         const qsign = (BigDecimal.bigIntSignum(bdividend) !== BigDecimal.bigIntSignum(bdivisor)) ? -1 : 1;
 
-        if (bdividend < BigDecimal.zeroBigInt) bdividend = bdividend * BigDecimal.minusOneBigInt;
-        if (bdivisor < BigDecimal.zeroBigInt) bdivisor = bdivisor * BigDecimal.minusOneBigInt;
+        if (bdividend < BigDecimal.zeroBigInt) bdividend = -bdividend;
+        if (bdivisor < BigDecimal.zeroBigInt) bdivisor = -bdivisor;
 
         let mq = bdividend / bdivisor;
         const mr = bdividend % bdivisor;
@@ -3784,10 +3828,14 @@ export class BigDecimal {
     private static needIncrement2(
         mdivisor: bigint, roundingMode: RoundingMode, qsign: number, mq: bigint, mr: bigint
     ): boolean {
-        const cmpFracHalf = BigDecimal.compareHalf(mr, mdivisor);
-        return BigDecimal.commonNeedIncrement(
-            roundingMode, qsign, cmpFracHalf, mq % BigDecimal.twoBigInt === BigDecimal.oneBigInt
-        );
+        // compareHalf and the parity test each cost a bigint operation; only the
+        // half-way modes read cmpFracHalf and only a HALF_EVEN tie reads parity.
+        const cmpFracHalf =
+            roundingMode >= RoundingMode.HALF_UP && roundingMode <= RoundingMode.HALF_EVEN ?
+                BigDecimal.compareHalf(mr, mdivisor) : 1;
+        const oddQuot = roundingMode === RoundingMode.HALF_EVEN && cmpFracHalf === 0 &&
+            mq % BigDecimal.twoBigInt === BigDecimal.oneBigInt;
+        return BigDecimal.commonNeedIncrement(roundingMode, qsign, cmpFracHalf, oddQuot);
     }
 
     /**
@@ -3820,9 +3868,10 @@ export class BigDecimal {
         const dividendSignum = BigDecimal.bigIntSignum(bdividend);
 
         if (divisorNegative) ldivisor *= -1;
-        if (dividendSignum === -1) bdividend = bdividend * BigDecimal.minusOneBigInt;
+        if (dividendSignum === -1) bdividend = -bdividend;
 
-        let mq = bdividend / BigInt(ldivisor);
+        const bdivisor = BigInt(ldivisor);
+        let mq = bdividend / bdivisor;
         let mr: number;
 
         const bDividendNumber = Number(bdividend);
@@ -3830,7 +3879,7 @@ export class BigDecimal {
         if (Number.isSafeInteger(bDividendNumber)) {
             mr = bDividendNumber % ldivisor;
         } else {
-            mr = Number(bdividend % BigInt(ldivisor));
+            mr = Number(bdividend % bdivisor);
         }
 
         // record remainder is zero or not
@@ -3868,9 +3917,10 @@ export class BigDecimal {
             cmpFracHalf = BigDecimal.integerCompareMagnitude(2 * r, ldivisor);
         }
 
-        return BigDecimal.commonNeedIncrement(
-            roundingMode, qsign, cmpFracHalf, mq % BigDecimal.twoBigInt === BigDecimal.oneBigInt
-        );
+        // The parity test costs a bigint operation; only a HALF_EVEN tie reads it.
+        const oddQuot = roundingMode === RoundingMode.HALF_EVEN && cmpFracHalf === 0 &&
+            mq % BigDecimal.twoBigInt === BigDecimal.oneBigInt;
+        return BigDecimal.commonNeedIncrement(roundingMode, qsign, cmpFracHalf, oddQuot);
     }
 
     /**
@@ -4550,35 +4600,32 @@ export class BigDecimal {
      * do rounding based on the passed in roundingMode.
      * @internal
      */
-    private static divideAndRound5(bdividend: bigint, ldivisor: number, roundingMode: number): bigint {
-        const dividendSignum = BigDecimal.bigIntSignum(bdividend);
-        const divisorNegative = ldivisor < 0;
+    private static divideAndRound5(bdividend: bigint, tenPow: number, roundingMode: number): bigint {
+        // Divisor is 10^tenPow (< 10^16): use the cached bigint power instead
+        // of constructing BigInt(divisor) on every call.
+        const ldivisor = BigDecimal.TEN_POWERS_TABLE[tenPow];
+        const bdivisor = BigDecimal.bigTenToThe(tenPow);
+        const dividendNegative = bdividend < BigDecimal.zeroBigInt;
 
-        if (dividendSignum === -1) bdividend = bdividend * BigDecimal.minusOneBigInt;
-        if (divisorNegative) ldivisor *= -1;
+        if (dividendNegative) bdividend = -bdividend;
 
-        let mq = bdividend / BigInt(ldivisor);
-        let r: number;
-
-        const bDividendNumber = Number(bdividend);
-
-        if (Number.isSafeInteger(bDividendNumber)) {
-            r = bDividendNumber % ldivisor;
-        } else {
-            r = Number(bdividend % BigInt(ldivisor));
-        }
-
-        // record remainder is zero or not
-        const isRemainderZero = (r === 0);
-
-        // quotient sign
-        const qsign = divisorNegative ? (dividendSignum * -1) : dividendSignum;
-        if (!isRemainderZero) {
-            if (BigDecimal.needIncrement3(ldivisor, roundingMode, qsign, mq, r)) {
-                mq += BigDecimal.oneBigInt;
+        let mq = bdividend / bdivisor;
+        if (roundingMode !== RoundingMode.DOWN) {
+            let r: number;
+            const bDividendNumber = Number(bdividend);
+            if (Number.isSafeInteger(bDividendNumber)) {
+                r = bDividendNumber % ldivisor;
+            } else {
+                r = Number(bdividend % bdivisor);
+            }
+            if (r !== 0) {
+                const qsign = dividendNegative ? -1 : 1;
+                if (BigDecimal.needIncrement3(ldivisor, roundingMode, qsign, mq, r)) {
+                    mq += BigDecimal.oneBigInt;
+                }
             }
         }
-        return mq * BigInt(qsign);
+        return dividendNegative ? -mq : mq;
     }
 
     /**
@@ -4590,8 +4637,8 @@ export class BigDecimal {
         const bdividendSignum = BigDecimal.bigIntSignum(bdividend);
         const bdivisorSignum = BigDecimal.bigIntSignum(bdivisor);
 
-        if (bdividend < BigDecimal.zeroBigInt) bdividend = bdividend * BigDecimal.minusOneBigInt;
-        if (bdivisor < BigDecimal.zeroBigInt) bdivisor = bdivisor * BigDecimal.minusOneBigInt;
+        if (bdividend < BigDecimal.zeroBigInt) bdividend = -bdividend;
+        if (bdivisor < BigDecimal.zeroBigInt) bdivisor = -bdivisor;
 
         let mq = bdividend / bdivisor;
         const mr = bdividend % bdivisor;

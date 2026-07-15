@@ -97,7 +97,11 @@ deployed on push to `main` by `.github/workflows/generate-docs.yml` (Pages sourc
 
 ## Performance notes
 
-Fastest of the compared libraries on most operations. Known laggards are **algorithmic**, not
-micro-opts: `Round`/`SetScale` (big.js's digit-array truncation beats us), and
-`DivideToIntegralValue`/`Remainder` (the ported JDK division). Don't chase these with caching.
-Relative results depend on the engine's `BigInt` impl (V8 vs JavaScriptCore differ).
+Fastest of the compared libraries on all benchmarked operations except `Round`/`SetScale`,
+where big.js's digit-array representation makes truncation nearly free — that residual gap
+is **representational**, don't chase it with caching or string tricks (both were measured
+and lost to native `BigInt` division). `divideToIntegralValue`/`remainder` were rewritten
+in 1.7.0 around one native truncating division; trailing-zero stripping is chunked behind
+an O(1) binary trailing-zeros probe (`BigInt.asUintN` + `Math.clz32`) — bigint ops per call,
+not micro-opts, are what move these numbers. Relative results depend on the engine's
+`BigInt` impl (V8 vs JavaScriptCore differ).
