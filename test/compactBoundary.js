@@ -66,6 +66,20 @@ describe('Compact boundary test', function () {
         sum.equals(same).should.be.true;
     });
 
+    it('should compare equal magnitudes across compact/inflated representations', function () {
+        // compareMagnitude assumed inflated is strictly larger than compact; at exactly
+        // ±(2^53 - 1) both representations of the same magnitude coexist and the old
+        // code returned quotient 0 instead of ±1.
+        Big('9007199254740991').divideToIntegralValue(Big('-9007199254740991'))
+            .toString().should.be.equal('-1');
+        Big('-9007199254740991').divideToIntegralValue(Big('9007199254740991'))
+            .toString().should.be.equal('-1');
+        Big('9007199254740991').remainder(Big('-9007199254740991')).toString().should.be.equal('0');
+        const [q, r] = Big('-9007199254740991').divideAndRemainder(Big('9007199254740991'));
+        q.toString().should.be.equal('-1');
+        r.toString().should.be.equal('0');
+    });
+
     it('should handle ±(2^53 - 1) significands across representations', function () {
         Big(MAX).toString().should.be.equal('9007199254740991');
         Big('-9007199254740991').toString().should.be.equal('-9007199254740991');

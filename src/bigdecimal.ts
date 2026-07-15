@@ -2584,11 +2584,28 @@ export class BigDecimal {
             }
         }
         if (xs !== BigDecimal.INFLATED)
-            return (ys !== BigDecimal.INFLATED) ? BigDecimal.integerCompareMagnitude(xs, ys) : -1;
+            return (ys !== BigDecimal.INFLATED) ? BigDecimal.integerCompareMagnitude(xs, ys)
+                : -BigDecimal.inflatedCompareMagnitude(val.intVal, xs);
         else if (ys !== BigDecimal.INFLATED)
-            return 1;
+            return BigDecimal.inflatedCompareMagnitude(this.intVal, ys);
         else
             return BigDecimal.bigIntCompareMagnitude(this.intVal!, val.intVal!);
+    }
+
+    /**
+     * Magnitude of an inflated significand vs a compact one. Inflated magnitude is
+     * always >= MAX_SAFE_INTEGER >= |compact|, but unlike Java's Long.MIN_VALUE the
+     * JS sentinel value ±MAX_SAFE_INTEGER is reachable on both sides, so equality is
+     * possible. `intVal` is null when the inflated side is a scaling-overflow marker,
+     * which is strictly larger in magnitude.
+     * @internal
+     */
+    private static inflatedCompareMagnitude(intVal: bigint | null, compact: number): number {
+        if (intVal !== null && Math.abs(compact) === Number.MAX_SAFE_INTEGER &&
+            BigDecimal.bigIntCompareMagnitude(intVal, BigInt(compact)) === 0) {
+            return 0;
+        }
+        return 1;
     }
 
     /**
