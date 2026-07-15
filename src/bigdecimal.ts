@@ -4305,7 +4305,7 @@ export class BigDecimal {
      * ```
      */
     toFormat(locales?: string | string[], options?: Intl.NumberFormatOptions): string {
-        const style = options?.style;
+        const style = options === undefined ? undefined : options.style;
         const keepAll = style !== 'currency' && style !== 'percent';
         // ponytail: Intl caps maximumFractionDigits at 100; clamp — tiny display loss only beyond 100 dp.
         const defaults = keepAll
