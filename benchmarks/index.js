@@ -36,7 +36,7 @@ for (const { name, hz } of results) {
     let secondHz = -Infinity;
     for (const lib of libNames) {
         const h = hz[lib];
-        if (h == null) continue;
+        if (h === null) continue;
         if (h > bestHz) {
             secondHz = bestHz; best = lib; bestHz = h;
         } else if (h > secondHz) {
@@ -45,7 +45,7 @@ for (const { name, hz } of results) {
     }
     const cells = libNames.map((lib) => {
         const h = hz[lib];
-        if (h == null) return ' - ';
+        if (h === null) return ' - ';
         return lib === best ? `**${fmt(h)}**` : fmt(h);
     });
     const margin = secondHz > 0 ? ` (${(bestHz / secondHz).toFixed(1)}×)` : '';
