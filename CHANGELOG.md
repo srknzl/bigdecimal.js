@@ -73,6 +73,9 @@ verified against 840,000 randomized cross-checks vs 1.6.1 with zero result chang
   `TypeError`). Update any `catch` that matched on the error type.
 - New docs page: [Error Handling](https://srknzl.github.io/bigdecimal.js/guide/error-handling)
   — the `RangeError` ≙ Java `ArithmeticException` mapping and every throwing condition.
+- New docs page: [Performance](https://srknzl.github.io/bigdecimal.js/guide/performance)
+  — where the speed comes from (native `BigInt` + the compact fast path), benchmark
+  methodology, and V8 vs JavaScriptCore differences.
 
 ### Changed / Tooling
 

@@ -1,0 +1,16 @@
+version: 2
+updates:
+  # All dependencies are devDependencies — the published package has zero
+  # runtime deps — so these PRs never affect the shipped artifact.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      dev-dependencies:
+        patterns:
+          - '*'
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

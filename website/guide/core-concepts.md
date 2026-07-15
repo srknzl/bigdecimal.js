@@ -113,4 +113,5 @@ instead of silent. See [Getting Started](./getting-started#divide-throws-on-non-
 Internally, when a significand fits in a safe integer (≤ 15 digits) BigDecimal keeps it as
 a plain `number` and only "inflates" to `BigInt` when it must. You never see this — it's
 purely a performance detail — but it's why the library outruns the alternatives on typical,
-human-sized numbers.
+human-sized numbers. The [Performance](./performance) page has the full story and the
+benchmark methodology.

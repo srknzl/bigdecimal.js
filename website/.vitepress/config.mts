@@ -77,6 +77,7 @@ export default defineConfig({
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Installation', link: '/guide/installation' },
             { text: 'Core Concepts', link: '/guide/core-concepts' },
+            { text: 'Performance', link: '/guide/performance' },
           ],
         },
         {
