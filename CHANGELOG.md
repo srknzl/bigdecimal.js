@@ -61,6 +61,10 @@ verified against 840,000 randomized cross-checks vs 1.6.1 with zero result chang
 
 ### Changed
 
+- Declared `engines.node` floor raised from `>=10.4.0` to `>=18`. The old floor was
+  the `BigInt` minimum, but nothing verified it (CI tests Node 18–24) and no Node
+  release below 18 is maintained. The shipped code is unchanged and still targets
+  ES2020.
 - `MathContext` now throws `RangeError` for an invalid rounding mode, like every
   other validation failure in the library (it was the single place that threw
   `TypeError`). Update any `catch` that matched on the error type.
@@ -74,6 +78,10 @@ verified against 840,000 randomized cross-checks vs 1.6.1 with zero result chang
   linted with typescript-eslint's type-checked rules on ESLint 9 flat config
   (previously the TypeScript source was not linted at all). No published-package
   changes.
+- The Java-oracle test generator now uses a seeded RNG: every run logs its seed and
+  `TEST_GEN_SEED=<seed>` replays it byte-identically, so checked-in fixtures and
+  weekly fuzz failures are reproducible (previously `Math.random()` with no recorded
+  seed).
 
 ## [1.6.1]
 

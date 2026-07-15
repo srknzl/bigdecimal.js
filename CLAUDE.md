@@ -31,7 +31,7 @@ performance premise, so preserve it when touching arithmetic:
 - `_scale: number` (32-bit int range), `_precision: number` (lazy; `0` = not yet computed).
 
 Native `BigInt` does the arbitrary-precision math; there are **no runtime dependencies**.
-Requires Node ≥10.4 or a browser with `BigInt`. Don't add a runtime dep.
+Requires Node ≥18 (declared `engines` floor since 1.7.0) or a browser with `BigInt`. Don't add a runtime dep.
 
 ## Public API
 
