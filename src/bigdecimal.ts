@@ -1286,7 +1286,8 @@ export class BigDecimal {
                 return BigDecimal.add4(scaledX, ys, scale2);
             } else {
                 const bigsum = BigDecimal.bigMultiplyPowerTen2(xs, raise) + BigInt(ys);
-                return ((xs ^ ys) >= 0) ?
+                // Same-sign test; Java's (xs ^ ys) >= 0 is invalid here since ^ truncates to int32
+                return ((xs < 0) === (ys < 0)) ?
                     new BigDecimal(bigsum, BigDecimal.INFLATED, scale2, 0) : BigDecimal.fromBigInt5(bigsum, scale2, 0);
             }
         } else {
@@ -1296,7 +1297,8 @@ export class BigDecimal {
                 return BigDecimal.add4(xs, scaledY, scale1);
             } else {
                 const bigsum = BigDecimal.bigMultiplyPowerTen2(ys, raise) + BigInt(xs);
-                return ((xs ^ ys) >= 0) ?
+                // Same-sign test; Java's (xs ^ ys) >= 0 is invalid here since ^ truncates to int32
+                return ((xs < 0) === (ys < 0)) ?
                     new BigDecimal(bigsum, BigDecimal.INFLATED, scale1, 0) : BigDecimal.fromBigInt5(bigsum, scale1, 0);
             }
         }
@@ -1316,7 +1318,9 @@ export class BigDecimal {
      */
     private static add5(xs: number, ys: number): number {
         const sum = xs + ys;
-        if (sum >= Number.MAX_SAFE_INTEGER)
+        // Guard both directions: beyond ±(2^53-1) the float sum may be off by one,
+        // and sums at/below MIN_SAFE_INTEGER would collide with the INFLATED sentinel.
+        if (sum >= Number.MAX_SAFE_INTEGER || sum <= Number.MIN_SAFE_INTEGER)
             return BigDecimal.INFLATED;
         return sum;
     }
@@ -3573,8 +3577,12 @@ export class BigDecimal {
      */
     private static bigIntToBigDecimal(bigInt: bigint, qsign: number, scale: number): BigDecimal {
         if (bigInt <= BigInt(Number.MAX_SAFE_INTEGER) && bigInt >= BigInt(Number.MIN_SAFE_INTEGER)) {
-            const numberForm = Number(bigInt);
-            return new BigDecimal(null, qsign * numberForm, scale, 0);
+            const numberForm = qsign * Number(bigInt);
+            // MIN_SAFE_INTEGER is the INFLATED sentinel; that value must carry its bigint form.
+            if (numberForm !== BigDecimal.INFLATED) {
+                return new BigDecimal(null, numberForm, scale, 0);
+            }
+            return new BigDecimal(BigInt(qsign) * bigInt, BigDecimal.INFLATED, scale, 0);
         } else {
             return new BigDecimal(
                 BigInt(qsign) * bigInt, BigDecimal.INFLATED, scale, 0
