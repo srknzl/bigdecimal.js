@@ -89,6 +89,11 @@ verified against 840,000 randomized cross-checks vs 1.6.1 with zero result chang
   weekly fuzz failures are reproducible (previously `Math.random()` with no recorded
   seed).
 
+
+## [1.6.2]
+
+This is a correction release to clarify minimum supported Node version is 18.
+
 ## [1.6.1]
 
 ### Added
