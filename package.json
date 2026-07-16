@@ -93,7 +93,7 @@
     "codemirror": "^6.0.2",
     "decimal.js": "^10.6.0",
     "esbuild": "^0.28.1",
-    "eslint": "^9.39.5",
+    "eslint": "^10.7.0",
     "globals": "^17.7.0",
     "mocha": "^11.7.6",
     "nyc": "^18.0.0",
