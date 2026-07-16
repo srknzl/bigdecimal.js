@@ -7,10 +7,20 @@ updates:
     schedule:
       interval: weekly
     groups:
+      # Bundle only non-breaking updates so a single breaking major can't hold
+      # the whole batch hostage (as TS 7 / chai 6 did). Majors arrive as
+      # separate PRs to review and merge one migration at a time.
       dev-dependencies:
         patterns:
           - '*'
+        update-types:
+          - minor
+          - patch
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - '*'
