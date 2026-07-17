@@ -62,6 +62,31 @@ Big('1').divideWithMathContext('3', MC(20)).toString()          // precision-bas
 Big('1').divide('3') // RangeError: Non-terminating decimal expansion
 ```
 
+## What is *not* available here
+
+This library is a faithful port of Java's `BigDecimal`, which has no
+transcendental functions — if your decimal.js code uses any of the following,
+there is no equivalent and you'll need to keep decimal.js for those parts (or
+compute them outside the decimal type):
+
+| decimal.js | Status here |
+| --- | --- |
+| `exp`, `ln`, `log`, `log2`, `log10` | Not available |
+| `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2` + hyperbolic variants | Not available |
+| `cbrt`, `hypot` | Not available |
+| `toFraction`, `toBinary`, `toHexadecimal`, `toOctal`, `toNearest` | Not available |
+| `Decimal.random()` | Not available |
+
+Two semantic differences that fail loudly rather than silently:
+
+- **`pow` takes integer exponents only** (like Java). `x.pow(0.5)` is not a
+  square root here — use `x.sqrt(mc)`. Fractional exponents throw.
+- **There is no `NaN` or `Infinity`.** decimal.js models them as values;
+  here the operations that would produce them throw a `RangeError` instead
+  (`0/0`, division by zero, invalid input strings like `'NaN'`). Code that
+  checks `x.isNaN()` / `x.isFinite()` after the fact should catch the error
+  at the operation instead.
+
 ## `eq` has two forms here
 
 decimal.js `eq` compares by value. This library distinguishes value-and-scale equality
