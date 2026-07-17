@@ -233,4 +233,35 @@ describe('Constructor test', function () {
             Big(112333123321, 1, MC(5, RoundingMode.HALF_DOWN));
         }).should.throw(RangeError);
     });
+
+    it('should carry-propagate when rounding 99..9 during string construction', function () {
+        // Rounding all-nines carries into an extra digit (999.. -> 1000..), so the
+        // parse rounding loop must re-round; covers both the still-inflated re-loop
+        // and the compact re-loop after the significand shrinks below 2^53.
+        Big('9'.repeat(17), undefined, MC(16, RoundingMode.HALF_UP))
+            .toString().should.be.eq('1.000000000000000E+17');
+        Big('9'.repeat(17), undefined, MC(15, RoundingMode.HALF_UP))
+            .toString().should.be.eq('1.00000000000000E+17');
+    });
+
+    it('should construct a copy from an existing BigDecimal', function () {
+        const orig = Big('1.5');
+        const copy = Big(orig);
+        copy.should.not.be.eq(orig); // new instance
+        copy.toString().should.be.eq('1.5');
+        copy.scale().should.be.eq(orig.scale());
+        copy.intCompact.should.be.eq(orig.intCompact);
+    });
+
+    it('should construct from an INFLATED-valued integer and math context', function () {
+        // The significand equal to the INFLATED sentinel (Number.MIN/MAX_SAFE_INTEGER)
+        // takes the bigint rounding branch of the number+MathContext constructor.
+        const big = Big(Number.MIN_SAFE_INTEGER, undefined, MC(4, RoundingMode.HALF_UP));
+        big.toString().should.be.eq('-9.007E+15');
+        big.precision().should.be.eq(4);
+
+        const big2 = Big(Number.MAX_SAFE_INTEGER, undefined, MC(4, RoundingMode.HALF_UP));
+        big2.toString().should.be.eq('9.007E+15');
+        big2.precision().should.be.eq(4);
+    });
 });

@@ -124,3 +124,11 @@ describe('Symbol.toPrimitive', function () {
         (Big('2') * 3).should.equal(6);
     });
 });
+
+describe('util.inspect', function () {
+    it('renders a reconstructable literal in Node console output', function () {
+        const util = require('util');
+        util.inspect(Big('1.5')).should.equal('BigDecimal(\'1.5\')');
+        util.inspect(Big('-0.5')).should.equal('BigDecimal(\'-0.5\')');
+    });
+});
