@@ -31,6 +31,26 @@ const minPoint = -1000;
 const maxScale = 2147483647;
 const minScale = 2147483648;
 const numberOfToStringTests = 2000;
+const numberOfChainTests = 8000;
+
+// Uniform sampling almost never hits the values where representation switches
+// (precision 15/16/17 straddles MAX_COMPACT_DIGITS, scale/exponent 0/±1). Bias
+// ~30% of parameter draws onto those edges; the rest stay uniform as before.
+function edgeOrRandom(edges, fn) {
+    return random() < 0.3 ? edges[Math.floor(random() * edges.length)] : fn();
+}
+function randomPrecision() {
+    // 0 (= unlimited) excluded from the edges: it already occurs uniformly and
+    // biasing it would blow up Pow's exact-result sizes.
+    return edgeOrRandom([1, 7, 15, 16, 17], () => Math.floor(random() * maxPrecision));
+}
+function randomTargetScale() {
+    return edgeOrRandom([-16, -15, -1, 0, 1, 15, 16], () => Math.floor(random() * smallScale) - smallScale);
+}
+function randomPoint() {
+    return edgeOrRandom([0, 1, -1, 15, -15, 16, -16],
+        () => Math.floor(random() * (maxPoint - minPoint + 1) + minPoint));
+}
 
 const numberSet = new Set();
 
@@ -75,6 +95,14 @@ async function generateJsonFile(name, randomize, outputDir, twoResult, testNumbe
                 const randomBigInt = generateRandomBigInt();
                 testArgs[i] = testCaseMethods[name].argsFn(randomBigInt.toString());
                 i++;
+            }
+
+        } else if (name === 'Chain') {
+            console.log(`Number of test cases are ${numberOfChainTests}`);
+            const pool = Array.from(testNumbers); // numberSet — the adversarial seeds are in here too
+            testArgs = new Array(numberOfChainTests);
+            for (let j = 0; j < numberOfChainTests; j++) {
+                testArgs[j] = buildChain(pool);
             }
 
         } else {
@@ -126,31 +154,31 @@ async function generateJsonFile(name, randomize, outputDir, twoResult, testNumbe
 
 const testCaseMethods = {
     Abs: {
-        argsFn: (first) => [first, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
+        argsFn: (first) => [first, randomPrecision(), Math.floor(random() * maxRoundingMode)],
         twoOp: false,
         twoResult: false,
         randomize: true
     },
     MovePointLeft: {
-        argsFn: (first) => [first, Math.floor(random() * (maxPoint - minPoint + 1) + minPoint)],
+        argsFn: (first) => [first, randomPoint()],
         twoOp: false,
         twoResult: false,
         randomize: true
     },
     MovePointRight: {
-        argsFn: (first) => [first, Math.floor(random() * (maxPoint - minPoint + 1) + minPoint)],
+        argsFn: (first) => [first, randomPoint()],
         twoOp: false,
         twoResult: false,
         randomize: true
     },
     Negate: {
-        argsFn: (first) => [first, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
+        argsFn: (first) => [first, randomPrecision(), Math.floor(random() * maxRoundingMode)],
         twoOp: false,
         twoResult: false,
         randomize: true
     },
     Plus: {
-        argsFn: (first) => [first, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
+        argsFn: (first) => [first, randomPrecision(), Math.floor(random() * maxRoundingMode)],
         twoOp: false,
         twoResult: false,
         randomize: true
@@ -189,7 +217,7 @@ const testCaseMethods = {
         argsFn: (first) => [
             first,
             Math.floor(random() * 2 * maxPowNumber) - maxPowNumber,
-            Math.floor(random() * maxPrecision),
+            randomPrecision(),
             Math.floor(random() * maxRoundingMode)
         ],
         twoOp: false,
@@ -197,25 +225,25 @@ const testCaseMethods = {
         randomize: true
     },
     Add: {
-        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, randomPrecision(), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
     },
     Subtract: {
-        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, randomPrecision(), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
     },
     Multiply: {
-        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, randomPrecision(), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
     },
     Divide: {
-        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, randomPrecision(), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
@@ -237,25 +265,25 @@ const testCaseMethods = {
     // Divide that has divisor, scale and rounding mode
     Divide4: {
         argsFn: ([f, s]) =>
-            [f, s, Math.floor(random() * smallScale) - smallScale, Math.floor(random() * maxRoundingMode)],
+            [f, s, randomTargetScale(), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
     },
     DivideToIntegralValue: {
-        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, randomPrecision(), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
     },
     Remainder: {
-        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, randomPrecision(), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: false,
         randomize: true
     },
     DivideAndRemainder: {
-        argsFn: ([f, s]) => [f, s, Math.floor(random() * maxPrecision), Math.floor(random() * maxRoundingMode)],
+        argsFn: ([f, s]) => [f, s, randomPrecision(), Math.floor(random() * maxRoundingMode)],
         twoOp: true,
         twoResult: true,
         randomize: true
@@ -288,7 +316,7 @@ const testCaseMethods = {
         argsFn: (f) => [
             f,
             Math.floor(random() * maxScale) - minScale,
-            Math.floor(random() * maxPrecision),
+            randomPrecision(),
             Math.floor(random() * maxRoundingMode),
         ],
         twoOp: false,
@@ -304,7 +332,7 @@ const testCaseMethods = {
     Round: {
         argsFn: (f) => [
             f,
-            Math.floor(random() * maxPrecision),
+            randomPrecision(),
             Math.floor(random() * maxRoundingMode),
         ],
         twoOp: false,
@@ -314,7 +342,7 @@ const testCaseMethods = {
     ScaleByPowerOfTen: {
         argsFn: (f) => [
             f,
-            Math.floor(random() * smallScale) - smallScale
+            randomTargetScale()
         ],
         twoOp: false,
         twoResult: false,
@@ -323,7 +351,7 @@ const testCaseMethods = {
     SetScale: {
         argsFn: (f) => [
             f,
-            Math.floor(random() * smallScale) - smallScale,
+            randomTargetScale(),
             Math.floor(random() * maxRoundingMode),
         ],
         twoOp: false,
@@ -341,7 +369,7 @@ const testCaseMethods = {
     Sqrt: {
         argsFn: (f) => [
             f,
-            Math.floor(random() * maxPrecision),
+            randomPrecision(),
             Math.floor(random() * maxRoundingMode),
         ],
         twoOp: false,
@@ -396,7 +424,46 @@ const testCaseMethods = {
         twoResult: false,
         randomize: false
     },
+    // Special-cased in generateJsonFile (see buildChain); kept last so it doesn't
+    // shift the RNG stream of the other operations during a full regeneration.
+    Chain: {
+        argsFn: (f) => [f], // unused — Chain builds its own token arrays
+        twoOp: false,
+        twoResult: false,
+        randomize: true
+    },
 };
+
+// Operation-chain fuzzing. Single-op tests never exercise an *intermediate*
+// result that lands on the compact/inflated boundary — but a chain like
+// mul then add can produce one, which is exactly where the representation
+// switch (and the 1.7.0 boundary bugs) live. Each chain is a linear fold:
+// an operand, then 2–4 steps applied left to right. Serialized as
+// space-separated RPN-ish tokens (one stdin line); Main.java is the oracle,
+// test/chain.js replays the identical token stream in JS.
+// Ops chosen to be exact and value-producing (no precision arg to blur
+// divergences); div uses the 3-arg terminating form so it can't throw on a
+// non-terminating expansion.
+const CHAIN_OPS = ['add', 'sub', 'mul', 'div', 'neg', 'abs', 'mpl', 'mpr'];
+
+function buildChain(pool) {
+    const pick = () => pool[Math.floor(random() * pool.length)];
+    const randInt = (lo, hi) => Math.floor(random() * (hi - lo + 1)) + lo;
+    const tokens = [pick()];
+    const steps = randInt(2, 4);
+    for (let s = 0; s < steps; s++) {
+        const op = CHAIN_OPS[Math.floor(random() * CHAIN_OPS.length)];
+        tokens.push(op);
+        if (op === 'add' || op === 'sub' || op === 'mul') {
+            tokens.push(pick());
+        } else if (op === 'div') {
+            tokens.push(pick(), randInt(0, 30), randInt(0, 6)); // divisor, scale, rm (0..6 skips UNNECESSARY)
+        } else if (op === 'mpl' || op === 'mpr') {
+            tokens.push(randInt(-40, 40));
+        } // neg, abs take no argument
+    }
+    return tokens;
+}
 
 /**
  * Generates random bigint

@@ -131,6 +131,33 @@ public class Main {
                 return new BigDecimal(a[0]).min(new BigDecimal(a[1])).toString();
             case "ToString":
                 return new BigDecimal(new BigInteger(a[0]), Integer.parseInt(a[1]), mc(a, 2)).toString();
+            case "Chain": {
+                // Linear fold: a[0] is the operand, then op-tokens with inline args
+                // (see util/generateTestFiles.js buildChain / test/chain.js replay).
+                BigDecimal acc = new BigDecimal(a[0]);
+                int i = 1;
+                while (i < a.length) {
+                    String t = a[i++];
+                    switch (t) {
+                        case "add": acc = acc.add(new BigDecimal(a[i++])); break;
+                        case "sub": acc = acc.subtract(new BigDecimal(a[i++])); break;
+                        case "mul": acc = acc.multiply(new BigDecimal(a[i++])); break;
+                        case "div": {
+                            BigDecimal divisor = new BigDecimal(a[i++]);
+                            int scale = Integer.parseInt(a[i++]);
+                            RoundingMode mode = RoundingMode.valueOf(Integer.parseInt(a[i++]));
+                            acc = acc.divide(divisor, scale, mode);
+                            break;
+                        }
+                        case "neg": acc = acc.negate(); break;
+                        case "abs": acc = acc.abs(); break;
+                        case "mpl": acc = acc.movePointLeft(Integer.parseInt(a[i++])); break;
+                        case "mpr": acc = acc.movePointRight(Integer.parseInt(a[i++])); break;
+                        default: throw new IllegalArgumentException("Unknown chain op: " + t);
+                    }
+                }
+                return acc.toString();
+            }
             default:
                 throw new IllegalArgumentException("Unknown op: " + op);
         }

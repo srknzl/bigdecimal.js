@@ -18,6 +18,11 @@ that case.
 4. Operations with one operand (e.g. abs, sqrt) and two operands (e.g. add, divide), and the two
 ops that return a pair (`divideAndRemainder`), are handled by the shared `compute` switch in the
 dispatcher.
+   - `Chain` is special: each case is a randomly built *fold* (an operand followed by 2–4 ops —
+   add/sub/mul/div/neg/abs/movePoint — applied left to right), serialized as space-separated
+   tokens. This exercises *intermediate* results that cross the compact/inflated boundary, which
+   single-op cases never reach. [test/chain.js](../test/chain.js) replays the identical token
+   stream in JS; keep the two evaluators in sync.
 5. The per-op `com/<Name>/Main.class` programs are the older argv-driven equivalents, kept as an
 independent oracle to cross-check the batch output (see the sampling harness used during
 regeneration).
