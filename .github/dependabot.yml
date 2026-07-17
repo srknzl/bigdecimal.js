@@ -16,6 +16,16 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      # ESM-only since v5 → breaks the CommonJS test setup on Node 18.
+      # Revisit when Node 18 is dropped or tests move to ESM.
+      - dependency-name: chai
+        update-types: [version-update:semver-major]
+      # TypeScript 7 = native-compiler rewrite; emit/behavior risk for a tsc-generated
+      # library. Upgrade deliberately, not on a weekly bot cadence.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
