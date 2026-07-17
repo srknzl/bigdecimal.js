@@ -471,6 +471,7 @@ export class MathContext {
 const inspectCustomSymbol: unique symbol = Symbol.for('nodejs.util.inspect.custom');
 
 export class BigDecimal {
+    // #region Fields, constants & static tables
     /** @internal */
     private static readonly zeroBigInt = BigInt(0);
 
@@ -685,6 +686,9 @@ export class BigDecimal {
         return scl;
     }
 
+    // #endregion
+
+    // #region Construction, parsing & factories
     /** @internal */
     private constructor(bigIntValue: bigint | null, intCompact: number, scale: number, precision: number) {
         this.intVal = bigIntValue;
@@ -1234,6 +1238,9 @@ export class BigDecimal {
         return BigDecimal.fromValue(value);
     }
 
+    // #endregion
+
+    // #region Internals: sign, scale checks, rounding & normalization
     /** @internal */
     private static add1(fst: bigint, scale1: number, snd: bigint, scale2: number) {
         let rscale = scale1;
@@ -1831,6 +1838,9 @@ export class BigDecimal {
         return [big, small];
     }
 
+    // #endregion
+
+    // #region Arithmetic: negate, add, subtract, multiply, divide
     /**
      * Returns a `BigDecimal` whose value is `(-this)`,
      * with rounding according to the context settings.
@@ -2451,6 +2461,9 @@ export class BigDecimal {
         return BigDecimal.doRound(quotient, mc);
     }
 
+    // #endregion
+
+    // #region Integer division, remainder & equality
     /**
      * Returns a `BigDecimal` whose value is the integer part
      * of `(this / divisor)`.  Since the integer part of the
@@ -2741,6 +2754,9 @@ export class BigDecimal {
         return <[BigDecimal, BigDecimal]>result;
     }
 
+    // #endregion
+
+    // #region sqrt, ulp, strip & scale queries
     /**
      * Returns an approximation to the square root of `this`
      * with rounding according to the context settings.
@@ -3099,6 +3115,9 @@ export class BigDecimal {
         return new BigDecimal(this.intVal, this.intCompact, this.checkScale(this._scale - n), this._precision);
     }
 
+    // #endregion
+
+    // #region Comparison & ordering predicates
     /**
      * Compares this `BigDecimal` numerically with the specified
      * `BigDecimal`.  Two `BigDecimal` objects that are
@@ -3248,6 +3267,9 @@ export class BigDecimal {
         return this.lowerThanOrEquals(val);
     }
 
+    // #endregion
+
+    // #region Numeric conversions (number / bigint / exact narrowing)
     /**
      * Converts this BigDecimal to number.
      * @return number for of this BigDecimal
@@ -3409,6 +3431,9 @@ export class BigDecimal {
         return Number(value);
     }
 
+    // #endregion
+
+    // #region round, setScale, plus, pow, abs (+ division-rounding internals)
     /**
      * Returns a `BigDecimal` rounded according to the
      * `MathContext` settings.  If the precision setting is 0 then
@@ -3924,6 +3949,9 @@ export class BigDecimal {
         return BigDecimal.commonNeedIncrement(roundingMode, qsign, cmpFracHalf, oddQuot);
     }
 
+    // #endregion
+
+    // #region movePoint & min / max / clamp
     /**
      * Returns a `BigDecimal` which is equivalent to this one
      * with the decimal point moved `n` places to the left.  If
@@ -4039,6 +4067,9 @@ export class BigDecimal {
         return this;
     }
 
+    // #endregion
+
+    // #region String formatting, JSON & serialization
     /**
      * Returns the string representation of this `BigDecimal`,
      * using scientific notation if an exponent is needed.
@@ -4631,6 +4662,9 @@ export class BigDecimal {
         return this.toPlainString();
     }
 
+    // #endregion
+
+    // #region Low-level division & normalized-compare helpers
     /**
      * Divides `BigInt` value by number value and
      * do rounding based on the passed in roundingMode.
@@ -4972,6 +5006,7 @@ export class BigDecimal {
             return BigDecimal.divideAndRound3(dividend, scaledDivisor, scale, roundingMode, scale);
         }
     }
+    // #endregion
 }
 
 /**
