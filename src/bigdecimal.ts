@@ -1094,39 +1094,23 @@ export class BigDecimal {
      * @internal
      */
     private static fromNumber5(value: number, mc: MathContext): BigDecimal {
+        // value is never INFLATED here: fromValue routes value <= MIN_SAFE_INTEGER
+        // to the string path, so the JDK's Long.MIN_VALUE inflated-rounding branch
+        // has no JS equivalent and was removed.
         const mcp = mc.precision;
-        const mode = mc.roundingMode;
         let prec = 0;
         let scl = 0;
-        let rb: bigint | null = (value === BigDecimal.INFLATED) ? BigDecimal.INFLATED_BIGINT : null;
         if (mcp > 0) { // do rounding
-            if (value === BigDecimal.INFLATED) {
-                prec = 16; // number max digits + 1
-                let drop = prec - mcp;
-                while (drop > 0) {
-                    scl = BigDecimal.checkScaleNonZero(scl - drop);
-                    rb = BigDecimal.divideAndRoundByTenPow(rb!, drop, mode);
-                    value = BigDecimal.compactValFor(rb);
-                    if (value !== BigDecimal.INFLATED) {
-                        break;
-                    }
-                    prec = BigDecimal.bigDigitLength(rb);
-                    drop = prec - mcp;
-                }
-            }
-            if (value !== BigDecimal.INFLATED) {
+            prec = BigDecimal.integerDigitLength(value);
+            let drop = prec - mcp;
+            while (drop > 0) {
+                scl = BigDecimal.checkScaleNonZero(scl - drop);
+                value = BigDecimal.divideAndRound(value, BigDecimal.TEN_POWERS_TABLE[drop]!, mc.roundingMode);
                 prec = BigDecimal.integerDigitLength(value);
-                let drop = prec - mcp;
-                while (drop > 0) {
-                    scl = BigDecimal.checkScaleNonZero(scl - drop);
-                    value = BigDecimal.divideAndRound(value, BigDecimal.TEN_POWERS_TABLE[drop]!, mc.roundingMode);
-                    prec = BigDecimal.integerDigitLength(value);
-                    drop = prec - mcp;
-                }
-                rb = null;
+                drop = prec - mcp;
             }
         }
-        return new BigDecimal(rb, value, scl, prec);
+        return new BigDecimal(null, value, scl, prec);
     }
 
     /**
@@ -1219,6 +1203,12 @@ export class BigDecimal {
             return BigDecimal.fromBigInt(value, scale, mc);
         }
         if (value instanceof BigDecimal) {
+            if (scale !== undefined) {
+                throw new RangeError('You should give scale only with BigInts or integers');
+            }
+            if (mc !== undefined) {
+                return value.round(mc); // apply the context, as construction from any other type does
+            }
             return new BigDecimal(value.intVal, value.intCompact, value.scale(), value._precision);
         }
         if (scale !== undefined) {
@@ -5027,7 +5017,8 @@ export interface BigDecimalConstructor {
  * Big(123n); // bigint, 123
  * Big(123n, 3); // bigint and scale, 0.123
  * Big(123n, 3, MC(2, RoundingMode.HALF_UP)); // bigint, scale and mc, 0.12
- * Big(aBigDecimal) // Copies the BigDecimal passed. "scale" and "mc" arguments will not used.
+ * Big(aBigDecimal) // Copies the BigDecimal passed.
+ * Big(aBigDecimal, undefined, MC(2)) // Copy rounded per the MathContext. Giving a scale throws.
  * Big(123n, undefined, MC(2, RoundingMode.HALF_UP)); // bigint and mc, 1.2E+2
  * Big('1.13e12'); // string, 1.13E+12
  * Big('1.11e11', undefined, MC(2, RoundingMode.HALF_UP)); // string and mc, 1.1E+11

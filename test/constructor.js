@@ -253,6 +253,17 @@ describe('Constructor test', function () {
         copy.intCompact.should.be.eq(orig.intCompact);
     });
 
+    it('should apply a math context when copying a BigDecimal', function () {
+        // consistent with string/number/bigint inputs — mc rounds on construction
+        Big(Big('1.23456'), undefined, MC(3, RoundingMode.HALF_UP)).toString().should.be.eq('1.23');
+        Big(Big('1.5'), undefined, MC(9)).toString().should.be.eq('1.5'); // no digits dropped
+    });
+
+    it('should throw if a BigDecimal and scale is given', function () {
+        (() => Big(Big('1.5'), 2)).should.throw(RangeError);
+        (() => Big(Big('1.5'), 2, MC(3))).should.throw(RangeError);
+    });
+
     it('should construct from an INFLATED-valued integer and math context', function () {
         // The significand equal to the INFLATED sentinel (Number.MIN/MAX_SAFE_INTEGER)
         // takes the bigint rounding branch of the number+MathContext constructor.

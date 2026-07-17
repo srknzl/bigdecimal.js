@@ -7,6 +7,16 @@ All notable changes to `bigdecimal.js` are documented here. The format is based 
 For releases before 1.6.0, see the
 [GitHub Releases](https://github.com/srknzl/bigdecimal.js/releases) page.
 
+## [Unreleased]
+
+### Changed
+
+- `Big(aBigDecimal, undefined, mc)` now applies the `MathContext` (rounding the
+  copy), consistent with construction from a string, number, or bigint; it was
+  previously ignored silently. Passing a `scale` together with a `BigDecimal`
+  now throws `RangeError` (as it already did for strings) instead of being
+  ignored.
+
 ## [1.7.0]
 
 ### Fixed
