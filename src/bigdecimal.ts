@@ -230,11 +230,21 @@ export class MathContext {
             // static constants below initialise before BigDecimal exists.
         } else if (precision > 2147483647) {
             throw new RangeError(`MathContext precision is out of the 32-bit integer range: ${precision}`);
-        } else if (!RoundingMode[roundingMode]) {
-            throw new RangeError(`RoundingMode is invalid: ${roundingMode}`);
+        } else if (!Number.isInteger(roundingMode) ||
+                   roundingMode < RoundingMode.UP || roundingMode > RoundingMode.UNNECESSARY) {
+            // Not a `RoundingMode[roundingMode]` lookup: that is an index, so NaN, 4.5, null and
+            // the string '4' all miss every key or hit the reverse mapping, and previously either
+            // threw the wrong error or were stored verbatim.
+            throw new RangeError(`RoundingMode is invalid: ${String(roundingMode)}`);
         }
         this.precision = precision;
         this.roundingMode = roundingMode;
+        // Frozen on every instance, not just the shared constants. `readonly` is erased at
+        // runtime, so an ordinary context could be mutated after construction — reintroducing a
+        // fractional precision that makes the reduction loops in round()/sqrt() never terminate.
+        // Freezing here is also what lets normalizeMathContext() treat "frozen instance of
+        // MathContext" as proof the values were validated.
+        Object.freeze(this);
     }
 
     /** @internal */
@@ -244,7 +254,7 @@ export class MathContext {
      * required for unlimited precision arithmetic.
      * The values of the settings are: `precision=0 roundingMode=HALF_UP`
      */
-    static UNLIMITED = Object.freeze(new MathContext(0, RoundingMode.HALF_UP));
+    static readonly UNLIMITED = new MathContext(0, RoundingMode.HALF_UP);
     /**
      * A `MathContext` object with a precision setting
      * matching the precision of the IEEE 754-2019 decimal32 format, 7 digits, and a
@@ -252,7 +262,7 @@ export class MathContext {
      * Note the exponent range of decimal32 is **not** used for
      * rounding.
      */
-    static DECIMAL32 = Object.freeze(new MathContext(7, RoundingMode.HALF_EVEN));
+    static readonly DECIMAL32 = new MathContext(7, RoundingMode.HALF_EVEN);
     /**
      * A `MathContext` object with a precision setting
      * matching the precision of the IEEE 754-2019 decimal64 format, 16 digits, and a
@@ -260,7 +270,7 @@ export class MathContext {
      * Note the exponent range of decimal64 is **not** used for
      * rounding.
      */
-    static DECIMAL64 = Object.freeze(new MathContext(16, RoundingMode.HALF_EVEN));
+    static readonly DECIMAL64 = new MathContext(16, RoundingMode.HALF_EVEN);
     /**
      * A `MathContext` object with a precision setting
      * matching the precision of the IEEE 754-2019 decimal128 format, 34 digits, and a
@@ -268,7 +278,7 @@ export class MathContext {
      * Note the exponent range of decimal64 is **not** used for
      * rounding.
      */
-    static DECIMAL128 = Object.freeze(new MathContext(34, RoundingMode.HALF_EVEN));
+    static readonly DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
 }
 
 /**
@@ -573,6 +583,75 @@ export class BigDecimal {
      * @internal
      */
     static readonly BRAND = Symbol.for('bigdecimal.js.BigDecimal');
+
+    /**
+     * Rejects anything that is not a Java `int`.
+     *
+     * Java types scales, exponents and point shifts as `int`, so a fractional or non-finite
+     * value cannot arise there. JavaScript has only `number`, and an unchecked one propagates
+     * into scale arithmetic and the string layout, producing malformed output such as `'N.a'`
+     * or a `BigDecimal` whose `scale()` is fractional. Validating at each public boundary keeps
+     * every such value out of the core.
+     * @internal
+     */
+    private static requireInt32(name: string, value: number): void {
+        BigDecimal.requireInteger(name, value);
+        if (value > BigDecimal.MAX_INT_VALUE || value < BigDecimal.MIN_INT_VALUE) {
+            throw new RangeError(`${name} is out of the 32-bit integer range: ${value}`);
+        }
+    }
+
+    /**
+     * Rejects a non-integral argument, without constraining its magnitude.
+     *
+     * Used for scales, exponents and point shifts, where an out-of-range *argument* is not in
+     * itself an error: those all route through `checkScale`, which reproduces Java's behaviour
+     * for the resulting scale — throwing 'Scale too high'/'Scale too less' for a nonzero value,
+     * and clamping silently for a zero, which has no digits to lose. Rejecting the magnitude
+     * here would preempt that and report the wrong error. Only integrality has to be enforced,
+     * because a fractional value corrupts the scale arithmetic itself.
+     * @internal
+     */
+    private static requireInteger(name: string, value: number): void {
+        if (!Number.isInteger(value)) {
+            throw new RangeError(`${name} must be an integer: ${value}`);
+        }
+    }
+
+    /**
+     * Rejects anything that is not a member of {@link RoundingMode}.
+     *
+     * A plain `RoundingMode[value]` lookup is not sufficient on its own: it is an index, so
+     * `NaN`, `4.5` and `null` all miss every key and previously fell through the switch
+     * statements to the default branch, silently behaving as though a valid mode had been
+     * supplied. An explicit integer-and-range test is the only form that covers the runtime
+     * space a caller can actually reach.
+     * @internal
+     */
+    private static requireRoundingMode(value: RoundingMode): void {
+        if (!Number.isInteger(value) || value < RoundingMode.UP || value > RoundingMode.UNNECESSARY) {
+            throw new RangeError(`Invalid rounding mode: ${String(value)}`);
+        }
+    }
+
+    /**
+     * Returns a `MathContext` that is safe to read.
+     *
+     * `MathContext` is validated in its constructor and frozen, but a caller can still reach the
+     * arithmetic core with something that never went through it: a structurally compatible object
+     * literal, or an instance from a separately compiled bundle. Those carry no guarantee that
+     * `precision` is an integer, and a fractional precision makes the digit-stepping reduction
+     * loops in `round()`/`sqrt()` spin forever. Anything that is not one of our own frozen
+     * instances is therefore rebuilt through the constructor, which re-runs validation.
+     * @internal
+     */
+    private static normalizeMathContext(mc: MathContext): MathContext {
+        if (mc instanceof MathContext && Object.isFrozen(mc)) return mc;
+        if (mc === null || typeof mc !== 'object') {
+            throw new RangeError(`MathContext expected, got: ${String(mc)}`);
+        }
+        return new MathContext(mc.precision, mc.roundingMode);
+    }
 
     /** @internal */
     private static readonly MAX_INT_VALUE = 2147483647;
@@ -1237,14 +1316,9 @@ export class BigDecimal {
         // Java's scale is an int. Validated here because fromValue is the single entry point for every
         // construction path; a NaN or fractional scale otherwise reaches the string layout and produces
         // malformed output such as '1ENaN'.
-        if (scale !== undefined) {
-            if (!Number.isInteger(scale)) {
-                throw new RangeError(`Scale must be an integer: ${scale}`);
-            }
-            if (scale > BigDecimal.MAX_INT_VALUE || scale < BigDecimal.MIN_INT_VALUE) {
-                throw new RangeError(`Scale is out of the 32-bit integer range: ${scale}`);
-            }
-        }
+        // Unlike the scale-shifting operations, a construction scale has no checkScale overflow
+        // path behind it, so the 32-bit range is enforced here directly.
+        if (scale !== undefined) BigDecimal.requireInt32('Scale', scale);
         if (typeof value === 'number') {
             if (value > Number.MAX_VALUE || value < -Number.MAX_VALUE) {
                 throw new RangeError('Number must be in the range [-Number.MAX_VALUE, Number.MAX_VALUE]');
@@ -1907,6 +1981,7 @@ export class BigDecimal {
      * @return `-this`, rounded as necessary.
      */
     negate(mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         let result = this.intCompact === BigDecimal.INFLATED ?
             new BigDecimal(
                 BigDecimal.minusOneBigInt * this.intVal!, BigDecimal.INFLATED, this._scale, this._precision
@@ -1937,6 +2012,7 @@ export class BigDecimal {
      * ```
      */
     add(augend: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         augend = BigDecimal.convertToBigDecimal(augend);
         if (!mc || (mc && mc.precision === 0)) {
             if (this.intCompact !== BigDecimal.INFLATED) {
@@ -2009,6 +2085,7 @@ export class BigDecimal {
      * ```
      */
     subtract(subtrahend: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         subtrahend = BigDecimal.convertToBigDecimal(subtrahend);
         if (!mc || (mc && mc.precision === 0)) {
             if (this.intCompact !== BigDecimal.INFLATED) {
@@ -2052,6 +2129,7 @@ export class BigDecimal {
      * ```
      */
     multiply(multiplicand: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         multiplicand = BigDecimal.convertToBigDecimal(multiplicand);
         if (!mc || (mc && mc.precision === 0)) {
             const productScale = this.checkScale(this._scale + multiplicand._scale);
@@ -2110,6 +2188,8 @@ export class BigDecimal {
      * ```
      */
     divide(divisor: BigDecimal | bigint | number | string, scale?: number, roundingMode?: RoundingMode): BigDecimal {
+        if (scale !== undefined) BigDecimal.requireInteger('Scale', scale);
+        if (roundingMode !== undefined) BigDecimal.requireRoundingMode(roundingMode);
         divisor = BigDecimal.convertToBigDecimal(divisor);
         /*
          * Handle zero cases first.
@@ -2218,6 +2298,7 @@ export class BigDecimal {
      * ```
      */
     divideWithMathContext(divisor: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         divisor = BigDecimal.convertToBigDecimal(divisor);
         if (divisor.signum() === 0) { // x/0
             if (this.signum() === 0) // 0/0
@@ -2543,6 +2624,7 @@ export class BigDecimal {
      *         requires a precision of more than `mc.precision` digits.
      */
     divideToIntegralValue(divisor: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         divisor = BigDecimal.convertToBigDecimal(divisor);
         if (!mc || (mc && (mc.precision === 0 || this.compareMagnitude(divisor) < 0))) {
             // Calculate preferred scale
@@ -2660,6 +2742,7 @@ export class BigDecimal {
      * @see    {@link divideToIntegralValue}
      */
     remainder(divisor: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         return this.divideAndRemainder(divisor, mc)[1];
     }
 
@@ -2817,6 +2900,7 @@ export class BigDecimal {
      * @see    {@link remainder}
      */
     divideAndRemainder(divisor: BigDecimal | bigint | number | string, mc?: MathContext): [BigDecimal, BigDecimal] {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         divisor = BigDecimal.convertToBigDecimal(divisor);
         const result = new Array<BigDecimal>(2);
 
@@ -2851,6 +2935,7 @@ export class BigDecimal {
      * digits.
      */
     sqrt(mc: MathContext): BigDecimal {
+        mc = BigDecimal.normalizeMathContext(mc);
         const signum = this.signum();
         if (signum !== 1) {
             let result = null;
@@ -3183,6 +3268,7 @@ export class BigDecimal {
      * @throws RangeError if the scale would be outside the range of a safe integer.
      */
     scaleByPowerOfTen(n: number): BigDecimal {
+        BigDecimal.requireInteger('n', n);
         return new BigDecimal(this.intVal, this.intCompact, this.checkScale(this._scale - n), this._precision);
     }
 
@@ -3524,6 +3610,7 @@ export class BigDecimal {
      * ```
      */
     round(mc: MathContext): BigDecimal {
+        mc = BigDecimal.normalizeMathContext(mc);
         return this.plus(mc);
     }
 
@@ -3556,8 +3643,8 @@ export class BigDecimal {
      * ```
      */
     setScale(newScale: number, roundingMode: RoundingMode = RoundingMode.UNNECESSARY): BigDecimal {
-        if (roundingMode < RoundingMode.UP || roundingMode > RoundingMode.UNNECESSARY)
-            throw new RangeError('Invalid rounding mode');
+        BigDecimal.requireRoundingMode(roundingMode);
+        BigDecimal.requireInteger('Scale', newScale);
 
         const oldScale = this._scale;
         if (newScale === oldScale) // easy case
@@ -3624,6 +3711,7 @@ export class BigDecimal {
      * @see    {@link round}
      */
     plus(mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         if (!mc) return this;
         if (mc.precision === 0) // no rounding please
             return this;
@@ -3673,6 +3761,8 @@ export class BigDecimal {
      *         of range.
      */
     pow(n: number, mc?: MathContext): BigDecimal {
+        BigDecimal.requireInteger('Exponent', n);
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         if (!mc || (mc && mc.precision === 0)) {
             if (n < 0 || n > 999999999)
                 throw new RangeError('Invalid operation');
@@ -3724,6 +3814,7 @@ export class BigDecimal {
      * @return absolute value, rounded as necessary.
      */
     abs(mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         return this.signum() < 0 ? this.negate(mc) : this.plus(mc);
     }
 
@@ -3942,10 +4033,15 @@ export class BigDecimal {
      * @private
      */
     private static compareHalf(first: bigint, second: bigint): number {
-        second = second / BigDecimal.twoBigInt;
-        if (first < second) return -1;
-        if (first > second) return 1;
-        return 0;
+        // Double `first` rather than halving `second`. BigInt division truncates, so
+        // `second / 2n` loses the .5 for an odd divisor and a remainder of
+        // floor(second / 2) — which is strictly below half — compared equal to it.
+        // That misreported a near-tie as an exact tie, so HALF_UP rounded away from
+        // zero and HALF_EVEN consulted quotient parity, both incorrectly. Only
+        // HALF_DOWN was unaffected, since it treats an exact tie as "round down"
+        // anyway. Doubling is exact and matches what the compact paths
+        // (needIncrement / needIncrement3) already do.
+        return BigDecimal.bigIntCompareMagnitude(first * BigDecimal.twoBigInt, second);
     }
 
     /**
@@ -4039,6 +4135,7 @@ export class BigDecimal {
      * @throws RangeError if scale overflows.
      */
     movePointLeft(n: number): BigDecimal {
+        BigDecimal.requireInteger('n', n);
         if (n === 0 && this._scale >= 0) return this;
 
         // Cannot use movePointRight(-n) in case of n==BigDecimal.MIN_INT_VALUE
@@ -4062,6 +4159,7 @@ export class BigDecimal {
      * @throws RangeError if scale overflows.
      */
     movePointRight(n: number): BigDecimal {
+        BigDecimal.requireInteger('n', n);
         if (n === 0 && this._scale >= 0) return this;
 
         // Cannot use movePointLeft(-n) in case of n==BigDecimal.MIN_INT_VALUE
@@ -5209,3 +5307,8 @@ export const MC = <MathContextConstructor> function _MC(precision: number, round
 // Install the cross-build brand on the prototype rather than on each instance, so recognising a
 // foreign BigDecimal in equals() costs nothing per allocation. See BigDecimal.BRAND.
 (BigDecimal.prototype as unknown as Record<symbol, boolean>)[BigDecimal.BRAND] = true;
+
+// Freeze the MathContext constructor so its shared constants cannot be reassigned. `readonly`
+// is a compile-time annotation only; without this, `MathContext.UNLIMITED = {precision: 1.5}`
+// reintroduces a fractional precision and with it the non-terminating rounding loop.
+Object.freeze(MathContext);
