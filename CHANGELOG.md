@@ -9,6 +9,33 @@ For releases before 1.6.0, see the
 
 ## [Unreleased]
 
+## [1.7.1]
+
+### Fixed
+
+- **Malformed `precision` or `scale` could hang or corrupt a value.** Java types
+  both as `int`; JavaScript has only `number`, and neither was validated. A
+  fractional precision reached the digit-stepping precision-reduction loops in
+  `round()` and `sqrt()`, which can never converge on a non-integer target —
+  `Big('1.2345').round(MC(1.5))` and `Big(2).sqrt(MC(1.5))` looped forever. A
+  non-finite scale reached the string layout, so `Big(1n, NaN)` produced `'1ENaN'`
+  and `Big(123n, 2.9)` produced `'.12'` with a non-integer `scale()`. Both are now
+  validated at construction: `MathContext` requires an integer precision in
+  `[0, 2147483647]`, and `Big(value, scale)` requires an integer scale in the
+  32-bit range. Rejected inputs throw `RangeError`.
+- **`equals()` returned `false` across the CJS and ESM builds.** The two bundles
+  are compiled separately and so have distinct class identities, making the
+  `instanceof` guard fail for values that are genuinely equal. A foreign
+  `BigDecimal` is now recognised through a global-registry brand and compared by
+  canonical string form — deliberately not by internal fields, since a foreign
+  instance may originate from a different version.
+- **The advertised browser floor was not actually met.** The sole use of optional
+  chaining (`options?.style` in `toFormat`) is ES2020 syntax that the `es2020`
+  target emits verbatim, so every bundle failed to parse on Chrome 67–79 and
+  Firefox 68–73 despite the documented Chrome 67+ / Firefox 68+ support. Replaced
+  with an explicit `&&` guard; the compiled output is now free of optional
+  chaining.
+
 ### Changed
 
 - `Big(aBigDecimal, undefined, mc)` now applies the `MathContext` (rounding the
@@ -16,6 +43,35 @@ For releases before 1.6.0, see the
   previously ignored silently. Passing a `scale` together with a `BigDecimal`
   now throws `RangeError` (as it already did for strings) instead of being
   ignored.
+- The shared `MathContext` constants (`UNLIMITED`, `DECIMAL32`, `DECIMAL64`,
+  `DECIMAL128`) are now `Object.freeze`d, so a caller can no longer mutate global
+  state through them. `BigDecimal` instances are deliberately not frozen — the
+  lazy `precision`/`toString` caches need to remain writable.
+
+### Documentation
+
+- `toFormat()` now documents that it is display-oriented and lossy beyond 100
+  decimal places: ECMA-402 caps `maximumFractionDigits` at 100, so a value whose
+  significant digits fall past the 100th decimal place formats as `'0'`. Use
+  `toPlainString()`/`toString()` when every digit matters.
+- `toJSON()` now documents that its plain notation expands large positive
+  exponents dramatically — `Big('1E+100000')` serialises to 100,001 characters
+  where `toString()` emits nine. The behaviour is unchanged in this patch;
+  switching the JSON representation is a breaking change deferred to 2.0.
+- `test/jdk/NOTICE.md` now states the licensing of the OpenJDK-derived test
+  material explicitly (GPLv2 with Classpath Exception) and clarifies that the
+  upstream header's reference to an accompanying GPL `LICENSE` file points at the
+  OpenJDK distribution, not this repository's Apache-2.0 root `LICENSE`.
+
+### Internal
+
+- The publish workflow now verifies that the release tag matches `package.json`'s
+  version, and packs the tarball and smoke-tests it as an installed dependency
+  (CJS require, ESM import, and `.d.ts` resolution under `nodenext`) before
+  publishing.
+- The Java-differential generator's random target scale is now symmetric about
+  zero; the fallback previously drew from `[-1000, 0)`, so positive target scales
+  were only ever reached through the edge-case list.
 
 ## [1.7.0]
 
@@ -156,6 +212,7 @@ This is a correction release to clarify minimum supported Node version is 18.
 See [GitHub Releases](https://github.com/srknzl/bigdecimal.js/releases) and the
 [tag history](https://github.com/srknzl/bigdecimal.js/tags) for 1.5.2 and earlier.
 
+[1.7.1]: https://github.com/srknzl/bigdecimal.js/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/srknzl/bigdecimal.js/compare/v1.6.1...v1.7.0
 [1.6.1]: https://github.com/srknzl/bigdecimal.js/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/srknzl/bigdecimal.js/compare/v1.5.2...v1.6.0

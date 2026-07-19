@@ -1,4 +1,24 @@
-Tests and test numbers in this directory is taken from https://github.com/openjdk/jdk repository.
+# Third-party notice — OpenJDK test material
+
+The tests and test numbers in this directory are derived from the
+[openjdk/jdk](https://github.com/openjdk/jdk) repository.
+
+**Licensing of this directory.** This material is licensed under the **GNU General
+Public License, version 2 only, with the Classpath Exception** (GPLv2+CE), as
+published by Oracle for OpenJDK. It is **not** covered by the Apache License 2.0
+in the repository root `LICENSE` file, which applies to the bigdecimal.js library
+itself. The canonical license text is available at
+<https://openjdk.org/legal/gplv2+ce.html>.
+
+Note that the upstream Oracle file header reproduced below refers to "a copy is
+included in the LICENSE file that accompanied this code". That sentence refers to
+the OpenJDK distribution these files originated from, not to this repository's
+root `LICENSE`, which is Apache-2.0. Consult the URL above for the governing text.
+
+These files are used for testing only. They are not part of the published npm
+package, whose `files` allowlist ships the compiled `lib/` output exclusively.
+
+The upstream header, reproduced verbatim:
 
 ```
 Copyright (c) 2003, 2018, Oracle and/or its affiliates. All rights reserved.

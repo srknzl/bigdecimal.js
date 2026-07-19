@@ -179,8 +179,17 @@ export class MathContext {
     readonly roundingMode: RoundingMode;
 
     constructor(precision: number, roundingMode: RoundingMode = MathContext.DEFAULT_ROUNDINGMODE) {
-        if (precision < 0) {
+        // Java's precision is an int, so anything non-integral is malformed. Guarding here rather
+        // than at each call site is what matters: a fractional precision makes the precision-reduction
+        // loops in round()/sqrt() (which step by whole digits) never reach their target and spin forever.
+        if (!Number.isInteger(precision)) {
+            throw new RangeError(`MathContext precision must be an integer: ${precision}`);
+        } else if (precision < 0) {
             throw new RangeError('MathContext precision cannot be less than 0');
+            // 2147483647 inlined rather than BigDecimal.MAX_INT_VALUE: it is private, and MathContext's
+            // static constants below initialise before BigDecimal exists.
+        } else if (precision > 2147483647) {
+            throw new RangeError(`MathContext precision is out of the 32-bit integer range: ${precision}`);
         } else if (!RoundingMode[roundingMode]) {
             throw new RangeError(`RoundingMode is invalid: ${roundingMode}`);
         }
@@ -195,7 +204,7 @@ export class MathContext {
      * required for unlimited precision arithmetic.
      * The values of the settings are: `precision=0 roundingMode=HALF_UP`
      */
-    static UNLIMITED = new MathContext(0, RoundingMode.HALF_UP);
+    static UNLIMITED = Object.freeze(new MathContext(0, RoundingMode.HALF_UP));
     /**
      * A `MathContext` object with a precision setting
      * matching the precision of the IEEE 754-2019 decimal32 format, 7 digits, and a
@@ -203,7 +212,7 @@ export class MathContext {
      * Note the exponent range of decimal32 is **not** used for
      * rounding.
      */
-    static DECIMAL32 = new MathContext(7, RoundingMode.HALF_EVEN);
+    static DECIMAL32 = Object.freeze(new MathContext(7, RoundingMode.HALF_EVEN));
     /**
      * A `MathContext` object with a precision setting
      * matching the precision of the IEEE 754-2019 decimal64 format, 16 digits, and a
@@ -211,7 +220,7 @@ export class MathContext {
      * Note the exponent range of decimal64 is **not** used for
      * rounding.
      */
-    static DECIMAL64 = new MathContext(16, RoundingMode.HALF_EVEN);
+    static DECIMAL64 = Object.freeze(new MathContext(16, RoundingMode.HALF_EVEN));
     /**
      * A `MathContext` object with a precision setting
      * matching the precision of the IEEE 754-2019 decimal128 format, 34 digits, and a
@@ -219,7 +228,7 @@ export class MathContext {
      * Note the exponent range of decimal64 is **not** used for
      * rounding.
      */
-    static DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
+    static DECIMAL128 = Object.freeze(new MathContext(34, RoundingMode.HALF_EVEN));
 }
 
 /**
@@ -516,6 +525,14 @@ export class BigDecimal {
     private static readonly INFLATED = Number.MIN_SAFE_INTEGER;
     /** @internal */
     private static readonly INFLATED_BIGINT = BigInt(BigDecimal.INFLATED);
+
+    /**
+     * Cross-build brand. Registered in the global symbol registry so that separately compiled
+     * bundles (CJS vs ESM) agree on it, letting {@link equals} recognise a BigDecimal that fails
+     * `instanceof`. Installed on the prototype below, so instances carry no extra property.
+     * @internal
+     */
+    static readonly BRAND = Symbol.for('bigdecimal.js.BigDecimal');
 
     /** @internal */
     private static readonly MAX_INT_VALUE = 2147483647;
@@ -1177,6 +1194,17 @@ export class BigDecimal {
 
     /** @internal */
     static fromValue(value: BigDecimal | bigint | number | string, scale?: number, mc?: MathContext): BigDecimal {
+        // Java's scale is an int. Validated here because fromValue is the single entry point for every
+        // construction path; a NaN or fractional scale otherwise reaches the string layout and produces
+        // malformed output such as '1ENaN'.
+        if (scale !== undefined) {
+            if (!Number.isInteger(scale)) {
+                throw new RangeError(`Scale must be an integer: ${scale}`);
+            }
+            if (scale > BigDecimal.MAX_INT_VALUE || scale < BigDecimal.MIN_INT_VALUE) {
+                throw new RangeError(`Scale is out of the 32-bit integer range: ${scale}`);
+            }
+        }
         if (typeof value === 'number') {
             if (value > Number.MAX_VALUE || value < -Number.MAX_VALUE) {
                 throw new RangeError('Number must be in the range [-Number.MAX_VALUE, Number.MAX_VALUE]');
@@ -2690,8 +2718,21 @@ export class BigDecimal {
      * @see    {@link compareTo}
      */
     equals(value: any): boolean {
-        if (!(value instanceof BigDecimal))
+        if (!(value instanceof BigDecimal)) {
+            // A BigDecimal produced by a different build of this library (the CJS and ESM bundles are
+            // compiled separately, so they have distinct class identities) fails instanceof even when
+            // the values are identical. Fall back to comparing canonical string form, which is injective
+            // over (unscaled value, scale) and therefore matches Java's equals semantics exactly.
+            // Deliberately does not read internal fields: a foreign instance may come from a different
+            // version whose representation differs.
+            if (value !== null && typeof value === 'object') {
+                const foreign = value as { [key: symbol]: unknown; toString(): string };
+                if (foreign[BigDecimal.BRAND] === true) {
+                    return this.toString() === foreign.toString();
+                }
+            }
             return false;
+        }
         if (value === this)
             return true;
         if (this._scale !== value._scale)
@@ -4539,6 +4580,12 @@ export class BigDecimal {
      * (Node >= 20 or a current browser); older engines than the library's stated
      * floor may format the string as a float.
      *
+     * Note: this method is display-oriented and is **lossy beyond 100 decimal places**.
+     * ECMA-402 caps `maximumFractionDigits` at 100, so a value whose only significant
+     * digits fall past the 100th decimal place formats as `'0'`. This is a platform
+     * limit, not a rounding choice — use {@link toPlainString} or {@link toString}
+     * when you need every digit.
+     *
      * @param locales BCP 47 locale string(s), as accepted by `Intl.NumberFormat`.
      * @param options `Intl.NumberFormatOptions`; values here override the defaults above.
      * @return a locale-formatted string representation of this `BigDecimal`.
@@ -4550,7 +4597,10 @@ export class BigDecimal {
      * ```
      */
     toFormat(locales?: string | string[], options?: Intl.NumberFormatOptions): string {
-        const style = options?.style;
+        // Deliberately an explicit && guard, not optional chaining: that syntax is ES2020 and the
+        // es2020 target emits it verbatim, which fails to parse on the Chrome 67 / Firefox 68
+        // engines that the advertised BigInt floor promises support for.
+        const style = options && options.style;
         const keepAll = style !== 'currency' && style !== 'percent';
         // ponytail: Intl caps maximumFractionDigits at 100; clamp — tiny display loss only beyond 100 dp.
         const defaults = keepAll
@@ -4641,6 +4691,11 @@ export class BigDecimal {
      * `BigDecimal` has a negative scale, the string resulting
      * from this method will have a scale of zero when processed by
      * the string constructor.
+     *
+     * Note: because this uses plain (exponent-free) notation, values with a large
+     * positive exponent expand dramatically during `JSON.stringify` — `Big('1E+100000')`
+     * serialises to a 100,001-character string where {@link toString} would emit nine.
+     * Call `toString()` explicitly if compact serialisation matters for such values.
      *
      * @return a string representation of this `BigDecimal`
      * without an exponent field.
@@ -5110,3 +5165,7 @@ export interface MathContextConstructor {
 export const MC = <MathContextConstructor> function _MC(precision: number, roundingMode?: RoundingMode): MathContext {
     return new MathContext(precision, roundingMode);
 };
+
+// Install the cross-build brand on the prototype rather than on each instance, so recognising a
+// foreign BigDecimal in equals() costs nothing per allocation. See BigDecimal.BRAND.
+(BigDecimal.prototype as unknown as Record<symbol, boolean>)[BigDecimal.BRAND] = true;

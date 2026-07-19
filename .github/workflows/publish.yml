@@ -32,6 +32,40 @@ jobs:
       - name: Tests
         run: |
           npm test
+      - name: Verify release tag matches package version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION="v$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$VERSION" ]; then
+            echo "Release tag $TAG does not match package.json version $VERSION" >&2
+            exit 1
+          fi
+          echo "Tag $TAG matches package.json."
+      - name: Pack and smoke-test the tarball as consumers receive it
+        run: |
+          TARBALL="$(npm pack --silent)"
+          echo "Packed $TARBALL"
+          mkdir -p /tmp/consumer && cd /tmp/consumer
+          npm init -y >/dev/null
+          npm install "$GITHUB_WORKSPACE/$TARBALL" >/dev/null
+          # CJS resolution
+          node -e "
+            const { Big } = require('bigdecimal.js');
+            if (Big('0.1').add(Big('0.2')).toString() !== '0.3') throw new Error('CJS arithmetic failed');
+            console.log('CJS ok');
+          "
+          # ESM resolution
+          node --input-type=module -e "
+            import { Big } from 'bigdecimal.js';
+            if (Big('0.1').add(Big('0.2')).toString() !== '0.3') throw new Error('ESM arithmetic failed');
+            console.log('ESM ok');
+          "
+          # Declarations resolve under the modern resolver
+          npm install --no-save typescript >/dev/null
+          echo "import { Big } from 'bigdecimal.js'; const x: string = Big('1').toString();" > probe.ts
+          npx tsc --noEmit --strict --module nodenext --moduleResolution nodenext --target es2020 probe.ts
+          echo "Types ok"
       - name: Publish
         run: |
           npm publish --provenance --access public

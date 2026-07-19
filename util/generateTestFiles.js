@@ -45,7 +45,10 @@ function randomPrecision() {
     return edgeOrRandom([1, 7, 15, 16, 17], () => Math.floor(random() * maxPrecision));
 }
 function randomTargetScale() {
-    return edgeOrRandom([-16, -15, -1, 0, 1, 15, 16], () => Math.floor(random() * smallScale) - smallScale);
+    // Symmetric about zero: the fallback used to draw from [-smallScale, 0), so ~70% of generated
+    // target scales were negative and positive scales were only ever reached via the edge list.
+    return edgeOrRandom([-16, -15, -1, 0, 1, 15, 16],
+        () => Math.floor(random() * (2 * smallScale + 1)) - smallScale);
 }
 function randomPoint() {
     return edgeOrRandom([0, 1, -1, 15, -15, 16, -16],

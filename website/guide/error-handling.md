@@ -115,6 +115,37 @@ try {
   (non-negative / positive integers) with a `RangeError`, matching how JS `Number`
   methods reject bad arguments.
 
+### Malformed precision and scale
+
+Java types both `precision` and `scale` as `int`, so a fractional or non-finite
+value is impossible there. JavaScript has only `number`, so both are validated on
+the way in:
+
+- `MC(p)` requires `p` to be an integer in `[0, 2147483647]` — `MC(1.5)`, `MC(NaN)`
+  and `MC(Infinity)` throw `MathContext precision must be an integer`, and values
+  above the `int` range throw `out of the 32-bit integer range`.
+- `Big(value, scale)` requires `scale` to be an integer in the 32-bit range —
+  `Big(1n, NaN)` and `Big(1n, 1.5)` throw `Scale must be an integer`.
+
+These are rejected at construction rather than at use because a fractional
+precision would otherwise reach the digit-stepping reduction loops in `round()`
+and `sqrt()`, which can never converge on a non-integer target, and a `NaN` scale
+would reach the string layout and produce malformed output such as `'1ENaN'`.
+
+```js-live
+try {
+    MC(1.5)
+} catch (e) {
+    console.log(e.message)
+}
+
+try {
+    Big(1n, NaN)
+} catch (e) {
+    console.log(e.message)
+}
+```
+
 ## Why `RangeError`?
 
 Java signals arithmetic failure with `ArithmeticException`; JavaScript has no such
