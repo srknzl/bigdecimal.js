@@ -58,11 +58,35 @@ for (const x of bigDecimalStrings) {
     bigDecimalsGWT.push(GWTDecimal(x));
 }
 
+// Representation cohorts.
+//
+// bigdecimal.js keeps a significand of <= MAX_COMPACT_DIGITS (15) digits in a plain
+// `number` and only inflates to `bigint` beyond that. The compact path is roughly
+// 2.3x faster for Add, but this dataset is an even 18/18 mix, and a blended rate is
+// dominated by the slow operands — so the blended figure lands near the inflated one
+// and hides the fast path entirely. Splitting by representation reports each regime
+// instead of an average that describes neither.
+//
+// Partitioned by string so every library receives exactly the same values.
+const compactStrings = bigDecimalStrings.filter((s) => Big(s).precision() <= 15);
+const inflatedStrings = bigDecimalStrings.filter((s) => Big(s).precision() > 15);
+
+const cohort = (strings) => ({
+    strings,
+    bigDecimals: strings.map((s) => Big(s)),
+    bigjs: strings.map((s) => BigJs(s)),
+    bigNumber: strings.map((s) => BigNumber(s)),
+    decimal: strings.map((s) => Decimal(s)),
+    gwt: strings.map((s) => GWTDecimal(s)),
+});
+
 module.exports = {
     bigDecimalStrings,
     bigDecimals: bigDecimals,
     bigDecimalsBigjs: bigDecimalsBigjs,
     bigDecimalsBigNumber: bigDecimalsBigNumber,
     bigDecimalsDecimal: bigDecimalsDecimal,
-    bigDecimalsGWT: bigDecimalsGWT
+    bigDecimalsGWT: bigDecimalsGWT,
+    compact: cohort(compactStrings),
+    inflated: cohort(inflatedStrings),
 };

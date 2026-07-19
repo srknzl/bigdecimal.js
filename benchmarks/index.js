@@ -107,8 +107,17 @@ const fmt = (n) => Math.round(n).toLocaleString('en-US');
 
 console.log('\nBenchmark report:\n');
 console.log('Rates are operations per second (Benchmark.js batch rate x calls per batch).\n');
-console.log('| Operation | ' + libNames.join(' | ') + ' | Fastest |');
-console.log('| --- | ' + libNames.map(() => '---').join(' | ') + ' | --- |');
+
+// The main table holds the blended-operand rows; cohort rows get their own table
+// below so the representation split is legible instead of doubling the main one.
+const isCohort = (name) => (operations.find((o) => o.name === name) || {}).cohort;
+let cohortHeaderPrinted = false;
+
+const printHeader = () => {
+    console.log('| Operation | ' + libNames.join(' | ') + ' | Fastest |');
+    console.log('| --- | ' + libNames.map(() => '---').join(' | ') + ' | --- |');
+};
+printHeader();
 
 const machineReadable = {
     generatedAt: new Date().toISOString(),
@@ -122,6 +131,15 @@ const machineReadable = {
 for (const { name, hz, rme, calls } of results) {
     const op = operations.find((o) => o.name === name);
     const eq = equivalence[name];
+
+    if (isCohort(name) && !cohortHeaderPrinted) {
+        cohortHeaderPrinted = true;
+        console.log('');
+        console.log('Representation cohorts — the same operations split by whether the operands stay on');
+        console.log('bigdecimal.js\'s compact (<= 15-digit) path or force the inflated bigint path.');
+        console.log('The blended rows above are dominated by the slower inflated operands.\n');
+        printHeader();
+    }
 
     let best = null;
     let bestHz = -Infinity;
@@ -166,6 +184,7 @@ for (const { name, hz, rme, calls } of results) {
         name,
         callsPerBatch: calls,
         precisionBasis: op.precisionBasis || 'exact',
+        cohort: op.cohort || null,
         equivalence: eq.status,
         fastest: best,
         opsPerSec,

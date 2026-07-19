@@ -292,6 +292,16 @@ Operations where the outcome differs on JavaScriptCore:
 
 To reproduce, run the suite with Bun: `bun benchmarks/index.js`.
 
+## License
+
+`GPL-2.0-only WITH Classpath-exception-2.0` — see [LICENSE](LICENSE).
+
+bigdecimal.js is a port of `java.math.BigDecimal` from OpenJDK, which is distributed under the GNU General Public License version 2 with the Classpath Exception. As a derivative work this library carries the same terms. See [PROVENANCE.md](PROVENANCE.md) for the details of the derivation.
+
+**The Classpath Exception means you can use this in proprietary software.** You may depend on bigdecimal.js from a program under any license, closed-source included, without that program becoming subject to the GPL. The GPL's obligations attach to this library's own source and to modifications of it — not to independent modules that merely link against it.
+
+Releases up to and including 1.7.0 were published under Apache-2.0; that grant still stands for those versions. The change applies from 1.7.1 onward.
+
 [npm-image]: https://img.shields.io/npm/v/bigdecimal.js.svg
 [npm-url]: https://npmjs.org/package/bigdecimal.js
 [downloads-image]: https://img.shields.io/npm/dm/bigdecimal.js.svg

@@ -11,6 +11,24 @@ For releases before 1.6.0, see the
 
 ## [1.7.1]
 
+### Licensing
+
+- **Relicensed from Apache-2.0 to `GPL-2.0-only WITH Classpath-exception-2.0`,
+  effective this release.** This library is a port of `java.math.BigDecimal` from
+  OpenJDK, which is distributed under GPLv2 with the Classpath Exception. A
+  translation of that source is a derivative work of it, and the Classpath
+  Exception permits linking without GPL propagation but does not grant permission
+  to relicense the OpenJDK source under different terms. The project now carries
+  its upstream terms. See [`PROVENANCE.md`](PROVENANCE.md).
+- **This does not affect existing releases.** Versions up to and including 1.7.0
+  were published under Apache-2.0 and that grant is not retracted — anyone who
+  received those versions keeps it for those versions.
+- **The Classpath Exception is what keeps this usable.** You may depend on
+  `bigdecimal.js` from a program under any license, including a proprietary one,
+  without that program becoming subject to the GPL. GPL obligations attach to this
+  library's own source and to modifications of it, not to independent modules that
+  link against it.
+
 ### Fixed
 
 - **Malformed `precision` or `scale` could hang or corrupt a value.** Java types
@@ -61,7 +79,7 @@ For releases before 1.6.0, see the
 - `test/jdk/NOTICE.md` now states the licensing of the OpenJDK-derived test
   material explicitly (GPLv2 with Classpath Exception) and clarifies that the
   upstream header's reference to an accompanying GPL `LICENSE` file points at the
-  OpenJDK distribution, not this repository's Apache-2.0 root `LICENSE`.
+  OpenJDK distribution, and now also to this repository's own root `LICENSE`.
 
 ### Internal
 

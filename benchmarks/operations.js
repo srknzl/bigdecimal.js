@@ -16,6 +16,7 @@ const { Big, MC, RoundingMode } = require('../lib/bigdecimal.js');
 const {
     bigDecimalStrings,
     bigDecimals, bigDecimalsBigjs, bigDecimalsBigNumber, bigDecimalsDecimal, bigDecimalsGWT,
+    compact, inflated,
 } = require('./test_numbers');
 
 // Rounding-mode constants (HALF_UP) per library's own encoding.
@@ -75,6 +76,16 @@ const getLastBatchCalls = () => lastBatchCalls;
 const ctorValues = [...bigDecimalStrings, ...bigDecimalStrings.map((v) => Number(v))];
 const posExp = [0, 1, 2, 10, 99];
 const negExp = [-1, -2, -10, -99];
+
+// Argument sets for the rows whose cost depends materially on the argument, cycled by
+// operand index. Round and SetScale are the two rows where big.js's digit-array
+// representation wins, and SetScale alone varies ~1.4x across these scales (and
+// non-monotonically), so a single hard-coded scale characterised neither the operation
+// nor the size of that gap.
+const SCALES = [0, 2, 10, 40];
+const PRECISIONS = [7, 20, 40];
+const POINT_SHIFTS = [1, 3, 12, 40];
+const atIndex = (set, i) => set[i % set.length];
 
 // setup() runs once before an operation's suite (e.g. to configure precision).
 //
@@ -245,22 +256,22 @@ const operations = [
         },
     },
     {
-        name: 'Round', // to significant digits (MathContext-style)
+        name: 'Round', // to significant digits (MathContext-style), cycling PRECISIONS
         libs: {
-            'Bigdecimal.js': () => each(bigDecimals, (a) => a.round(MC(20, HU))),
-            'Big.js': () => each(bigDecimalsBigjs, (a) => a.prec(20, BIGJS_HU)),
-            'decimal.js': () => each(bigDecimalsDecimal, (a) => a.toSignificantDigits(20, DEC_HU)),
-            'GWTBased': () => each(bigDecimalsGWT, (a) => a.round(gwtMc(20))),
+            'Bigdecimal.js': () => each(bigDecimals, (a, i) => a.round(MC(atIndex(PRECISIONS, i), HU))),
+            'Big.js': () => each(bigDecimalsBigjs, (a, i) => a.prec(atIndex(PRECISIONS, i), BIGJS_HU)),
+            'decimal.js': () => each(bigDecimalsDecimal, (a, i) => a.toSignificantDigits(atIndex(PRECISIONS, i), DEC_HU)),
+            'GWTBased': () => each(bigDecimalsGWT, (a, i) => a.round(gwtMc(atIndex(PRECISIONS, i)))),
         },
     },
     {
-        name: 'SetScale', // round to a fixed number of decimal places
+        name: 'SetScale', // round to a number of decimal places, cycling SCALES
         libs: {
-            'Bigdecimal.js': () => each(bigDecimals, (a) => a.setScale(10, HU)),
-            'Big.js': () => each(bigDecimalsBigjs, (a) => a.round(10, BIGJS_HU)),
-            'BigNumber.js': () => each(bigDecimalsBigNumber, (a) => a.dp(10, BN_HU)),
-            'decimal.js': () => each(bigDecimalsDecimal, (a) => a.toDP(10, DEC_HU)),
-            'GWTBased': () => each(bigDecimalsGWT, (a) => a.setScale(10, GWT_HU)),
+            'Bigdecimal.js': () => each(bigDecimals, (a, i) => a.setScale(atIndex(SCALES, i), HU)),
+            'Big.js': () => each(bigDecimalsBigjs, (a, i) => a.round(atIndex(SCALES, i), BIGJS_HU)),
+            'BigNumber.js': () => each(bigDecimalsBigNumber, (a, i) => a.dp(atIndex(SCALES, i), BN_HU)),
+            'decimal.js': () => each(bigDecimalsDecimal, (a, i) => a.toDP(atIndex(SCALES, i), DEC_HU)),
+            'GWTBased': () => each(bigDecimalsGWT, (a, i) => a.setScale(atIndex(SCALES, i), GWT_HU)),
         },
     },
     {
@@ -302,25 +313,25 @@ const operations = [
         },
     },
     {
-        name: 'MovePointLeft',
+        name: 'MovePointLeft', // cycling POINT_SHIFTS
         libs: {
-            'Bigdecimal.js': () => each(bigDecimals, (a) => a.movePointLeft(3)),
-            'GWTBased': () => each(bigDecimalsGWT, (a) => a.movePointLeft(3)),
+            'Bigdecimal.js': () => each(bigDecimals, (a, i) => a.movePointLeft(atIndex(POINT_SHIFTS, i))),
+            'GWTBased': () => each(bigDecimalsGWT, (a, i) => a.movePointLeft(atIndex(POINT_SHIFTS, i))),
         },
     },
     {
-        name: 'MovePointRight',
+        name: 'MovePointRight', // cycling POINT_SHIFTS
         libs: {
-            'Bigdecimal.js': () => each(bigDecimals, (a) => a.movePointRight(3)),
-            'GWTBased': () => each(bigDecimalsGWT, (a) => a.movePointRight(3)),
+            'Bigdecimal.js': () => each(bigDecimals, (a, i) => a.movePointRight(atIndex(POINT_SHIFTS, i))),
+            'GWTBased': () => each(bigDecimalsGWT, (a, i) => a.movePointRight(atIndex(POINT_SHIFTS, i))),
         },
     },
     {
-        name: 'ScaleByPowerOfTen',
+        name: 'ScaleByPowerOfTen', // cycling POINT_SHIFTS
         libs: {
-            'Bigdecimal.js': () => each(bigDecimals, (a) => a.scaleByPowerOfTen(3)),
-            'BigNumber.js': () => each(bigDecimalsBigNumber, (a) => a.shiftedBy(3)),
-            'GWTBased': () => each(bigDecimalsGWT, (a) => a.scaleByPowerOfTen(3)),
+            'Bigdecimal.js': () => each(bigDecimals, (a, i) => a.scaleByPowerOfTen(atIndex(POINT_SHIFTS, i))),
+            'BigNumber.js': () => each(bigDecimalsBigNumber, (a, i) => a.shiftedBy(atIndex(POINT_SHIFTS, i))),
+            'GWTBased': () => each(bigDecimalsGWT, (a, i) => a.scaleByPowerOfTen(atIndex(POINT_SHIFTS, i))),
         },
     },
     {
@@ -372,6 +383,63 @@ const operations = [
         },
     },
 ];
+
+// Representation cohorts: the same core arithmetic, run separately over operands that
+// stay on bigdecimal.js's compact (<= 15-digit `number`) path and operands that force
+// the inflated (`bigint`) path. The main table above blends the two, and because a
+// blended rate is dominated by the slower operands it lands near the inflated figure —
+// hiding the compact fast path that is the library's central performance premise.
+// Rendered as a separate table so the main one keeps its shape.
+const cohortOperations = [];
+for (const [label, set] of [['compact', compact], ['inflated', inflated]]) {
+    cohortOperations.push(
+        {
+            name: `Add (${label})`,
+            cohort: label,
+            libs: {
+                'Bigdecimal.js': () => pairs(set.bigDecimals, (a, b) => a.add(b)),
+                'Big.js': () => pairs(set.bigjs, (a, b) => a.plus(b)),
+                'BigNumber.js': () => pairs(set.bigNumber, (a, b) => a.plus(b)),
+                'decimal.js': () => pairs(set.decimal, (a, b) => a.plus(b)),
+                'GWTBased': () => pairs(set.gwt, (a, b) => a.add(b)),
+            },
+        },
+        {
+            name: `Subtract (${label})`,
+            cohort: label,
+            libs: {
+                'Bigdecimal.js': () => pairs(set.bigDecimals, (a, b) => a.subtract(b)),
+                'Big.js': () => pairs(set.bigjs, (a, b) => a.minus(b)),
+                'BigNumber.js': () => pairs(set.bigNumber, (a, b) => a.minus(b)),
+                'decimal.js': () => pairs(set.decimal, (a, b) => a.minus(b)),
+                'GWTBased': () => pairs(set.gwt, (a, b) => a.subtract(b)),
+            },
+        },
+        {
+            name: `Multiply (${label})`,
+            cohort: label,
+            libs: {
+                'Bigdecimal.js': () => pairs(set.bigDecimals, (a, b) => a.multiply(b)),
+                'Big.js': () => pairs(set.bigjs, (a, b) => a.times(b)),
+                'BigNumber.js': () => pairs(set.bigNumber, (a, b) => a.multipliedBy(b)),
+                'decimal.js': () => pairs(set.decimal, (a, b) => a.times(b)),
+                'GWTBased': () => pairs(set.gwt, (a, b) => a.multiply(b)),
+            },
+        },
+        {
+            name: `Compare (${label})`,
+            cohort: label,
+            libs: {
+                'Bigdecimal.js': () => pairs(set.bigDecimals, (a, b) => a.compareTo(b)),
+                'Big.js': () => pairs(set.bigjs, (a, b) => a.cmp(b)),
+                'BigNumber.js': () => pairs(set.bigNumber, (a, b) => a.comparedTo(b)),
+                'decimal.js': () => pairs(set.decimal, (a, b) => a.comparedTo(b)),
+                'GWTBased': () => pairs(set.gwt, (a, b) => a.compareTo(b)),
+            },
+        },
+    );
+}
+operations.push(...cohortOperations);
 
 // Every operation gets an explicit setup so no row inherits the previous row's global
 // library configuration. Rows that did not ask for a specific precision want exact

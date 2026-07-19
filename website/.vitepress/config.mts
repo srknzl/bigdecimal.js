@@ -129,7 +129,7 @@ export default defineConfig({
     },
 
     footer: {
-      message: 'Released under the Apache-2.0 License.',
+      message: 'Released under the GPL-2.0-only WITH Classpath-exception-2.0 License.',
       copyright: 'Copyright © 2021–present Serkan Özel',
     },
   },

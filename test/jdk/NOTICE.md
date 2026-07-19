@@ -3,17 +3,15 @@
 The tests and test numbers in this directory are derived from the
 [openjdk/jdk](https://github.com/openjdk/jdk) repository.
 
-**Licensing of this directory.** This material is licensed under the **GNU General
-Public License, version 2 only, with the Classpath Exception** (GPLv2+CE), as
-published by Oracle for OpenJDK. It is **not** covered by the Apache License 2.0
-in the repository root `LICENSE` file, which applies to the bigdecimal.js library
-itself. The canonical license text is available at
-<https://openjdk.org/legal/gplv2+ce.html>.
+This material is licensed under the **GNU General Public License, version 2 only,
+with the Classpath Exception** (GPLv2+CE), as published by Oracle for OpenJDK —
+the same terms as this repository as a whole. A copy of the GPLv2, together with
+the Classpath Exception, is in the repository root [`LICENSE`](../../LICENSE)
+file, so the upstream header's reference below to "a copy is included in the
+LICENSE file that accompanied this code" holds here.
 
-Note that the upstream Oracle file header reproduced below refers to "a copy is
-included in the LICENSE file that accompanied this code". That sentence refers to
-the OpenJDK distribution these files originated from, not to this repository's
-root `LICENSE`, which is Apache-2.0. Consult the URL above for the governing text.
+See [`PROVENANCE.md`](../../PROVENANCE.md) for how this project relates to
+OpenJDK more broadly.
 
 These files are used for testing only. They are not part of the published npm
 package, whose `files` allowlist ships the compiled `lib/` output exclusively.
