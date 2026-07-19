@@ -228,12 +228,22 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 ## Benchmark Results
 
 > [!WARNING]
-> **These figures are provisional and are being re-measured.** The run that produced
-> them was made while the test machine was in macOS low power mode, so the absolute
-> rates are depressed and are not a valid basis for comparison against other
-> published numbers. The relative ordering within each row is expected to hold
-> (every library was throttled equally in the same run), but treat the absolute
-> ops/sec as indicative only until this notice is removed.
+> **This table is provisional and is being re-measured.** Two things are wrong with it.
+>
+> The run that produced it was made while the test machine was in macOS low power mode,
+> so the absolute rates are depressed and are not a valid basis for comparison against
+> other published numbers. The relative ordering within each row is expected to hold
+> (every library was throttled equally in the same run).
+>
+> It also predates a further harness rework, so some rows no longer exist in the form
+> shown. `Constructor` has since been split into string and number inputs, because only
+> the string half is a like-for-like race. More importantly, the harness no longer awards
+> a winner to a row that is not comparable — on a re-run, `Constructor (from number)`,
+> `Negative pow`, `Sqrt` and `Equals` will report rates with **no trophy** instead of a
+> trophy plus a footnote. `Equals` in particular is not a fair race in either direction:
+> bigdecimal.js implements Java's scale-sensitive `equals` (`2.0` does not equal `2.00`)
+> while every other library does numeric equality, so the 4.6x figure below compares two
+> different operations. Treat the whole table as indicative until this notice is removed.
 
 Benchmarked against [big.js](https://www.npmjs.com/package/big.js), [bigdecimal](https://www.npmjs.com/package/bigdecimal) (GWT-based), [bignumber.js](https://www.npmjs.com/package/bignumber.js) and [decimal.js](https://www.npmjs.com/package/decimal.js).
 
@@ -251,7 +261,8 @@ Benchmarked against [big.js](https://www.npmjs.com/package/big.js), [bigdecimal]
     * decimal.js: 10.6.0
 
 * Each operation is run with a fixed set of decimal numbers composed of both simple and complex numbers. Rows whose cost depends on their argument (`Round`, `SetScale`, `MovePointLeft`/`Right`, `ScaleByPowerOfTen`) cycle through a range of arguments rather than a single hard-coded one.
-* Before timing, the harness verifies that every library computes the **same result** for each operation; disagreements are footnoted rather than scored as wins. Raw machine-readable results are written to `benchmarks/results.json`.
+* Before timing, the harness verifies that every library computes the **same result** for each operation — every result in the batch, not a sample — and runs that check in a **separate process**, so stringifying results to compare them cannot warm the lazy caches the suite is about to measure.
+* **A winner is only declared for rows that are actually a like-for-like race.** If the libraries disagree on the result, work to different precision bases, implement different semantics, or only one of them implements the operation at all, the row reports its rates with no trophy. Margins are claimed only when the winner's measured error interval clears the runner-up's; otherwise the row reads *within noise*. Raw machine-readable results are written to `benchmarks/results.json`.
 * Micro benchmark framework used is [benchmark](https://www.npmjs.com/package/benchmark). Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
 * Numbers are operations per second (higher is better). In each row the **fastest library is bold**, and the **Fastest** column names the winner with how many times faster it is than the runner-up. A `-` means the library has no equivalent operation.
 
@@ -311,7 +322,7 @@ bigdecimal.js keeps a significand of up to 15 digits in a plain `number` (the *c
 
 Two things worth noting. The money cohort — the most realistic workload — is where bigdecimal.js performs best in absolute terms. And the blended rows are slower than *any* cohort, because walking consecutive operands in the mixed dataset pairs values of very different magnitude, and aligning their scales costs more than any like-with-like pairing.
 
-bigdecimal.js is the fastest in 26 of the 29 rows above; 24 of those are unqualified like-for-like wins, with `Constructor` and `Negative pow` carrying the caveats footnoted above. It trails big.js on `round`/`setScale`, where big.js's digit-array representation makes truncation nearly free. That gap is representational rather than incidental: it holds at roughly the same ratio across positive scales (0–40), across significant-digit precisions from 1 to 40, and across negative scales.
+bigdecimal.js posts the highest rate in most rows above, but see the warning at the top of this section: the counts and the trophies are being restated on the re-run, and the rows that are not a like-for-like race will be reported without a winner rather than with a footnote. It trails big.js on `round`/`setScale`, where big.js's digit-array representation makes truncation nearly free. That gap is representational rather than incidental: it holds at roughly the same ratio across positive scales (0–40), across significant-digit precisions from 1 to 40, and across negative scales.
 
 ### Other engines: Bun (JavaScriptCore)
 

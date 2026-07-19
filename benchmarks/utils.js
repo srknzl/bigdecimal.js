@@ -20,13 +20,18 @@ function attachEventsAndRun(suite) {
  * Each library formats differently (trailing zeros, exponent thresholds), so raw
  * toString() output is not comparable across libraries even when the values are
  * numerically identical. Parsing through our own Big and stripping trailing zeros
- * gives a single canonical form. Non-decimal results (booleans from equals,
- * numbers from compareTo, bigints from toBigInt) are just stringified.
+ * gives a single canonical form. Booleans (from equals) are just stringified.
+ *
+ * A native `bigint` must NOT be short-circuited here even though String() already gives
+ * exact digits: toBigInt returns one while the GWT port returns an object, and the two
+ * stringify the same integer in different forms (plain digits vs 7.2E+233). Sending both
+ * through Big() is what makes them comparable — special-casing bigint reported a
+ * mismatch on identical values.
  */
 function canonical(value) {
     if (value === null || value === undefined) return String(value);
     const s = String(value);
-    if (typeof value === 'boolean' || typeof value === 'bigint') return s;
+    if (typeof value === 'boolean') return s;
     try {
         return Big(s).stripTrailingZeros().toString();
     } catch (ignored) {

@@ -20,9 +20,13 @@ For releases before 1.6.0, see the
   Exception permits linking without GPL propagation but does not grant permission
   to relicense the OpenJDK source under different terms. The project now carries
   its upstream terms. See [`PROVENANCE.md`](PROVENANCE.md).
-- **This does not affect existing releases.** Versions up to and including 1.7.0
-  were published under Apache-2.0 and that grant is not retracted — anyone who
-  received those versions keeps it for those versions.
+- **Versions up to and including 1.7.0 were published under Apache-2.0.** What
+  recipients of those versions hold is deliberately not asserted here. This project's
+  own copyright holders cannot retract a grant they made over what they own, but that
+  is narrower than the whole derivative having been validly Apache-2.0 to begin with:
+  if that label was not a grant this project was in a position to make over
+  OpenJDK-derived material, upstream GPL rights in that material are not neutralised
+  by it. Recorded as an open item in [`PROVENANCE.md`](PROVENANCE.md) pending counsel.
 - **The Classpath Exception is what keeps this usable.** You may depend on
   `bigdecimal.js` from a program under any license, including a proprietary one,
   without that program becoming subject to the GPL. GPL obligations attach to this
@@ -83,6 +87,31 @@ For releases before 1.6.0, see the
 
 ### Internal
 
+- **Benchmark harness reworked so it stops overstating our own results.** The
+  published table was not a like-for-like comparison in several rows, and the errors
+  ran in our favour:
+  - A winner is now declared **only** for rows that are genuinely comparable.
+    Previously a row could disagree on its results, or compare different precision
+    bases, and still be awarded a trophy with a footnote underneath. `Equals` was the
+    worst case — bigdecimal.js implements Java's scale-sensitive `equals` while every
+    other library does numeric equality, so the two are not the same operation — and
+    it is now reported without a winner, as are `Sqrt`, `Negative pow` and the new
+    `Constructor (from number)` row.
+  - `MathContext` objects are hoisted out of the timed callbacks. Building one inside
+    the loop taxed only the libraries whose API takes a context per call (ours and the
+    GWT port) while big.js and BigNumber.js read a global configured once — a harness
+    artefact that was penalising bigdecimal.js on `Divide`, `Round`, `Sqrt` and
+    `Negative pow`.
+  - Output equivalence is verified over **every** result in the batch rather than the
+    last one, and in a **child process**, so stringifying results to compare them
+    cannot warm the lazy `toString`/`precision` caches the suite is about to measure.
+    The full-stream check immediately caught two real divergences that the
+    single-sample check had passed.
+  - `Positive pow`/`Negative pow` are unary but walked operands pairwise, silently
+    skipping the last value; `Constructor` mixed string and number inputs, where only
+    the string half is a fair race (the GWT port reads the exact binary double, the
+    others the shortest repr). Margins now come from the measured error of both rates
+    instead of a hard-coded 5% allowance, and read *within noise* when they overlap.
 - The publish workflow now verifies that the release tag matches `package.json`'s
   version, and packs the tarball and smoke-tests it as an installed dependency
   (CJS require, ESM import, and `.d.ts` resolution under `nodenext`) before

@@ -45,35 +45,67 @@ const posDec = bigDecimalsDecimal.map((x) => x.abs());
 
 // Loop helpers. `pairs` walks consecutive operands; `each` walks single values.
 //
-// Both return the last computed result, which does two things. It lets index.js
-// obtain a comparable value from a single call for the output-equivalence
-// preflight, and it keeps the results live so the JIT cannot dead-code-eliminate
-// the very work being measured.
+// Both return the last computed result, which keeps the results live so the JIT
+// cannot dead-code-eliminate the very work being measured.
 //
 // Both also record how many calls the batch made. Benchmark.js measures whole
 // batches, so its `hz` is batches/sec, not operations/sec; index.js multiplies by
 // this to report a true per-operation rate. It is assigned once per batch rather
 // than incremented per call, so it costs nothing measurable.
+//
+// In collecting mode (verify.js only, never while timing) they additionally retain
+// every result so the preflight can compare the whole stream rather than the single
+// last value. The flag is read once per batch, not once per call, so the timed path
+// is unaffected.
 let lastBatchCalls = 0;
+let collecting = false;
+const batchResults = [];
 
 const pairs = (arr, fn) => {
     const n = arr.length - 1;
     let last;
-    for (let i = 0; i < n; i++) last = fn(arr[i], arr[i + 1], i);
+    if (collecting) {
+        batchResults.length = 0;
+        for (let i = 0; i < n; i++) batchResults.push(last = fn(arr[i], arr[i + 1], i));
+    } else {
+        for (let i = 0; i < n; i++) last = fn(arr[i], arr[i + 1], i);
+    }
     lastBatchCalls = n;
     return last;
 };
 const each = (arr, fn) => {
     const n = arr.length;
     let last;
-    for (let i = 0; i < n; i++) last = fn(arr[i], i);
+    if (collecting) {
+        batchResults.length = 0;
+        for (let i = 0; i < n; i++) batchResults.push(last = fn(arr[i], i));
+    } else {
+        for (let i = 0; i < n; i++) last = fn(arr[i], i);
+    }
     lastBatchCalls = n;
     return last;
 };
 
 const getLastBatchCalls = () => lastBatchCalls;
+const setCollecting = (on) => {
+    collecting = on;
+};
+const getBatchResults = () => batchResults;
 
-const ctorValues = [...bigDecimalStrings, ...bigDecimalStrings.map((v) => Number(v))];
+// Construction is split by input type because the two are not the same race.
+//
+// From a string, every library parses the same exact decimal and they all agree.
+//
+// From a `number`, they do not: half of this dataset does not round-trip through a
+// double, and the GWT port then takes Java's `new BigDecimal(double)` reading — the
+// exact binary value, -11222235657.23149871826171875 — while bigdecimal.js, big.js,
+// BigNumber.js and decimal.js all take the shortest decimal that reproduces the double,
+// -11222235657.231499, which is Java's `BigDecimal.valueOf(double)`. Both are defensible
+// and the difference is the caller's to know about, so the number row is reported without
+// a winner rather than being quietly made comparable by dropping the operands that expose
+// it (which would also bias the row towards short values).
+const ctorStrings = bigDecimalStrings;
+const ctorNumbers = bigDecimalStrings.map((v) => Number(v));
 
 // Exponents are kept moderate on purpose. With 69-digit operands an exponent of 99
 // produces ~6800-digit results, so the row ends up measuring bigint growth rather than
@@ -101,6 +133,16 @@ const NEGATIVE_SCALES = [-40, -16, -10, -2];
 
 const atIndex = (set, i) => set[i % set.length];
 
+// MathContexts are hoisted out of the timed callbacks. Constructing one is not part of
+// the operation being measured, and building it inside the loop taxed only the libraries
+// whose API takes a context per call — bigdecimal.js and the GWT port allocated a fresh
+// context on every iteration while big.js and BigNumber.js read a global setting they
+// were configured with once. That is a harness artefact, and it was penalising us.
+const MC_PREC = MC(PREC, HU);
+const GWT_MC_PREC = gwtMc(PREC);
+const ROUND_MCS = PRECISIONS.map((p) => MC(p, HU));
+const ROUND_GWT_MCS = PRECISIONS.map((p) => gwtMc(p));
+
 // setup() runs once before an operation's suite (e.g. to configure precision).
 //
 // Every operation gets an explicit setup (see the defaulting below the table): these
@@ -123,13 +165,24 @@ const configureExact = () => {
 
 const operations = [
     {
-        name: 'Constructor',
+        name: 'Constructor (from string)',
         libs: {
-            'Bigdecimal.js': () => each(ctorValues, (v) => Big(v)),
-            'Big.js': () => each(ctorValues, (v) => BigJs(v)),
-            'BigNumber.js': () => each(ctorValues, (v) => BigNumber(v)),
-            'decimal.js': () => each(ctorValues, (v) => Decimal(v)),
-            'GWTBased': () => each(ctorValues, (v) => GWTDecimal(v)),
+            'Bigdecimal.js': () => each(ctorStrings, (v) => Big(v)),
+            'Big.js': () => each(ctorStrings, (v) => BigJs(v)),
+            'BigNumber.js': () => each(ctorStrings, (v) => BigNumber(v)),
+            'decimal.js': () => each(ctorStrings, (v) => Decimal(v)),
+            'GWTBased': () => each(ctorStrings, (v) => GWTDecimal(v)),
+        },
+    },
+    {
+        name: 'Constructor (from number)',
+        notComparable: 'GWT reads the exact binary double; the others use the shortest repr',
+        libs: {
+            'Bigdecimal.js': () => each(ctorNumbers, (v) => Big(v)),
+            'Big.js': () => each(ctorNumbers, (v) => BigJs(v)),
+            'BigNumber.js': () => each(ctorNumbers, (v) => BigNumber(v)),
+            'decimal.js': () => each(ctorNumbers, (v) => Decimal(v)),
+            'GWTBased': () => each(ctorNumbers, (v) => GWTDecimal(v)),
         },
     },
     {
@@ -175,9 +228,9 @@ const operations = [
         precisionBasis: 'significant-digits',
         setup: configureScaled,
         libs: {
-            'Bigdecimal.js': () => pairs(bigDecimals, (a, b) => a.divideWithMathContext(b, MC(PREC, HU))),
+            'Bigdecimal.js': () => pairs(bigDecimals, (a, b) => a.divideWithMathContext(b, MC_PREC)),
             'decimal.js': () => pairs(bigDecimalsDecimal, (a, b) => a.dividedBy(b)),
-            'GWTBased': () => pairs(bigDecimalsGWT, (a, b) => a.divide(b, gwtMc(PREC))),
+            'GWTBased': () => pairs(bigDecimalsGWT, (a, b) => a.divide(b, GWT_MC_PREC)),
         },
     },
     {
@@ -210,13 +263,15 @@ const operations = [
         },
     },
     {
+        // Unary, so it walks operands with `each`. It used `pairs`, which ignored its
+        // second operand and therefore silently skipped the last value in the array.
         name: 'Positive pow',
         libs: {
-            'Bigdecimal.js': () => pairs(bigDecimals, (a, _b, i) => a.pow(posExp[i % posExp.length])),
-            'Big.js': () => pairs(bigDecimalsBigjs, (a, _b, i) => a.pow(posExp[i % posExp.length])),
-            'BigNumber.js': () => pairs(bigDecimalsBigNumber, (a, _b, i) => a.pow(posExp[i % posExp.length])),
-            'decimal.js': () => pairs(bigDecimalsDecimal, (a, _b, i) => a.pow(posExp[i % posExp.length])),
-            'GWTBased': () => pairs(bigDecimalsGWT, (a, _b, i) => a.pow(posExp[i % posExp.length])),
+            'Bigdecimal.js': () => each(bigDecimals, (a, i) => a.pow(atIndex(posExp, i))),
+            'Big.js': () => each(bigDecimalsBigjs, (a, i) => a.pow(atIndex(posExp, i))),
+            'BigNumber.js': () => each(bigDecimalsBigNumber, (a, i) => a.pow(atIndex(posExp, i))),
+            'decimal.js': () => each(bigDecimalsDecimal, (a, i) => a.pow(atIndex(posExp, i))),
+            'GWTBased': () => each(bigDecimalsGWT, (a, i) => a.pow(atIndex(posExp, i))),
         },
     },
     {
@@ -228,11 +283,11 @@ const operations = [
         precisionBasis: 'mixed',
         setup: configureScaled,
         libs: {
-            'Bigdecimal.js': () => pairs(bigDecimals, (a, _b, i) => a.pow(negExp[i % negExp.length], MC(PREC, HU))),
-            'Big.js': () => pairs(bigDecimalsBigjs, (a, _b, i) => a.pow(negExp[i % negExp.length])),
-            'BigNumber.js': () => pairs(bigDecimalsBigNumber, (a, _b, i) => a.pow(negExp[i % negExp.length])),
-            'decimal.js': () => pairs(bigDecimalsDecimal, (a, _b, i) => a.pow(negExp[i % negExp.length])),
-            'GWTBased': () => pairs(bigDecimalsGWT, (a, _b, i) => a.pow(negExp[i % negExp.length], gwtMc(PREC))),
+            'Bigdecimal.js': () => each(bigDecimals, (a, i) => a.pow(atIndex(negExp, i), MC_PREC)),
+            'Big.js': () => each(bigDecimalsBigjs, (a, i) => a.pow(atIndex(negExp, i))),
+            'BigNumber.js': () => each(bigDecimalsBigNumber, (a, i) => a.pow(atIndex(negExp, i))),
+            'decimal.js': () => each(bigDecimalsDecimal, (a, i) => a.pow(atIndex(negExp, i))),
+            'GWTBased': () => each(bigDecimalsGWT, (a, i) => a.pow(atIndex(negExp, i), GWT_MC_PREC)),
         },
     },
     {
@@ -243,7 +298,7 @@ const operations = [
         precisionBasis: 'mixed',
         setup: configureScaled,
         libs: {
-            'Bigdecimal.js': () => each(pos, (a) => a.sqrt(MC(PREC, HU))),
+            'Bigdecimal.js': () => each(pos, (a) => a.sqrt(MC_PREC)),
             'Big.js': () => each(posBigjs, (a) => a.sqrt()),
             'BigNumber.js': () => each(posBN, (a) => a.sqrt()),
             'decimal.js': () => each(posDec, (a) => a.sqrt()),
@@ -272,10 +327,10 @@ const operations = [
     {
         name: 'Round', // to significant digits (MathContext-style), cycling PRECISIONS
         libs: {
-            'Bigdecimal.js': () => each(bigDecimals, (a, i) => a.round(MC(atIndex(PRECISIONS, i), HU))),
+            'Bigdecimal.js': () => each(bigDecimals, (a, i) => a.round(atIndex(ROUND_MCS, i))),
             'Big.js': () => each(bigDecimalsBigjs, (a, i) => a.prec(atIndex(PRECISIONS, i), BIGJS_HU)),
             'decimal.js': () => each(bigDecimalsDecimal, (a, i) => a.toSignificantDigits(atIndex(PRECISIONS, i), DEC_HU)),
-            'GWTBased': () => each(bigDecimalsGWT, (a, i) => a.round(gwtMc(atIndex(PRECISIONS, i)))),
+            'GWTBased': () => each(bigDecimalsGWT, (a, i) => a.round(atIndex(ROUND_GWT_MCS, i))),
         },
     },
     {
@@ -310,7 +365,15 @@ const operations = [
         },
     },
     {
+        // Not comparable, and no amount of operand choice fixes it: bigdecimal.js follows
+        // Java, where equals() is scale-SENSITIVE — 2.0 and 2.00 are not equal — while
+        // every other library here does numeric equality. They answer different questions,
+        // so the row is reported without a winner. compareTo/cmp (the Compare row above) is
+        // the like-for-like numeric comparison. The preflight cannot catch this on its own:
+        // consecutive operands in the dataset differ numerically, so both semantics return
+        // false throughout and the results agree by coincidence.
         name: 'Equals',
+        notComparable: 'scale-sensitive (Java equals) vs numeric equality',
         libs: {
             'Bigdecimal.js': () => pairs(bigDecimals, (a, b) => a.equals(b)),
             'Big.js': () => pairs(bigDecimalsBigjs, (a, b) => a.eq(b)),
@@ -381,7 +444,15 @@ const operations = [
         },
     },
     {
+        // The rate is real but it is not per-call formatting cost. bigdecimal.js memoises
+        // toString() on the instance, and Benchmark.js re-runs the batch over the same
+        // operand array thousands of times, so every batch after the first reads a warm
+        // cache. That is a genuine advantage for the common pattern of serialising the same
+        // value repeatedly (none of the other libraries cache), but a caller formatting a
+        // freshly computed value pays the full cost once. Noted rather than disqualified:
+        // every library is asked to do the same thing, ours is just able to skip it.
         name: 'ToString',
+        note: 'bigdecimal.js memoises toString per instance; repeated calls on the same value read a warm cache',
         libs: {
             'Bigdecimal.js': () => each(bigDecimals, (a) => a.toString()),
             'Big.js': () => each(bigDecimalsBigjs, (a) => a.toString()),
@@ -476,4 +547,4 @@ for (const op of operations) {
 // Library column order for the report.
 const libNames = ['Bigdecimal.js', 'Big.js', 'BigNumber.js', 'decimal.js', 'GWTBased'];
 
-module.exports = { operations, libNames, getLastBatchCalls };
+module.exports = { operations, libNames, getLastBatchCalls, setCollecting, getBatchResults };
