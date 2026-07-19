@@ -27,7 +27,14 @@ const GWT_HU = 4; // bigdecimal (GWT) accepts the int ordinal
 const gwtMc = (p) => new GWTMathContext(`precision=${p} roundingMode=HALF_UP`);
 
 const PREC = 50; // working precision for divide / sqrt / negative pow
-const MUL_PREC = 99;
+
+// decimal.js has no exact mode: every operation rounds to its configured `precision`
+// significant digits, default 20. At that default it was truncating Add/Subtract
+// results the other libraries kept in full, so it was measured doing strictly less
+// work. EXACT_PREC is set high enough that no operand or product in this dataset is
+// rounded, making the "exact arithmetic" rows a like-for-like comparison. Operands
+// reach ~70 significant digits and products roughly double that.
+const EXACT_PREC = 1000;
 
 // Non-negative operands for sqrt (each library's own type).
 const pos = bigDecimals.map((x) => x.abs());
@@ -36,22 +43,57 @@ const posBN = bigDecimalsBigNumber.map((x) => x.abs());
 const posDec = bigDecimalsDecimal.map((x) => x.abs());
 
 // Loop helpers. `pairs` walks consecutive operands; `each` walks single values.
+//
+// Both return the last computed result, which does two things. It lets index.js
+// obtain a comparable value from a single call for the output-equivalence
+// preflight, and it keeps the results live so the JIT cannot dead-code-eliminate
+// the very work being measured.
+//
+// Both also record how many calls the batch made. Benchmark.js measures whole
+// batches, so its `hz` is batches/sec, not operations/sec; index.js multiplies by
+// this to report a true per-operation rate. It is assigned once per batch rather
+// than incremented per call, so it costs nothing measurable.
+let lastBatchCalls = 0;
+
 const pairs = (arr, fn) => {
-    for (let i = 0; i < arr.length - 1; i++) fn(arr[i], arr[i + 1], i);
+    const n = arr.length - 1;
+    let last;
+    for (let i = 0; i < n; i++) last = fn(arr[i], arr[i + 1], i);
+    lastBatchCalls = n;
+    return last;
 };
 const each = (arr, fn) => {
-    for (let i = 0; i < arr.length; i++) fn(arr[i], i);
+    const n = arr.length;
+    let last;
+    for (let i = 0; i < n; i++) last = fn(arr[i], i);
+    lastBatchCalls = n;
+    return last;
 };
+
+const getLastBatchCalls = () => lastBatchCalls;
 
 const ctorValues = [...bigDecimalStrings, ...bigDecimalStrings.map((v) => Number(v))];
 const posExp = [0, 1, 2, 10, 99];
 const negExp = [-1, -2, -10, -99];
 
 // setup() runs once before an operation's suite (e.g. to configure precision).
+//
+// Every operation gets an explicit setup (see the defaulting below the table): these
+// configure global, mutable library state, so without one each row would inherit
+// whatever the previous row happened to leave behind, making results depend on table
+// order.
 const configureScaled = () => {
     BigJs.DP = PREC;
     BigNumber.config({ DECIMAL_PLACES: PREC });
     Decimal.set({ precision: PREC });
+};
+
+// For rows meant to measure exact arithmetic: give every library enough working
+// precision that none of them rounds.
+const configureExact = () => {
+    BigJs.DP = EXACT_PREC;
+    BigNumber.config({ DECIMAL_PLACES: EXACT_PREC });
+    Decimal.set({ precision: EXACT_PREC });
 };
 
 const operations = [
@@ -87,7 +129,6 @@ const operations = [
     },
     {
         name: 'Multiply',
-        setup: () => Decimal.set({ precision: MUL_PREC }),
         libs: {
             'Bigdecimal.js': () => pairs(bigDecimals, (a, b) => a.multiply(b)),
             'Big.js': () => pairs(bigDecimalsBigjs, (a, b) => a.times(b)),
@@ -96,15 +137,32 @@ const operations = [
             'GWTBased': () => pairs(bigDecimalsGWT, (a, b) => a.multiply(b)),
         },
     },
+    // Division is split by precision basis because the libraries do not share one.
+    // big.js and BigNumber.js can only divide to a number of DECIMAL PLACES (DP /
+    // DECIMAL_PLACES); bigdecimal.js, decimal.js and the GWT port divide to a number
+    // of SIGNIFICANT DIGITS (MathContext / precision). Running all five in one row
+    // under a single "PREC = 50" label compared different amounts of work — for an
+    // operand with a large integer part, 50 decimal places is far more digits than 50
+    // significant digits. Each row below asks every library for the same quantity of
+    // result, and libraries that cannot express that basis natively are omitted.
     {
-        name: 'Divide',
+        name: 'Divide (50 significant digits)',
+        precisionBasis: 'significant-digits',
         setup: configureScaled,
         libs: {
             'Bigdecimal.js': () => pairs(bigDecimals, (a, b) => a.divideWithMathContext(b, MC(PREC, HU))),
-            'Big.js': () => pairs(bigDecimalsBigjs, (a, b) => a.div(b)),
-            'BigNumber.js': () => pairs(bigDecimalsBigNumber, (a, b) => a.dividedBy(b)),
             'decimal.js': () => pairs(bigDecimalsDecimal, (a, b) => a.dividedBy(b)),
             'GWTBased': () => pairs(bigDecimalsGWT, (a, b) => a.divide(b, gwtMc(PREC))),
+        },
+    },
+    {
+        name: 'Divide (50 decimal places)',
+        precisionBasis: 'decimal-places',
+        setup: configureScaled,
+        libs: {
+            'Bigdecimal.js': () => pairs(bigDecimals, (a, b) => a.divide(b, PREC, HU)),
+            'Big.js': () => pairs(bigDecimalsBigjs, (a, b) => a.div(b)),
+            'BigNumber.js': () => pairs(bigDecimalsBigNumber, (a, b) => a.dividedBy(b)),
         },
     },
     {
@@ -137,7 +195,12 @@ const operations = [
         },
     },
     {
+        // Mixed basis, and not splittable: bigdecimal.js has no decimal-places pow —
+        // a negative exponent requires a MathContext. So bigdecimal.js/decimal.js/GWT
+        // work to 50 significant digits here while big.js/BigNumber.js work to 50
+        // decimal places. Footnoted in the report rather than presented as a clean win.
         name: 'Negative pow',
+        precisionBasis: 'mixed',
         setup: configureScaled,
         libs: {
             'Bigdecimal.js': () => pairs(bigDecimals, (a, _b, i) => a.pow(negExp[i % negExp.length], MC(PREC, HU))),
@@ -148,7 +211,11 @@ const operations = [
         },
     },
     {
+        // Mixed basis, same reason as Negative pow: bigdecimal.js sqrt takes a
+        // MathContext (significant digits) and has no decimal-places form, while
+        // big.js/BigNumber.js sqrt honours their decimal-places setting.
         name: 'Sqrt',
+        precisionBasis: 'mixed',
         setup: configureScaled,
         libs: {
             'Bigdecimal.js': () => each(pos, (a) => a.sqrt(MC(PREC, HU))),
@@ -306,7 +373,14 @@ const operations = [
     },
 ];
 
+// Every operation gets an explicit setup so no row inherits the previous row's global
+// library configuration. Rows that did not ask for a specific precision want exact
+// arithmetic.
+for (const op of operations) {
+    if (!op.setup) op.setup = configureExact;
+}
+
 // Library column order for the report.
 const libNames = ['Bigdecimal.js', 'Big.js', 'BigNumber.js', 'decimal.js', 'GWTBased'];
 
-module.exports = { operations, libNames };
+module.exports = { operations, libNames, getLastBatchCalls };
