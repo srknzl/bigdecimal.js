@@ -1,0 +1,743 @@
+{
+  "generatedAt": "2026-07-19T20:29:38.362Z",
+  "node": "v24.16.0",
+  "platform": "darwin arm64",
+  "unit": "operations per second",
+  "equivalenceSignificantDigits": 12,
+  "operations": [
+    {
+      "name": "Constructor",
+      "callsPerBatch": 72,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "mismatch",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 3919703.6509546735,
+        "Big.js": 1891871.611176102,
+        "BigNumber.js": 2170425.0995283867,
+        "decimal.js": 2087275.134301231,
+        "GWTBased": 148490.4749951237
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 2.5948432558471017,
+        "Big.js": 0.18642997697620817,
+        "BigNumber.js": 0.9150644383179583,
+        "decimal.js": 1.1719759350537093,
+        "GWTBased": 0.38627392582561254
+      }
+    },
+    {
+      "name": "Add",
+      "callsPerBatch": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 8602541.448758336,
+        "Big.js": 2460112.3559302944,
+        "BigNumber.js": 5579265.795134805,
+        "decimal.js": 2509887.298773753,
+        "GWTBased": 19140.892724046604
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 1.3392647425650182,
+        "Big.js": 1.5818229064123144,
+        "BigNumber.js": 0.13314461027420885,
+        "decimal.js": 0.7669627439303273,
+        "GWTBased": 0.8826036431987382
+      }
+    },
+    {
+      "name": "Subtract",
+      "callsPerBatch": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 8570747.468998743,
+        "Big.js": 2183470.3879421833,
+        "BigNumber.js": 5106312.248232727,
+        "decimal.js": 2790011.6336580073,
+        "GWTBased": 18470.44603899207
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.13549939062169752,
+        "Big.js": 0.8109548786294446,
+        "BigNumber.js": 1.261318405696458,
+        "decimal.js": 0.8517609429401711,
+        "GWTBased": 0.07644229252857904
+      }
+    },
+    {
+      "name": "Multiply",
+      "callsPerBatch": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 17455884.498380877,
+        "Big.js": 733346.5075600018,
+        "BigNumber.js": 2003590.7617662426,
+        "decimal.js": 1657490.0889524997,
+        "GWTBased": 69975.10261629889
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.8081400205350978,
+        "Big.js": 0.7593030653216828,
+        "BigNumber.js": 0.8238979571020523,
+        "decimal.js": 0.08343952433883081,
+        "GWTBased": 0.8184212212251213
+      }
+    },
+    {
+      "name": "Divide (50 significant digits)",
+      "callsPerBatch": 35,
+      "precisionBasis": "significant-digits",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 1191800.7611542987,
+        "decimal.js": 321289.8323830551,
+        "GWTBased": 17299.000808542445
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.7068125157995253,
+        "decimal.js": 0.8856473770237294,
+        "GWTBased": 1.355054685809876
+      }
+    },
+    {
+      "name": "Divide (50 decimal places)",
+      "callsPerBatch": 35,
+      "precisionBasis": "decimal-places",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 1997055.2288072126,
+        "Big.js": 20162.27888389042,
+        "BigNumber.js": 259902.75651243125
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.65628512018385,
+        "Big.js": 1.2724075655698457,
+        "BigNumber.js": 3.6476940833664804
+      }
+    },
+    {
+      "name": "DivideToIntegralValue",
+      "callsPerBatch": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 3888990.9341880633,
+        "BigNumber.js": 520170.82814697037,
+        "decimal.js": 1027840.6233523958,
+        "GWTBased": 31625.55615871035
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.15262065711915693,
+        "BigNumber.js": 1.382842185345265,
+        "decimal.js": 0.96981770226747,
+        "GWTBased": 5.6341483690773
+      }
+    },
+    {
+      "name": "Remainder",
+      "callsPerBatch": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 2486821.570864193,
+        "Big.js": 139340.4873733018,
+        "BigNumber.js": 383431.8767146816,
+        "decimal.js": 639418.6294784795,
+        "GWTBased": 55110.02659902044
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 1.5773169910201728,
+        "Big.js": 0.6988338524056295,
+        "BigNumber.js": 5.632362224851482,
+        "decimal.js": 0.2387321562895653,
+        "GWTBased": 5.381697094190685
+      }
+    },
+    {
+      "name": "Positive pow",
+      "callsPerBatch": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 1115536.536519381,
+        "Big.js": 921.7211290303001,
+        "BigNumber.js": 4207.411467751694,
+        "decimal.js": 4346.872467315676,
+        "GWTBased": 245.6981060828319
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 1.421433838969975,
+        "Big.js": 0.24907525338197226,
+        "BigNumber.js": 0.8295767575859573,
+        "decimal.js": 0.6796928853404935,
+        "GWTBased": 0.18112324036086752
+      }
+    },
+    {
+      "name": "Negative pow",
+      "callsPerBatch": 35,
+      "precisionBasis": "mixed",
+      "cohort": null,
+      "equivalence": "mismatch",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 437245.3187970281,
+        "Big.js": 753.8679729889062,
+        "BigNumber.js": 4059.5015975550396,
+        "decimal.js": 70817.2298880334,
+        "GWTBased": 11637.930943340949
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.7400103670560326,
+        "Big.js": 1.036060685373757,
+        "BigNumber.js": 0.573949459189219,
+        "decimal.js": 1.5106991989663274,
+        "GWTBased": 0.7140638178814451
+      }
+    },
+    {
+      "name": "Sqrt",
+      "callsPerBatch": 36,
+      "precisionBasis": "mixed",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 189486.43900353945,
+        "Big.js": 1733.1493109563146,
+        "BigNumber.js": 42004.37376055112,
+        "decimal.js": 56673.77246900491
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.6416873842308899,
+        "Big.js": 0.15513589629825686,
+        "BigNumber.js": 0.7002318109092102,
+        "decimal.js": 0.6564714680359757
+      }
+    },
+    {
+      "name": "Abs",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 129052412.64852814,
+        "Big.js": 64064190.87596259,
+        "BigNumber.js": 35051977.27861328,
+        "decimal.js": 12791311.156629287,
+        "GWTBased": 608642.9673313358
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.26546189677509574,
+        "Big.js": 0.6252594427650299,
+        "BigNumber.js": 0.5630007555460278,
+        "decimal.js": 1.001493457396993,
+        "GWTBased": 0.6569889210842395
+      }
+    },
+    {
+      "name": "Negate",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 78002187.53435186,
+        "Big.js": 62912870.17622314,
+        "BigNumber.js": 34222733.89615888,
+        "decimal.js": 13153920.96781633,
+        "GWTBased": 317891.61023134616
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.7507637953611158,
+        "Big.js": 0.6640236857559747,
+        "BigNumber.js": 0.6803756136398702,
+        "decimal.js": 0.9571332106293171,
+        "GWTBased": 0.6595306374247689
+      }
+    },
+    {
+      "name": "Round",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Big.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 10037370.477984618,
+        "Big.js": 26102113.452521663,
+        "decimal.js": 7452490.425501111,
+        "GWTBased": 201972.25154685945
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.6441277400080095,
+        "Big.js": 0.6542086285331418,
+        "decimal.js": 0.6999134061427672,
+        "GWTBased": 1.0004322889378203
+      }
+    },
+    {
+      "name": "SetScale",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Big.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 11322612.213136086,
+        "Big.js": 22080671.913874216,
+        "BigNumber.js": 11091537.714177975,
+        "decimal.js": 7177116.884979707,
+        "GWTBased": 60348.32705032277
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.6611712432294489,
+        "Big.js": 0.658943648436218,
+        "BigNumber.js": 0.7169444783748203,
+        "decimal.js": 0.6659640686686114,
+        "GWTBased": 0.700185562299037
+      }
+    },
+    {
+      "name": "Compare",
+      "callsPerBatch": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 79345144.44644833,
+        "Big.js": 44889873.18301864,
+        "BigNumber.js": 32210249.196636375,
+        "decimal.js": 14685089.266563468,
+        "GWTBased": 18837215.670054555
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.5721285676587983,
+        "Big.js": 0.6497738346603804,
+        "BigNumber.js": 0.6704247801537819,
+        "decimal.js": 0.7846097109977616,
+        "GWTBased": 1.7014956711902105
+      }
+    },
+    {
+      "name": "Equals",
+      "callsPerBatch": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 260802003.88567016,
+        "Big.js": 44803717.71652752,
+        "BigNumber.js": 32243002.539578762,
+        "decimal.js": 14687418.22196637,
+        "GWTBased": 56759106.60436341
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.3971289988249883,
+        "Big.js": 0.6595634749460089,
+        "BigNumber.js": 0.6715705781994596,
+        "decimal.js": 0.7094903933996043,
+        "GWTBased": 0.7540774315793499
+      }
+    },
+    {
+      "name": "Min",
+      "callsPerBatch": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 71651008.81170836,
+        "BigNumber.js": 16172156.64242278,
+        "decimal.js": 5058744.314234303,
+        "GWTBased": 1223541.640489059
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.10600628611228156,
+        "BigNumber.js": 0.6925378995799661,
+        "decimal.js": 0.8137371338032112,
+        "GWTBased": 1.0567508311619271
+      }
+    },
+    {
+      "name": "Max",
+      "callsPerBatch": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 71537112.64290869,
+        "BigNumber.js": 16133977.464585548,
+        "decimal.js": 5045836.534219096,
+        "GWTBased": 1055696.1533504403
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.14521998808435993,
+        "BigNumber.js": 0.7075848083358132,
+        "decimal.js": 0.8339901402218736,
+        "GWTBased": 0.6891930136594019
+      }
+    },
+    {
+      "name": "MovePointLeft",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 84487480.35810731,
+        "GWTBased": 80786.51846082573
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.6941322612920173,
+        "GWTBased": 0.704860985595227
+      }
+    },
+    {
+      "name": "MovePointRight",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 29343456.28523907,
+        "GWTBased": 59535.03238654004
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.6989596366092715,
+        "GWTBased": 0.10731842025229295
+      }
+    },
+    {
+      "name": "ScaleByPowerOfTen",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 132919941.55508365,
+        "BigNumber.js": 2032806.6496977853,
+        "GWTBased": 313768.9990587822
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.7868570992634957,
+        "BigNumber.js": 1.5674235515490513,
+        "GWTBased": 0.6925701376699244
+      }
+    },
+    {
+      "name": "StripTrailingZeros",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 23146950.87515909,
+        "GWTBased": 267025.7206234509
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.8227794681306981,
+        "GWTBased": 0.11733328901342772
+      }
+    },
+    {
+      "name": "Ulp",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 198032865.31049988,
+        "GWTBased": 1966571.8091324987
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.8010589461221524,
+        "GWTBased": 0.6569592209832381
+      }
+    },
+    {
+      "name": "UnscaledValue",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 120844992.77690962,
+        "GWTBased": 398471.09456157923
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.7468541543443094,
+        "GWTBased": 0.0875459480122161
+      }
+    },
+    {
+      "name": "ToString",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 480897512.5623503,
+        "Big.js": 4151358.06816362,
+        "BigNumber.js": 8698066.771489922,
+        "decimal.js": 8640211.317140108,
+        "GWTBased": 43601824.02164325
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.8486511220778895,
+        "Big.js": 1.048237557999436,
+        "BigNumber.js": 0.4049611000771886,
+        "decimal.js": 0.10221200171917741,
+        "GWTBased": 0.5551772459885558
+      }
+    },
+    {
+      "name": "NumberValue",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 29003134.458593737,
+        "Big.js": 3117227.695680911,
+        "BigNumber.js": 5759256.628995539,
+        "decimal.js": 4312654.381117592,
+        "GWTBased": 10275793.220514262
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.6866846893971696,
+        "Big.js": 0.630590980165263,
+        "BigNumber.js": 0.34549451336436526,
+        "decimal.js": 0.6867879696135202,
+        "GWTBased": 0.5486229430201655
+      }
+    },
+    {
+      "name": "ToBigInt",
+      "callsPerBatch": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 9814795.071891213,
+        "GWTBased": 84470.08292999372
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 1.580675078400141,
+        "GWTBased": 0.1871211728313486
+      }
+    },
+    {
+      "name": "Add (compact)",
+      "callsPerBatch": 17,
+      "precisionBasis": "exact",
+      "cohort": "compact",
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 43747996.76441133,
+        "Big.js": 11753797.69159142,
+        "BigNumber.js": 5492987.416383317,
+        "decimal.js": 5307702.441002787,
+        "GWTBased": 604973.8353843021
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.5967796340508987,
+        "Big.js": 0.8209408708764777,
+        "BigNumber.js": 0.5536641907542972,
+        "decimal.js": 1.8777207111315426,
+        "GWTBased": 0.9695865526871205
+      }
+    },
+    {
+      "name": "Subtract (compact)",
+      "callsPerBatch": 17,
+      "precisionBasis": "exact",
+      "cohort": "compact",
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 34981601.46096987,
+        "Big.js": 10598280.13616932,
+        "BigNumber.js": 5698800.427576311,
+        "decimal.js": 5489102.967683902,
+        "GWTBased": 615391.0666461212
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 2.341834833905276,
+        "Big.js": 0.662891581892206,
+        "BigNumber.js": 0.7345848262028456,
+        "decimal.js": 0.9509308038834963,
+        "GWTBased": 0.8294540532939021
+      }
+    },
+    {
+      "name": "Multiply (compact)",
+      "callsPerBatch": 17,
+      "precisionBasis": "exact",
+      "cohort": "compact",
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 46679623.13025529,
+        "Big.js": 9137900.954782283,
+        "BigNumber.js": 5032514.408153752,
+        "decimal.js": 5232565.195762161,
+        "GWTBased": 573727.5582200814
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.7082158724043568,
+        "Big.js": 2.357060735161572,
+        "BigNumber.js": 0.28094602020630555,
+        "decimal.js": 0.8239656785586706,
+        "GWTBased": 1.0410356910443939
+      }
+    },
+    {
+      "name": "Compare (compact)",
+      "callsPerBatch": 17,
+      "precisionBasis": "exact",
+      "cohort": "compact",
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 83531324.29762265,
+        "Big.js": 51569504.17115819,
+        "BigNumber.js": 30818806.46857896,
+        "decimal.js": 14323114.34456664,
+        "GWTBased": 9534866.540926868
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.7172881627246471,
+        "Big.js": 0.7056072263403579,
+        "BigNumber.js": 0.08695817416254628,
+        "decimal.js": 1.0218409168738836,
+        "GWTBased": 1.0495895523594094
+      }
+    },
+    {
+      "name": "Add (inflated)",
+      "callsPerBatch": 17,
+      "precisionBasis": "exact",
+      "cohort": "inflated",
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 15134947.322917959,
+        "Big.js": 2244354.010970406,
+        "BigNumber.js": 3832632.852487894,
+        "decimal.js": 4235492.058997184,
+        "GWTBased": 15367.596679132661
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.5786602564432013,
+        "Big.js": 0.6960993195336743,
+        "BigNumber.js": 0.6926060169184525,
+        "decimal.js": 0.07666890155386186,
+        "GWTBased": 0.5468498749229138
+      }
+    },
+    {
+      "name": "Subtract (inflated)",
+      "callsPerBatch": 17,
+      "precisionBasis": "exact",
+      "cohort": "inflated",
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 12680008.166700011,
+        "Big.js": 1806197.9941286568,
+        "BigNumber.js": 3632156.418098025,
+        "decimal.js": 3843507.582283038,
+        "GWTBased": 14679.324643364107
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.7123498041350463,
+        "Big.js": 0.4763729900381707,
+        "BigNumber.js": 1.7413487108460575,
+        "decimal.js": 0.8291342886406202,
+        "GWTBased": 0.11626980766492132
+      }
+    },
+    {
+      "name": "Multiply (inflated)",
+      "callsPerBatch": 17,
+      "precisionBasis": "exact",
+      "cohort": "inflated",
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 31982008.642076146,
+        "Big.js": 380874.4472179649,
+        "BigNumber.js": 1268285.5115191485,
+        "decimal.js": 1224389.284389508,
+        "GWTBased": 52267.5764485499
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.7165129828928479,
+        "Big.js": 0.6902533716237843,
+        "BigNumber.js": 0.7961669244801036,
+        "decimal.js": 0.15346364232727086,
+        "GWTBased": 0.8888990345329121
+      }
+    },
+    {
+      "name": "Compare (inflated)",
+      "callsPerBatch": 17,
+      "precisionBasis": "exact",
+      "cohort": "inflated",
+      "equivalence": "ok",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 53322039.60086643,
+        "Big.js": 38858587.97109377,
+        "BigNumber.js": 29962399.054101497,
+        "decimal.js": 14722225.534176778,
+        "GWTBased": 25545612.59053915
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 1.0276163562006664,
+        "Big.js": 1.621505569215239,
+        "BigNumber.js": 1.3559504146284904,
+        "decimal.js": 0.6975180482937783,
+        "GWTBased": 0.7879572214003042
+      }
+    }
+  ]
+}

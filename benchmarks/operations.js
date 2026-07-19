@@ -16,7 +16,7 @@ const { Big, MC, RoundingMode } = require('../lib/bigdecimal.js');
 const {
     bigDecimalStrings,
     bigDecimals, bigDecimalsBigjs, bigDecimalsBigNumber, bigDecimalsDecimal, bigDecimalsGWT,
-    compact, inflated,
+    compact, inflated, money,
 } = require('./test_numbers');
 
 // Rounding-mode constants (HALF_UP) per library's own encoding.
@@ -74,17 +74,31 @@ const each = (arr, fn) => {
 const getLastBatchCalls = () => lastBatchCalls;
 
 const ctorValues = [...bigDecimalStrings, ...bigDecimalStrings.map((v) => Number(v))];
-const posExp = [0, 1, 2, 10, 99];
-const negExp = [-1, -2, -10, -99];
+
+// Exponents are kept moderate on purpose. With 69-digit operands an exponent of 99
+// produces ~6800-digit results, so the row ends up measuring bigint growth rather than
+// pow itself — which is what made it report a ~250x margin. 32 still exercises large
+// intermediates without the extreme dominating the measurement.
+const posExp = [0, 1, 2, 5, 10, 32];
+const negExp = [-1, -2, -5, -10, -32];
 
 // Argument sets for the rows whose cost depends materially on the argument, cycled by
-// operand index. Round and SetScale are the two rows where big.js's digit-array
-// representation wins, and SetScale alone varies ~1.4x across these scales (and
-// non-monotonically), so a single hard-coded scale characterised neither the operation
-// nor the size of that gap.
-const SCALES = [0, 2, 10, 40];
-const PRECISIONS = [7, 20, 40];
-const POINT_SHIFTS = [1, 3, 12, 40];
+// operand index. Round and SetScale are where big.js's digit-array representation wins,
+// and SetScale varies ~1.4x across scales (non-monotonically), so a single hard-coded
+// argument characterised neither the operation nor the size of that gap.
+//
+// PRECISIONS deliberately includes 15 and 16: MAX_COMPACT_DIGITS is 15, so that is
+// exactly the boundary where a result either stays in a compact `number` or inflates to
+// `BigInt` — the most interesting precision there is for this library.
+const SCALES = [0, 2, 10, 16, 40];
+const PRECISIONS = [1, 7, 15, 16, 20, 40];
+const POINT_SHIFTS = [-40, -12, -3, 0, 1, 3, 12, 40];
+
+// Negative scales (round to tens/hundreds/...) are valid BigDecimal and a real use, but
+// decimal.js's toDP rejects them, so they get their own row rather than being cycled
+// into the shared SetScale row and throwing.
+const NEGATIVE_SCALES = [-40, -16, -10, -2];
+
 const atIndex = (set, i) => set[i % set.length];
 
 // setup() runs once before an operation's suite (e.g. to configure precision).
@@ -275,6 +289,17 @@ const operations = [
         },
     },
     {
+        // Negative scales round to tens/hundreds/... decimal.js is absent because its
+        // toDP rejects a negative argument; the other four support it natively.
+        name: 'SetScale (negative scales)',
+        libs: {
+            'Bigdecimal.js': () => each(bigDecimals, (a, i) => a.setScale(atIndex(NEGATIVE_SCALES, i), HU)),
+            'Big.js': () => each(bigDecimalsBigjs, (a, i) => a.round(atIndex(NEGATIVE_SCALES, i), BIGJS_HU)),
+            'BigNumber.js': () => each(bigDecimalsBigNumber, (a, i) => a.dp(atIndex(NEGATIVE_SCALES, i), BN_HU)),
+            'GWTBased': () => each(bigDecimalsGWT, (a, i) => a.setScale(atIndex(NEGATIVE_SCALES, i), GWT_HU)),
+        },
+    },
+    {
         name: 'Compare',
         libs: {
             'Bigdecimal.js': () => pairs(bigDecimals, (a, b) => a.compareTo(b)),
@@ -391,7 +416,7 @@ const operations = [
 // hiding the compact fast path that is the library's central performance premise.
 // Rendered as a separate table so the main one keeps its shape.
 const cohortOperations = [];
-for (const [label, set] of [['compact', compact], ['inflated', inflated]]) {
+for (const [label, set] of [['compact', compact], ['inflated', inflated], ['money', money]]) {
     cohortOperations.push(
         {
             name: `Add (${label})`,

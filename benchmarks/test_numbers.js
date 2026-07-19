@@ -71,6 +71,17 @@ for (const x of bigDecimalStrings) {
 const compactStrings = bigDecimalStrings.filter((s) => Big(s).precision() <= 15);
 const inflatedStrings = bigDecimalStrings.filter((s) => Big(s).precision() > 15);
 
+// A realistic money workload. The dataset above deliberately skews exotic — 69-digit
+// significands, E233 exponents — which stresses the library but is not what most
+// callers do. The dominant real use of a decimal library is currency: two decimal
+// places, magnitudes below ~1e9, every value on the compact path. Without this cohort
+// the published numbers describe a workload almost nobody actually runs.
+const moneyStrings = [
+    '0.01', '0.07', '0.50', '0.99', '2.99', '3.33', '7.25', '12.75', '19.99',
+    '45.00', '64.20', '149.50', '250.00', '1234.56', '8999.95', '45678.90',
+    '99999.99', '1500000.00',
+];
+
 const cohort = (strings) => ({
     strings,
     bigDecimals: strings.map((s) => Big(s)),
@@ -89,4 +100,5 @@ module.exports = {
     bigDecimalsGWT: bigDecimalsGWT,
     compact: cohort(compactStrings),
     inflated: cohort(inflatedStrings),
+    money: cohort(moneyStrings),
 };
