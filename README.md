@@ -227,6 +227,14 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 
 ## Benchmark Results
 
+> [!WARNING]
+> **These figures are provisional and are being re-measured.** The run that produced
+> them was made while the test machine was in macOS low power mode, so the absolute
+> rates are depressed and are not a valid basis for comparison against other
+> published numbers. The relative ordering within each row is expected to hold
+> (every library was throttled equally in the same run), but treat the absolute
+> ops/sec as indicative only until this notice is removed.
+
 Benchmarked against [big.js](https://www.npmjs.com/package/big.js), [bigdecimal](https://www.npmjs.com/package/bigdecimal) (GWT-based), [bignumber.js](https://www.npmjs.com/package/bignumber.js) and [decimal.js](https://www.npmjs.com/package/decimal.js).
 
 * Test Machine:
@@ -234,53 +242,88 @@ Benchmarked against [big.js](https://www.npmjs.com/package/big.js), [bigdecimal]
   * 8 GB Ram
   * macOS 26.3
   * Node.js 24
-* Update Date: July 15th 2026
+* Update Date: July 19th 2026
 * Library versions used:  
     * big.js 7.0.1
-    * (this library) bigdecimal.js 1.7.0
+    * (this library) bigdecimal.js 1.7.1
     * bigdecimal 0.6.1
     * bignumber.js: 11.1.5
     * decimal.js: 10.6.0
 
-* Each operation is run with a fixed set of decimal numbers composed of both simple and complex numbers.
+* Each operation is run with a fixed set of decimal numbers composed of both simple and complex numbers. Rows whose cost depends on their argument (`Round`, `SetScale`, `MovePointLeft`/`Right`, `ScaleByPowerOfTen`) cycle through a range of arguments rather than a single hard-coded one.
+* Before timing, the harness verifies that every library computes the **same result** for each operation; disagreements are footnoted rather than scored as wins. Raw machine-readable results are written to `benchmarks/results.json`.
 * Micro benchmark framework used is [benchmark](https://www.npmjs.com/package/benchmark). Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
 * Numbers are operations per second (higher is better). In each row the **fastest library is bold**, and the **Fastest** column names the winner with how many times faster it is than the runner-up. A `-` means the library has no equivalent operation.
 
 | Operation | Bigdecimal.js | Big.js | BigNumber.js | decimal.js | GWTBased | Fastest |
 | --- | --- | --- | --- | --- | --- | --- |
-| Constructor | **92,925** | 43,229 | 49,026 | 47,998 | 3,448 | 🏆 **Bigdecimal.js** (1.9×) |
-| Add | **416,927** | 118,992 | 255,031 | 102,880 | 882 | 🏆 **Bigdecimal.js** (1.6×) |
-| Subtract | **407,903** | 100,556 | 231,897 | 103,756 | 814 | 🏆 **Bigdecimal.js** (1.8×) |
-| Multiply | **837,887** | 33,510 | 91,703 | 80,826 | 3,252 | 🏆 **Bigdecimal.js** (9.1×) |
-| Divide | **55,617** | 1,108 | 12,804 | 14,703 | 813 | 🏆 **Bigdecimal.js** (3.8×) |
-| DivideToIntegralValue | **194,906** |  -  | 24,228 | 48,053 | 1,649 | 🏆 **Bigdecimal.js** (4.1×) |
-| Remainder | **123,564** | 6,810 | 18,776 | 30,271 | 2,244 | 🏆 **Bigdecimal.js** (4.1×) |
-| Positive pow | **31,769** | 26 | 118 | 3,598 | 7 | 🏆 **Bigdecimal.js** (8.8×) |
-| Negative pow | **13,642** | 22 | 114 | 1,993 | 334 | 🏆 **Bigdecimal.js** (6.8×) |
-| Sqrt | **5,632** | 48 | 1,173 | 1,575 |  -  | 🏆 **Bigdecimal.js** (3.6×) |
-| Abs | **3,986,281** | 1,797,291 | 990,440 | 366,424 | 17,290 | 🏆 **Bigdecimal.js** (2.2×) |
-| Negate | **3,282,506** | 1,762,001 | 960,448 | 377,185 | 8,808 | 🏆 **Bigdecimal.js** (1.9×) |
-| Round | 306,206 | **668,047** |  -  | 188,869 | 5,259 | 🏆 **Big.js** (2.2×) |
-| SetScale | 353,784 | **684,585** | 218,688 | 177,488 | 1,896 | 🏆 **Big.js** (1.9×) |
-| Compare | **2,344,023** | 1,226,746 | 932,273 | 437,279 | 1,169,606 | 🏆 **Bigdecimal.js** (1.9×) |
-| Equals | **8,829,128** | 1,230,994 | 927,999 | 432,378 | 1,626,161 | 🏆 **Bigdecimal.js** (5.4×) |
-| Min | **2,117,867** |  -  | 466,892 | 149,704 | 36,667 | 🏆 **Bigdecimal.js** (4.5×) |
-| Max | **2,120,100** |  -  | 466,093 | 149,571 | 31,322 | 🏆 **Bigdecimal.js** (4.5×) |
-| MovePointLeft | **2,552,021** |  -  |  -  |  -  | 2,151 | 🏆 **Bigdecimal.js** (1186.6×) |
-| MovePointRight | **1,243,076** |  -  |  -  |  -  | 2,061 | 🏆 **Bigdecimal.js** (603.2×) |
-| ScaleByPowerOfTen | **9,342,274** |  -  | 64,751 |  -  | 8,927 | 🏆 **Bigdecimal.js** (144.3×) |
-| StripTrailingZeros | **568,697** |  -  |  -  |  -  | 7,448 | 🏆 **Bigdecimal.js** (76.4×) |
-| Ulp | **10,802,420** |  -  |  -  |  -  | 54,306 | 🏆 **Bigdecimal.js** (198.9×) |
-| UnscaledValue | **3,212,765** |  -  |  -  |  -  | 11,142 | 🏆 **Bigdecimal.js** (288.3×) |
-| ToString | **10,676,511** | 118,226 | 253,802 | 258,435 | 1,245,853 | 🏆 **Bigdecimal.js** (8.6×) |
-| NumberValue | **760,852** | 104,744 | 234,134 | 119,574 | 288,163 | 🏆 **Bigdecimal.js** (2.6×) |
-| ToBigInt | **296,985** |  -  |  -  |  -  | 2,361 | 🏆 **Bigdecimal.js** (125.8×) |
+| Constructor | **3,974,001** | 1,794,198 | 2,663,519 | 3,442,733 | 234,626 | 🏆 **Bigdecimal.js** (1.2x) &sup1; |
+| Add | **13,884,549** | 3,970,123 | 9,004,834 | 4,016,814 | 30,526 | 🏆 **Bigdecimal.js** (1.5x) |
+| Subtract | **13,148,108** | 3,478,423 | 8,409,868 | 4,404,558 | 29,398 | 🏆 **Bigdecimal.js** (1.6x) |
+| Multiply | **28,201,852** | 1,181,338 | 3,202,515 | 2,658,251 | 111,814 | 🏆 **Bigdecimal.js** (8.8x) |
+| Divide (50 significant digits) | **1,956,214** |  -  |  -  | 510,095 | 27,779 | 🏆 **Bigdecimal.js** (3.8x) |
+| Divide (50 decimal places) | **3,184,006** | 32,686 | 441,966 |  -  |  -  | 🏆 **Bigdecimal.js** (7.2x) |
+| DivideToIntegralValue | **6,430,792** |  -  | 838,635 | 1,654,166 | 56,885 | 🏆 **Bigdecimal.js** (3.9x) |
+| Remainder | **4,158,685** | 225,717 | 657,873 | 1,039,243 | 77,685 | 🏆 **Bigdecimal.js** (4.0x) |
+| Positive pow | **8,239,008** | 30,294 | 115,392 | 71,396 | 7,283 | 🏆 **Bigdecimal.js** (71.4x) |
+| Negative pow | **559,299** | 6,466 | 34,552 | 95,880 | 13,500 | 🏆 **Bigdecimal.js** (5.8x) &sup1;&sup2; |
+| Sqrt | **194,235** | 1,718 | 41,933 | 56,154 |  -  | 🏆 **Bigdecimal.js** (3.5x) &sup2; |
+| Abs | **128,077,435** | 63,491,709 | 35,009,809 | 13,241,639 | 610,284 | 🏆 **Bigdecimal.js** (2.0x) |
+| Negate | **78,180,233** | 63,104,385 | 34,171,634 | 13,781,982 | 310,294 | 🏆 **Bigdecimal.js** (1.2x) |
+| Round | 7,698,823 | **21,897,334** |  -  | 5,997,010 | 210,247 | 🏆 **Big.js** (2.8x) |
+| SetScale | 11,783,781 | **22,758,267** | 10,424,110 | 7,129,113 | 61,296 | 🏆 **Big.js** (1.9x) |
+| SetScale (negative scales) | 7,488,293 | **16,149,259** | 8,544,401 |  -  | 85,576 | 🏆 **Big.js** (1.9x) |
+| Compare | **79,449,704** | 44,449,279 | 32,284,743 | 15,210,847 | 19,068,071 | 🏆 **Bigdecimal.js** (1.8x) |
+| Equals | **261,524,896** | 45,007,407 | 32,416,381 | 15,298,674 | 56,748,194 | 🏆 **Bigdecimal.js** (4.6x) |
+| Min | **71,127,201** |  -  | 16,204,565 | 5,285,596 | 1,241,166 | 🏆 **Bigdecimal.js** (4.4x) |
+| Max | **71,393,462** |  -  | 16,246,045 | 5,220,419 | 1,061,526 | 🏆 **Bigdecimal.js** (4.4x) |
+| MovePointLeft | **43,806,902** |  -  |  -  |  -  | 69,616 | 🏆 **Bigdecimal.js** (629.3x) |
+| MovePointRight | **48,138,424** |  -  |  -  |  -  | 68,098 | 🏆 **Bigdecimal.js** (706.9x) |
+| ScaleByPowerOfTen | **133,110,892** |  -  | 2,068,515 |  -  | 314,260 | 🏆 **Bigdecimal.js** (64.4x) |
+| StripTrailingZeros | **23,013,477** |  -  |  -  |  -  | 260,975 | 🏆 **Bigdecimal.js** (88.2x) |
+| Ulp | **197,712,676** |  -  |  -  |  -  | 1,947,326 | 🏆 **Bigdecimal.js** (101.5x) |
+| UnscaledValue | **120,170,711** |  -  |  -  |  -  | 394,724 | 🏆 **Bigdecimal.js** (304.4x) |
+| ToString | **474,061,908** | 4,093,922 | 8,647,933 | 8,766,609 | 43,615,133 | 🏆 **Bigdecimal.js** (10.9x) |
+| NumberValue | **28,995,101** | 3,128,418 | 5,780,200 | 4,321,807 | 10,190,697 | 🏆 **Bigdecimal.js** (2.8x) |
+| ToBigInt | **10,243,130** |  -  |  -  |  -  | 84,381 | 🏆 **Bigdecimal.js** (121.4x) |
 
-bigdecimal.js is the fastest in 25 of 27 operations. It trails big.js on `round`/`setScale`, where big.js's digit-array representation makes truncation nearly free.
+&sup1; The libraries did not agree on the result for this operation, so the rate is not a like-for-like comparison. For `Constructor`, the GWT port materialises the exact value of the lossy input double while the others keep ~17 significant digits.
+&sup2; The precision basis differs between libraries for this operation (significant digits vs decimal places), so they are not doing equal work. For `Negative pow`, big.js and BigNumber.js return exactly `0` — the result vanishes entirely at 50 decimal places.
+
+### Workload cohorts
+
+bigdecimal.js keeps a significand of up to 15 digits in a plain `number` (the *compact* path) and only inflates to `BigInt` beyond that. The blended table above mixes both, so it reports neither regime cleanly. The **money** cohort is ordinary currency arithmetic — two decimal places, magnitudes under 1e9 — which is what most callers actually run:
+
+| Operation | Bigdecimal.js | Big.js | BigNumber.js | decimal.js | GWTBased | Fastest |
+| --- | --- | --- | --- | --- | --- | --- |
+| Add (compact) | **43,662,238** | 11,678,538 | 5,549,732 | 5,255,542 | 594,164 | 🏆 **Bigdecimal.js** (3.7x) |
+| Subtract (compact) | **27,685,648** | 10,502,194 | 5,717,188 | 5,445,576 | 620,942 | 🏆 **Bigdecimal.js** (2.6x) |
+| Multiply (compact) | **46,541,753** | 9,591,153 | 5,011,147 | 5,267,985 | 567,550 | 🏆 **Bigdecimal.js** (4.9x) |
+| Compare (compact) | **84,013,512** | 51,623,929 | 30,839,157 | 15,076,334 | 9,970,568 | 🏆 **Bigdecimal.js** (1.6x) |
+| Add (inflated) | **15,070,438** | 2,237,593 | 3,836,610 | 4,135,520 | 15,318 | 🏆 **Bigdecimal.js** (3.6x) |
+| Subtract (inflated) | **12,661,662** | 1,816,166 | 3,696,599 | 3,844,926 | 14,621 | 🏆 **Bigdecimal.js** (3.3x) |
+| Multiply (inflated) | **31,984,948** | 379,999 | 1,278,791 | 1,220,516 | 52,508 | 🏆 **Bigdecimal.js** (25.0x) |
+| Compare (inflated) | **53,619,866** | 38,953,729 | 30,135,384 | 15,345,072 | 25,837,626 | 🏆 **Bigdecimal.js** (1.4x) |
+| Add (money) | **54,837,492** | 17,552,569 | 6,997,305 | 6,789,269 | 750,944 | 🏆 **Bigdecimal.js** (3.1x) |
+| Subtract (money) | **57,322,942** | 14,486,468 | 7,001,941 | 7,011,714 | 749,992 | 🏆 **Bigdecimal.js** (4.0x) |
+| Multiply (money) | **55,208,694** | 14,567,024 | 3,942,507 | 4,606,867 | 580,726 | 🏆 **Bigdecimal.js** (3.8x) |
+| Compare (money) | **200,543,297** | 54,050,255 | 30,066,391 | 15,525,093 | 19,002,598 | 🏆 **Bigdecimal.js** (3.7x) |
+
+Two things worth noting. The money cohort — the most realistic workload — is where bigdecimal.js performs best in absolute terms. And the blended rows are slower than *any* cohort, because walking consecutive operands in the mixed dataset pairs values of very different magnitude, and aligning their scales costs more than any like-with-like pairing.
+
+bigdecimal.js is the fastest in 26 of the 29 rows above; 24 of those are unqualified like-for-like wins, with `Constructor` and `Negative pow` carrying the caveats footnoted above. It trails big.js on `round`/`setScale`, where big.js's digit-array representation makes truncation nearly free. That gap is representational rather than incidental: it holds at roughly the same ratio across positive scales (0–40), across significant-digit precisions from 1 to 40, and across negative scales.
 
 ### Other engines: Bun (JavaScriptCore)
 
-The table above is measured on Node.js, i.e. V8. Because bigdecimal.js builds on native `BigInt`, relative results depend on the engine's `BigInt` implementation. Running the same suite on the same machine under Bun 1.3.14 (JavaScriptCore, the engine of Safari), bigdecimal.js is the fastest in 24 of 27 operations, and its absolute throughput is often higher than on V8 — for example ToString reaches 17.8M ops/sec (10.7M on V8), NumberValue 4.0M (761K on V8) and DivideToIntegralValue 215K (195K on V8).
+The table above is measured on Node.js, i.e. V8. Because bigdecimal.js builds on native `BigInt`, relative results depend on the engine's `BigInt` implementation — running the same suite under Bun (JavaScriptCore, the engine of Safari) reorders several rows.
+
+> [!WARNING]
+> **The JavaScriptCore figures below predate the benchmark harness rework and have
+> not yet been re-measured.** They were produced by the previous harness, which
+> reported Benchmark.js batch rates as if they were per-operation rates, and before
+> division was split by precision basis. The operation count has since changed, so
+> the "24 of 27" figure no longer corresponds to the current table. Treat this
+> section as stale pending a re-run.
 
 Operations where the outcome differs on JavaScriptCore:
 
