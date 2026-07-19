@@ -179,7 +179,6 @@ describe('Constructor test', function () {
             '9.9.9',
             '9999999999999999999999999.9.9',
             '999999999999999999999999999.e99999999999999999999999999',
-            '999999999999999999999999999.e2147483648',
             '.e99999999999999999999999999',
             '.e999999',
             '10.1.0',
@@ -196,6 +195,16 @@ describe('Constructor test', function () {
                 Big(param);
             }).should.throw();
         }
+    });
+
+    // '999999999999999999999999999.e2147483648' was in the list above until JDK 26 was
+    // consulted directly: the exponent exceeds Integer.MAX_VALUE, but the scale it denotes
+    // (-2147483648) does not, and since JDK 19 that is what the parser checks. Java accepts
+    // it with scale -2147483648 and precision 27.
+    it('should accept an out-of-int-range exponent whose resulting scale fits', function () {
+        const x = Big('999999999999999999999999999.e2147483648');
+        x.scale().should.be.equal(-2147483648);
+        x.precision().should.be.equal(27);
     });
 
     it('should throw if number is double and scale is given', function () {

@@ -604,12 +604,17 @@ export class BigDecimal {
     /**
      * Rejects a non-integral argument, without constraining its magnitude.
      *
-     * Used for scales, exponents and point shifts, where an out-of-range *argument* is not in
-     * itself an error: those all route through `checkScale`, which reproduces Java's behaviour
-     * for the resulting scale — throwing 'Scale too high'/'Scale too less' for a nonzero value,
-     * and clamping silently for a zero, which has no digits to lose. Rejecting the magnitude
-     * here would preempt that and report the wrong error. Only integrality has to be enforced,
-     * because a fractional value corrupts the scale arithmetic itself.
+     * Only for arguments that carry their own, tighter range check — currently just `pow`'s
+     * exponent, which Java limits to ±999999999 well inside the `int` range. Anything typed
+     * `int` in Java should use {@link requireInt32} instead.
+     *
+     * An earlier revision used this for scales and point shifts too, reasoning that an
+     * out-of-range *argument* was not itself an error because `checkScale` reproduces Java's
+     * behaviour for the resulting scale. That was wrong: `checkScale` models a scale computed
+     * internally by adding two valid `int`s, whereas Java's public parameters cannot be out of
+     * range in the first place. Admitting one let a caller build a value Java cannot represent
+     * — `Big(0).setScale(2147483648).scale()` returned 2147483648, since a zero significand
+     * takes any scale without ever reaching the overflow path.
      * @internal
      */
     private static requireInteger(name: string, value: number): void {
@@ -813,12 +818,37 @@ export class BigDecimal {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
     ];
 
-    /** @internal */
+    /**
+     * Apply a parsed exponent to a running scale.
+     *
+     * Deliberately unchecked. Java holds `scl` in a `long` for the whole of the string
+     * constructor and range-checks it exactly once, at the end, after any MathContext
+     * rounding has been applied — see `checkParsedScale`. Rejecting here instead would
+     * reject inputs the JDK accepts, because rounding can bring an out-of-range scale
+     * back into range.
+     *
+     * Both operands are small enough that the subtraction is exact in a double: `scl`
+     * is bounded by the input length and `parseExp` admits at most 10 exponent digits.
+     * @internal
+     */
     private static adjustScale(scl: number, exp: number): number {
-        const adjustedScale = scl - exp;
-        if (adjustedScale > BigDecimal.MAX_INT_VALUE || adjustedScale < BigDecimal.MIN_INT_VALUE)
-            throw new RangeError('Scale out of range.');
-        scl = adjustedScale;
+        return scl - exp;
+    }
+
+    /**
+     * Final scale check for the string constructor, mirroring Java's
+     * `if ((int) scl != scl) throw new NumberFormatException("Exponent overflow.")`.
+     *
+     * Java stopped rejecting out-of-range *exponents* up front in JDK 19 (JDK-8287376) so
+     * that `new BigDecimal(x.toString())` always round-trips: `BigDecimal.valueOf(1, Integer.MIN_VALUE)`
+     * prints `1E+2147483648`, whose exponent does not fit an `int` even though the scale
+     * it denotes does. What must fit is the resulting scale, and only once it is final.
+     * @internal
+     */
+    private static checkParsedScale(scl: number): number {
+        if (scl > BigDecimal.MAX_INT_VALUE || scl < BigDecimal.MIN_INT_VALUE) {
+            throw new RangeError('Exponent overflow.');
+        }
         return scl;
     }
 
@@ -911,10 +941,6 @@ export class BigDecimal {
                     dot = true;
                 } else if ((c === 'e') || (c === 'E')) {
                     exp = BigDecimal.parseExp(input, offset, len);
-
-                    // Next test is required for backwards compatibility
-                    if (exp > BigDecimal.MAX_INT_VALUE || exp < BigDecimal.MIN_INT_VALUE) // overflow
-                        throw new RangeError('Exponent overflow.');
                     break; // [saves a test]
                 } else {
                     throw new RangeError('Character ' + c
@@ -935,7 +961,9 @@ export class BigDecimal {
             // therefore, this subtract cannot overflow
             if (mcp > 0 && drop > 0) { // do rounding
                 while (drop > 0) {
-                    scl = BigDecimal.checkScaleNonZero(scl - drop);
+                    // Unchecked, like Java's `scl -= drop` on a long: the scale is only
+                    // required to be in range once rounding has finished (checkParsedScale).
+                    scl = scl - drop;
                     rs = BigDecimal.divideAndRound(rs, BigDecimal.TEN_POWERS_TABLE[drop]!, mc.roundingMode);
                     prec = BigDecimal.integerDigitLength(rs);
                     drop = prec - mcp;
@@ -976,9 +1004,6 @@ export class BigDecimal {
                     throw new RangeError('String is missing "e" notation exponential mark.');
                 }
                 exp = BigDecimal.parseExp(input, offset, len);
-                // Next test is required for backwards compatibility
-                if (exp > BigDecimal.MAX_INT_VALUE || exp < BigDecimal.MIN_INT_VALUE) // overflow
-                    throw new RangeError('Exponent overflow.');
                 break; // [saves a test]
             }
             // here when no characters left
@@ -1002,7 +1027,7 @@ export class BigDecimal {
                 if (rs === BigDecimal.INFLATED) {
                     let drop = prec - mcp;
                     while (drop > 0) {
-                        scl = BigDecimal.checkScaleNonZero(scl - drop);
+                        scl = scl - drop; // unchecked; see checkParsedScale
                         rb = BigDecimal.divideAndRoundByTenPow(rb, drop, mc.roundingMode);
                         rs = BigDecimal.compactValFor(rb);
                         if (rs !== BigDecimal.INFLATED) {
@@ -1016,7 +1041,7 @@ export class BigDecimal {
                 if (rs !== BigDecimal.INFLATED) {
                     let drop = prec - mcp;
                     while (drop > 0) {
-                        scl = BigDecimal.checkScaleNonZero(scl - drop);
+                        scl = scl - drop; // unchecked; see checkParsedScale
                         rs = BigDecimal.divideAndRound(rs, BigDecimal.TEN_POWERS_TABLE[drop]!, mc.roundingMode);
                         prec = BigDecimal.integerDigitLength(rs);
                         drop = prec - mcp;
@@ -1025,7 +1050,7 @@ export class BigDecimal {
                 }
             }
         }
-        return new BigDecimal(rb, rs, scl, prec);
+        return new BigDecimal(rb, rs, BigDecimal.checkParsedScale(scl), prec);
     }
 
     /** @internal */
@@ -2188,7 +2213,7 @@ export class BigDecimal {
      * ```
      */
     divide(divisor: BigDecimal | bigint | number | string, scale?: number, roundingMode?: RoundingMode): BigDecimal {
-        if (scale !== undefined) BigDecimal.requireInteger('Scale', scale);
+        if (scale !== undefined) BigDecimal.requireInt32('Scale', scale);
         if (roundingMode !== undefined) BigDecimal.requireRoundingMode(roundingMode);
         divisor = BigDecimal.convertToBigDecimal(divisor);
         /*
@@ -2211,6 +2236,14 @@ export class BigDecimal {
             }
             if (roundingMode < RoundingMode.UP || roundingMode > RoundingMode.UNNECESSARY)
                 throw new RangeError('Invalid rounding mode');
+            // A zero dividend is exactly zero at the requested scale, whatever the divisor and
+            // rounding mode. Java arrives at the same value through the general path, which
+            // materialises 10^scale to rescale a zero significand — about 1.2s at scale 1e7 on
+            // JDK 26. This returns the identical result (verified against the JDK across
+            // positive, negative and defaulted scales, and UNNECESSARY) without building it.
+            // It is a shortcut for a degenerate input, not a bound on the work a large scale
+            // can ask for: a nonzero dividend at the same scale genuinely has that many digits.
+            if (this.signum() === 0) return BigDecimal.zeroValueOf(scale);
             if (this.intCompact !== BigDecimal.INFLATED) {
                 if ((divisor.intCompact !== BigDecimal.INFLATED)) {
                     return BigDecimal.divide7(
@@ -3268,7 +3301,7 @@ export class BigDecimal {
      * @throws RangeError if the scale would be outside the range of a safe integer.
      */
     scaleByPowerOfTen(n: number): BigDecimal {
-        BigDecimal.requireInteger('n', n);
+        BigDecimal.requireInt32('n', n);
         return new BigDecimal(this.intVal, this.intCompact, this.checkScale(this._scale - n), this._precision);
     }
 
@@ -3644,7 +3677,7 @@ export class BigDecimal {
      */
     setScale(newScale: number, roundingMode: RoundingMode = RoundingMode.UNNECESSARY): BigDecimal {
         BigDecimal.requireRoundingMode(roundingMode);
-        BigDecimal.requireInteger('Scale', newScale);
+        BigDecimal.requireInt32('Scale', newScale);
 
         const oldScale = this._scale;
         if (newScale === oldScale) // easy case
@@ -4135,7 +4168,7 @@ export class BigDecimal {
      * @throws RangeError if scale overflows.
      */
     movePointLeft(n: number): BigDecimal {
-        BigDecimal.requireInteger('n', n);
+        BigDecimal.requireInt32('n', n);
         if (n === 0 && this._scale >= 0) return this;
 
         // Cannot use movePointRight(-n) in case of n==BigDecimal.MIN_INT_VALUE
@@ -4159,7 +4192,7 @@ export class BigDecimal {
      * @throws RangeError if scale overflows.
      */
     movePointRight(n: number): BigDecimal {
-        BigDecimal.requireInteger('n', n);
+        BigDecimal.requireInt32('n', n);
         if (n === 0 && this._scale >= 0) return this;
 
         // Cannot use movePointLeft(-n) in case of n==BigDecimal.MIN_INT_VALUE

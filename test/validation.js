@@ -84,12 +84,31 @@ describe('Argument validation', function () {
         (() => Big('2').pow(NaN)).should.throw(RangeError, 'Exponent must be an integer');
     });
 
-    // An out-of-range argument is NOT rejected here: those route through checkScale, which
-    // reproduces Java's resulting-scale behaviour. Guarded so a future integrality check does
-    // not tighten into a magnitude check and break it.
-    it('leaves out-of-range scale magnitudes to the checkScale overflow path', function () {
-        (() => Big('2').setScale(2200000000, RoundingMode.HALF_UP)).should.throw(RangeError, 'Scale too high');
-        Big('0').movePointLeft(2200000000).signum().should.equal(0);
+    // Java types every one of these parameters as `int`, so an out-of-range argument cannot
+    // arise there at all. Accepting one was a JS-only extension that let a caller build a
+    // value Java cannot represent: Big(0).setScale(2147483648).scale() returned 2147483648,
+    // because a zero significand takes any scale without reaching the overflow path.
+    it('rejects out-of-int-range arguments at the public Java-int boundaries', function () {
+        for (const bad of [2147483648, -2147483649, 2200000000, 1e30]) {
+            (() => Big('2').setScale(bad, RoundingMode.HALF_UP))
+                .should.throw(RangeError, 'out of the 32-bit integer range');
+            (() => Big('2').divide(3, bad, RoundingMode.HALF_UP))
+                .should.throw(RangeError, 'out of the 32-bit integer range');
+            (() => Big('2').scaleByPowerOfTen(bad)).should.throw(RangeError, 'out of the 32-bit integer range');
+            (() => Big('2').movePointLeft(bad)).should.throw(RangeError, 'out of the 32-bit integer range');
+            (() => Big('2').movePointRight(bad)).should.throw(RangeError, 'out of the 32-bit integer range');
+        }
+        // the int-range edges themselves remain valid arguments
+        Big('0').setScale(2147483647).scale().should.equal(2147483647);
+        Big('0').setScale(-2147483648).scale().should.equal(-2147483648);
+    });
+
+    // An in-range argument whose resulting scale overflows is a different contract, and still
+    // routes through checkScale so it reports Java's own overflow error.
+    it('leaves in-range arguments to the checkScale overflow path', function () {
+        (() => Big('0.1').movePointLeft(2147483647)).should.throw(RangeError, 'Scale too high');
+        (() => Big('1e2000000000').setScale(2000000000, RoundingMode.HALF_UP))
+            .should.throw(RangeError, 'Scale too high');
     });
 
     // RoundingMode[value] is an index lookup, so NaN, 4.5 and null missed every key and fell

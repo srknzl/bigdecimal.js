@@ -70,7 +70,13 @@ settle what past recipients actually hold.
 
 ## Open items
 
-These are recorded rather than resolved, and should be confirmed with counsel:
+These are recorded rather than resolved, and should be confirmed with counsel.
+
+> **Item 1 is a release gate for 1.7.1, not a follow-up.** The first GPLv2+CE release
+> should not ship before it is settled. If consent proves unavailable, the choice
+> between a contributor-independent replacement of the affected code and a
+> copyrightability/de-minimis analysis is one for counsel — the latter should not be
+> assumed informally, however small the contributions look.
 
 1. **Third-party contributions to `src/bigdecimal.ts`.** Two contributors other
    than the project owner have authored code in the ported file, while the project
@@ -117,6 +123,19 @@ These are recorded rather than resolved, and should be confirmed with counsel:
    withdrawn pending counsel: it conflates a grant this project can make over its
    own contributions with the validity of an Apache-2.0 label applied to
    OpenJDK-derived material.
+
+   The narrow statement that can be supported has three parts, and they should be
+   kept separate:
+
+   - Apache-2.0 grants remain effective for the material whose authors were in a
+     position to make them.
+   - The OpenJDK-derived material is available from its original licensors under
+     GPLv2+CE independently of anything this project did; [GPLv2 §6](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+     gives a recipient of a covered work an automatic licence from the original
+     licensor, so no recipient is left without terms for that portion.
+   - Whether the combined historical package was lawfully redistributable *as
+     labelled* is the part that remains unresolved, and it is not something this
+     file can settle.
 4. **Downstream impact.** Some automated license scanners flag anything matching
    `GPL-2.0` regardless of the Classpath Exception. Consumers whose policy blocks
    on that string may need the exception pointed out to them explicitly.

@@ -58,8 +58,37 @@ For releases before 1.6.0, see the
   with an explicit `&&` guard; the compiled output is now free of optional
   chaining.
 
+- **Exponents outside the `int` range are accepted when the resulting scale fits.**
+  The parser rejected the exponent before computing the scale it denotes, which broke
+  the guarantee that `Big(x.toString())` round-trips: `Big(1n, -2147483648)` prints
+  `'1E+2147483648'`, whose exponent exceeds `Integer.MAX_VALUE` even though the scale
+  (`-2147483648`) is perfectly representable — and parsing that back threw. The JDK
+  removed the same premature check in Java 19 ([JDK-8287376]) for exactly this reason.
+  The range check now runs once, on the final scale, *after* any `MathContext` rounding
+  — rounding can bring an out-of-range scale back into range, so
+  `Big('1.234E-2147483647', undefined, MC(1))` is valid, as it is in Java. Verified
+  case-by-case against JDK 26.0.1, including error messages.
+
+[JDK-8287376]: https://bugs.openjdk.org/browse/JDK-8287376
+
 ### Changed
 
+- **Scale, exponent and point-shift arguments must now be in the 32-bit integer range.**
+  `divide(d, scale, rm)`, `setScale`, `scaleByPowerOfTen`, `movePointLeft` and
+  `movePointRight` take `int` in Java, so an out-of-range value cannot be passed there
+  at all. Accepting one was a JavaScript-only extension that let a caller construct a
+  value Java cannot represent — `Big(0).setScale(2147483648).scale()` returned
+  `2147483648`, because a zero significand takes any scale without ever reaching the
+  overflow path. Such arguments now throw `out of the 32-bit integer range`. An
+  *in-range* argument whose resulting scale overflows is unaffected and still reports
+  Java's `Scale too high` / `Scale too less`.
+- A zero dividend in a scaled division now returns immediately instead of materialising
+  `10^scale` to rescale a zero significand. The result is identical (verified against
+  JDK 26.0.1 across positive, negative and defaulted scales, and `UNNECESSARY`);
+  `Big(0).divide(1, 10_000_000, RoundingMode.DOWN)` drops from ~330 ms to
+  effectively free. Note this is a shortcut for a degenerate input, not a bound on what
+  a large scale can cost: a nonzero dividend at that scale genuinely has that many
+  digits, and the JDK takes ~1.2 s for the same call.
 - `Big(aBigDecimal, undefined, mc)` now applies the `MathContext` (rounding the
   copy), consistent with construction from a string, number, or bigint; it was
   previously ignored silently. Passing a `scale` together with a `BigDecimal`
@@ -78,8 +107,22 @@ For releases before 1.6.0, see the
   `toPlainString()`/`toString()` when every digit matters.
 - `toJSON()` now documents that its plain notation expands large positive
   exponents dramatically — `Big('1E+100000')` serialises to 100,001 characters
-  where `toString()` emits nine. The behaviour is unchanged in this patch;
-  switching the JSON representation is a breaking change deferred to 2.0.
+  where `toString()` emits nine. The behaviour is unchanged in this patch.
+
+  **Announcement: `toJSON()` will switch to `toString()` in 2.0.** Flagged here so
+  the change does not arrive unannounced. The migration surface is narrower than
+  "breaking JSON change" suggests: the JSON type stays a string, ordinary values are
+  unaffected, and only values where `toString()` selects exponent notation change.
+  Consumers that reparse with `Big(value)` stay compatible — and more so after the
+  exponent-parsing fix in this release, which is what makes the exponent form
+  reliably round-trip. The exposed cases are stored snapshots, hashes and signatures
+  computed over the serialised form, string-typed database columns, direct display,
+  and schemas that forbid exponent notation. If you need today's behaviour, serialise
+  explicitly:
+
+  ```js
+  JSON.stringify({ amount: amount.toPlainString() });
+  ```
 - `test/jdk/NOTICE.md` now states the licensing of the OpenJDK-derived test
   material explicitly (GPLv2 with Classpath Exception) and clarifies that the
   upstream header's reference to an accompanying GPL `LICENSE` file points at the

@@ -28,7 +28,11 @@ conditions below will look familiar.
 
 - strings that are not valid decimal numbers: multiple decimal points or signs, no
   digits, a missing or malformed exponent after `e`/`E`
-- exponents outside the 32-bit integer range
+- an exponent whose **resulting scale** would fall outside the 32-bit integer range.
+  Note it is the scale that must fit, not the exponent: `Big('1E+2147483648')` is
+  accepted (its scale is `-2147483648`, which fits) while `Big('1E-2147483648')`
+  throws, because that scale would be `+2147483648`. This mirrors the JDK, which
+  changed in Java 19 so that `Big(x.toString())` always round-trips
 - a `number` outside `[-Number.MAX_VALUE, Number.MAX_VALUE]` (`NaN`, `Infinity`)
 - invalid argument combinations: passing both `scale` and a `MathContext`, or passing
   `scale` with a non-integer `number`
@@ -126,6 +130,13 @@ the way in:
   above the `int` range throw `out of the 32-bit integer range`.
 - `Big(value, scale)` requires `scale` to be an integer in the 32-bit range —
   `Big(1n, NaN)` and `Big(1n, 1.5)` throw `Scale must be an integer`.
+- The operations that take a scale, exponent or point shift — `divide(d, scale, rm)`,
+  `setScale`, `scaleByPowerOfTen`, `movePointLeft`, `movePointRight` — require the
+  same. These are `int` parameters in Java, so an out-of-range value cannot be passed
+  there at all; passing one here throws `out of the 32-bit integer range` rather than
+  producing a value Java could not represent. This is distinct from an *in-range*
+  argument whose resulting scale overflows, which still reports `Scale too high` /
+  `Scale too less` (see below).
 
 These are rejected at construction rather than at use because a fractional
 precision would otherwise reach the digit-stepping reduction loops in `round()`
