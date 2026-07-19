@@ -1360,7 +1360,12 @@ export class BigDecimal {
                 return BigDecimal.fromDouble(value, mc);
             }
             if (!(value > Number.MIN_SAFE_INTEGER && value <= Number.MAX_SAFE_INTEGER)) {
-                // Unsafe range, build from string
+                // Past the safe-integer range the double no longer carries every digit it
+                // prints, so route through the string form rather than BigInt(value): the
+                // string is the shortest decimal that reproduces the double, whereas BigInt
+                // would materialise the exact binary value and hand back digits the caller
+                // never wrote. This mirrors Java's BigDecimal.valueOf(double) over
+                // new BigDecimal(double).
                 value = String(value);
                 return BigDecimal.fromString(value, 0, value.length, scale, mc);
             }
@@ -3362,99 +3367,90 @@ export class BigDecimal {
         }
     }
 
+    // Readable predicates over compareTo. Every one of these is scale-INSENSITIVE, because
+    // compareTo is: `2.0` and `2.00` compare equal. That is the difference from {@link equals},
+    // which follows Java and treats them as distinct. When in doubt, these are the ones you
+    // want — `equals` surprises people.
+    //
+    // Each calls compareTo directly rather than delegating to its long-form spelling, so the
+    // short and long names cost the same.
+
     /**
-    * Alias for `compareTo(val) === 0`.
-    * Consider using {@link equals} in case the scale needs to be considered.
-    * @returns true if the value is the same as `val`
-    * @see {@link equals}
-    * @see {@link compareTo}
-    */
+     * Value-equality: true when this and `val` denote the same number, regardless of scale.
+     *
+     * `Big('2.0').sameValue('2.00')` is `true`, where {@link equals} is `false`.
+     *
+     * @param val value to compare against. Anything the {@link Big | constructor} accepts;
+     * it is converted first.
+     * @see {@link equals} for Java's scale-sensitive equality
+     * @see {@link compareTo}
+     */
     sameValue(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) === 0;
     }
 
     /**
-     * Alias for `compareTo(val) > 0`.
+     * True when this value is strictly greater than `val`, ignoring scale.
      *
-     * @param val value to which this `BigDecimal` is to be compared.
-     * This value will be converted to a `BigDecimal` before the operation.
-     * See the {@link Big | constructor} to learn more about the conversion.
-     * @returns true if the value is greater than `val`
-     * @see     {@link compareTo}
-     * @see     {@link gt}
+     * @param val value to compare against. Anything the {@link Big | constructor} accepts;
+     * it is converted first.
+     * @see {@link gt} — the same method under a shorter name
      */
     greaterThan(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) > 0;
     }
 
-    /**
-     * Alias for {@link greaterThan}.
-     */
+    /** Short name for {@link greaterThan}. */
     gt(val: BigDecimal | bigint | number | string): boolean {
-        return this.greaterThan(val);
+        return this.compareTo(val) > 0;
     }
 
     /**
-     * Alias for `compareTo(val) >= 0`.
+     * True when this value is greater than or equal to `val`, ignoring scale.
      *
-     * @param val value to which this `BigDecimal` is to be compared.
-     * This value will be converted to a `BigDecimal` before the operation.
-     * See the {@link Big | constructor} to learn more about the conversion.
-     * @returns true if the value is greater than or equals to `val`
-     * @see     {@link compareTo}
-     * @see     {@link gte}
+     * @param val value to compare against. Anything the {@link Big | constructor} accepts;
+     * it is converted first.
+     * @see {@link gte} — the same method under a shorter name
      */
     greaterThanOrEquals(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) >= 0;
     }
 
-    /**
-     * Alias for {@link greaterThanOrEquals}.
-     */
+    /** Short name for {@link greaterThanOrEquals}. */
     gte(val: BigDecimal | bigint | number | string): boolean {
-        return this.greaterThanOrEquals(val);
+        return this.compareTo(val) >= 0;
     }
 
     /**
-     * Alias for `compareTo(val) < 0`.
+     * True when this value is strictly less than `val`, ignoring scale.
      *
-     * @param val value to which this `BigDecimal` is to be compared.
-     * This value will be converted to a `BigDecimal` before the operation.
-     * See the {@link Big | constructor} to learn more about the conversion.
-     * @returns true if the value is lower than `val`
-     * @see     {@link compareTo}
-     * @see     {@link lt}
+     * @param val value to compare against. Anything the {@link Big | constructor} accepts;
+     * it is converted first.
+     * @see {@link lt} — the same method under a shorter name
      */
     lowerThan(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) < 0;
     }
 
-    /**
-     * Alias for {@link lowerThan}.
-     */
+    /** Short name for {@link lowerThan}. */
     lt(val: BigDecimal | bigint | number | string): boolean {
-        return this.lowerThan(val);
+        return this.compareTo(val) < 0;
     }
 
     /**
-     * Alias for `compareTo(val) <= 0`.
+     * True when this value is less than or equal to `val`, ignoring scale.
      *
-     * @param val value to which this `BigDecimal` is to be compared.
-     * This value will be converted to a `BigDecimal` before the operation.
-     * See the {@link Big | constructor} to learn more about the conversion.
-     * @returns true if the value is lower than or equals to `val`
-     * @see     {@link compareTo}
-     * @see     {@link lte}
+     * @param val value to compare against. Anything the {@link Big | constructor} accepts;
+     * it is converted first.
+     * @see {@link lte} — the same method under a shorter name
      */
     lowerThanOrEquals(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) <= 0;
     }
 
-    /**
-     * Alias for {@link lowerThanOrEquals}.
-     */
+    /** Short name for {@link lowerThanOrEquals}. */
     lte(val: BigDecimal | bigint | number | string): boolean {
-        return this.lowerThanOrEquals(val);
+        return this.compareTo(val) <= 0;
     }
 
     // #endregion
@@ -4840,39 +4836,33 @@ export class BigDecimal {
     }
 
     /**
-     * Returns a string representation of this `BigDecimal`
-     * without an exponent field.  For values with a positive scale,
-     * the number of digits to the right of the decimal point is used
-     * to indicate scale.  For values with a zero or negative scale,
-     * the resulting string is generated as if the value were
-     * converted to a numerically equal value with zero scale and as
-     * if all the trailing zeros of the zero scale value were present
-     * in the result.
+     * Called automatically by `JSON.stringify`, so a `BigDecimal` serialises to a decimal
+     * string rather than to `{}`. Currently delegates to {@link toPlainString}.
      *
-     * The entire string is prefixed by a minus sign character '-'
-     * (<code>'&#92;u002D'</code>) if the unscaled value is less than
-     * zero. No sign character is prefixed if the unscaled value is
-     * zero or positive.
+     * ```js
+     * JSON.stringify({ price: Big('19.99') }); // '{"price":"19.99"}'
+     * ```
      *
-     * Note that if the result of this method is passed to the
-     * string constructor, only the
-     * numerical value of this `BigDecimal` will necessarily be
-     * recovered; the representation of the new `BigDecimal`
-     * may have a different scale.  In particular, if this
-     * `BigDecimal` has a negative scale, the string resulting
-     * from this method will have a scale of zero when processed by
-     * the string constructor.
+     * It serialises as a JSON **string**, not a JSON number: routing through a `number`
+     * would reintroduce the binary floating-point error this library exists to avoid. Read
+     * it back with `Big(value)`.
      *
-     * Note: because this uses plain (exponent-free) notation, values with a large
-     * positive exponent expand dramatically during `JSON.stringify` — `Big('1E+100000')`
-     * serialises to a 100,001-character string where {@link toString} would emit nine.
-     * Call `toString()` explicitly if compact serialisation matters for such values.
+     * Two caveats, both consequences of the plain (exponent-free) notation:
      *
-     * @return a string representation of this `BigDecimal`
-     * without an exponent field.
+     * - A large positive exponent expands enormously. `Big('1E+100000')` serialises to
+     *   100,001 characters where {@link toString} emits nine.
+     * - Scale is not preserved through a round-trip in every case. A negative-scale value
+     *   reparses with scale zero, so `Big(JSON.parse(...))` may not {@link equals} the
+     *   original even though it {@link sameValue | compares equal}.
+     *
+     * **This will change in 2.0** to delegate to {@link toString}, which avoids the
+     * expansion above and round-trips reliably. Only values whose `toString` selects
+     * exponent notation are affected. If you need today's output regardless of version,
+     * serialise explicitly with `toPlainString()` rather than relying on this method.
+     *
+     * @returns this value in plain notation, never exponent notation.
      * @see {@link toPlainString}
      * @see {@link toString}
-     * @see {@link toEngineeringString}
      */
     toJSON(): string {
         return this.toPlainString();

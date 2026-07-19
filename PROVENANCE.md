@@ -72,11 +72,8 @@ settle what past recipients actually hold.
 
 These are recorded rather than resolved, and should be confirmed with counsel.
 
-> **Item 1 is a release gate for 1.7.1, not a follow-up.** The first GPLv2+CE release
-> should not ship before it is settled. If consent proves unavailable, the choice
-> between a contributor-independent replacement of the affected code and a
-> copyrightability/de-minimis analysis is one for counsel — the latter should not be
-> assumed informally, however small the contributions look.
+> **Item 1 was a release gate for 1.7.1. It has been addressed by replacing the code
+> rather than by obtaining consent** — see the resolution recorded under that item.
 
 1. **Third-party contributions to `src/bigdecimal.ts`.** Two contributors other
    than the project owner have authored code in the ported file, while the project
@@ -89,7 +86,7 @@ These are recorded rather than resolved, and should be confirmed with counsel.
    | `zdu-strong` | [#163](https://github.com/srknzl/bigdecimal.js/pull/163) | +34 lines — `toJSON` |
 
    These are original, public-API contributions rather than de minimis edits, so
-   they are not simply disregardable.
+   they were not simply disregardable. See the resolution at the end of this item.
 
    **Correction.** An earlier revision of this file stated that `CONTRIBUTING.md`
    supplied these contributors' Apache-2.0 grant. That is wrong and the reasoning
@@ -107,10 +104,33 @@ These are recorded rather than resolved, and should be confirmed with counsel.
    treat that situation cautiously. The Classpath Exception addresses linking; it
    does not automatically cure commingled incompatible source.
 
-   The safe resolution, and the one that should happen before the first GPLv2+CE
-   release, is written consent from both contributors covering the identified
-   commits — confirmed by counsel as covering copyright, relevant patent rights,
-   and the authority to grant them.
+   The safe resolution would be written consent from both contributors covering the
+   identified commits, confirmed by counsel as covering copyright, relevant patent
+   rights, and the authority to grant them.
+
+   **Resolution taken: replacement, not consent.** The project owner has no contact
+   details for either contributor, so consent could not be treated as obtainable on any
+   predictable timescale, and a release gate that can never be cleared is not a control.
+   The affected code has therefore been rewritten instead. Requests have also been
+   posted on the original pull requests — a public, timestamped channel that needs no
+   email address — but nothing now depends on an answer.
+
+   What was replaced, as of 1.7.1:
+
+   | PR | Original | Now |
+   | --- | --- | --- |
+   | [#99](https://github.com/srknzl/bigdecimal.js/pull/99) | ~24 lines of one-line `compareTo` wrappers + ~82 lines of JSDoc | reimplemented; each short alias calls `compareTo` directly instead of delegating to its long-form spelling, and all prose rewritten |
+   | [#163](https://github.com/srknzl/bigdecimal.js/pull/163) | 1 line of code (`return this.toPlainString()`) + 33 lines of JSDoc | prose rewritten from scratch. The original JSDoc was adapted from OpenJDK's `toPlainString` javadoc — upstream GPLv2+CE material rather than the contributor's expression, and describing the wrong method |
+   | [#72](https://github.com/srknzl/bigdecimal.js/pull/72) | +11 / −9, threading a `scale` parameter through `fromString` and converting unsafe numbers via `String` rather than `BigInt` | **not replaceable in any meaningful sense.** Passing a parameter through a signature and calling `String(value)` admit no alternative expression; only the explanatory comment carried authorial choice, and it has been rewritten |
+
+   Two honest limits on this. It is not a clean-room reimplementation — the same person
+   who read the original wrote the replacement, and for method *names* that is
+   unavoidable anyway, since the public API is the compatibility contract and cannot
+   change. And #72 remains as described above. What replacement does achieve is to
+   remove the contributors' expression from the file, leaving only elements that are
+   either functional, dictated by the API, or independently written. Whether that is
+   sufficient is still a question for counsel; it is a materially smaller one than
+   before.
 2. **Exception wording — resolved.** [`LICENSE`](LICENSE) is now a verbatim copy
    of [OpenJDK's own `LICENSE`](https://github.com/openjdk/jdk/blob/master/LICENSE)
    (19,274 bytes). Its "CLASSPATH" EXCEPTION block is 1,405 bytes with SHA-256
