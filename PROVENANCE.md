@@ -44,13 +44,29 @@ to independent modules that merely link against it.
 If you modify `bigdecimal.js` itself and distribute the result, those
 modifications are covered by the GPL.
 
+### Source header
+
+`src/bigdecimal.ts` preserves the upstream OpenJDK header verbatim — Oracle's
+1996–2026 copyright, the instruction not to remove the header, Oracle's express
+"Classpath" designation for that file, and IBM's 2001 portions copyright — followed
+by this project's own dated translation and modification notice. Only the comment
+delimiters carry esbuild's legal-comment marker, so that the notices survive
+minification into the UMD bundle; the notice text itself is unmodified.
+
 ### Licensing history
 
-Releases up to and including **1.7.0** were published under Apache-2.0. That grant
-cannot be and is not being retracted: anyone who received those versions under
-Apache-2.0 retains that license for those versions. The change to GPLv2+CE applies
-to **1.7.1 and later**, correcting the licensing to match the upstream work this
-software is derived from.
+Releases up to and including **1.7.0** were published under Apache-2.0. The change
+to GPLv2+CE applies to **1.7.1 and later**, correcting the licensing to match the
+upstream work this software is derived from.
+
+An earlier revision of this file stated flatly that recipients of those versions
+"retain Apache-2.0" for them. That is too strong to assert here, and is listed as
+an open item below. The project's own copyright holders cannot retract a grant they
+made over what they own, but that is a narrower statement than the whole derivative
+being validly Apache-2.0 in the first place — if the Apache-2.0 label was not a
+grant this project was in a position to make over OpenJDK-derived material, then
+upstream GPL rights in that material are not neutralised by it. Only counsel can
+settle what past recipients actually hold.
 
 ## Open items
 
@@ -67,21 +83,40 @@ These are recorded rather than resolved, and should be confirmed with counsel:
    | `zdu-strong` | [#163](https://github.com/srknzl/bigdecimal.js/pull/163) | +34 lines — `toJSON` |
 
    These are original, public-API contributions rather than de minimis edits, so
-   they are not simply disregardable. However, `CONTRIBUTING.md` had contributors
-   grant their work under Apache-2.0, and Apache-2.0 §2 expressly grants the right
-   to **sublicense**. That likely permits redistributing those portions under
-   GPLv2+CE without individual sign-off — the usual Apache-2.0/GPLv2
-   incompatibility concern applies to *combining* separately licensed works, which
-   is not quite this case.
+   they are not simply disregardable.
 
-   The remaining task is therefore to confirm that sublicense analysis with
-   counsel, not necessarily to collect signatures. Obtaining explicit agreement
-   from the two contributors would nonetheless remove the question entirely and is
-   cheap insurance.
-2. **Exception wording.** The GPLv2 text in [`LICENSE`](LICENSE) is a verbatim
-   copy of the Free Software Foundation's canonical text. The Classpath Exception
-   paragraph appended to it should be verified byte-for-byte against
-   <https://openjdk.org/legal/gplv2+ce.html>.
-3. **Downstream impact.** Some automated license scanners flag anything matching
+   **Correction.** An earlier revision of this file stated that `CONTRIBUTING.md`
+   supplied these contributors' Apache-2.0 grant. That is wrong and the reasoning
+   built on it does not hold: `CONTRIBUTING.md` was added on **2026-07-13**, after
+   all three pull requests (2022-05-30, 2022-10-05 and 2026-07-07). The actual
+   inbound basis is Apache-2.0 §5 together with the Apache project and license
+   headers present in the repository when the contributions were submitted.
+
+   Apache-2.0 §2's sublicensing grant is helpful but does not cleanly resolve the
+   question on its own. It does not dispose of §3's patent conditions, §4's
+   redistribution obligations, the recognised Apache-2.0/GPLv2 incompatibility, or
+   the fact that this is same-file incorporation rather than independent-module
+   linking. Both the [Apache Foundation](https://www.apache.org/licenses/GPL-compatibility)
+   and OpenJDK's [additional licensing guidance](https://github.com/openjdk/jdk/blob/master/ADDITIONAL_LICENSE_INFO)
+   treat that situation cautiously. The Classpath Exception addresses linking; it
+   does not automatically cure commingled incompatible source.
+
+   The safe resolution, and the one that should happen before the first GPLv2+CE
+   release, is written consent from both contributors covering the identified
+   commits — confirmed by counsel as covering copyright, relevant patent rights,
+   and the authority to grant them.
+2. **Exception wording — resolved.** [`LICENSE`](LICENSE) is now a verbatim copy
+   of [OpenJDK's own `LICENSE`](https://github.com/openjdk/jdk/blob/master/LICENSE)
+   (19,274 bytes). Its "CLASSPATH" EXCEPTION block is 1,405 bytes with SHA-256
+   `a918482fadb14b911ad1afeff48849d317c260dc0d6f04bc2c76ac360615ae22`, matching the
+   canonical block exactly. An earlier revision assembled the FSF's GPLv2 text plus
+   a hand-reproduced exception paragraph; that version was word-correct in its
+   operative language but not byte-for-byte canonical, and has been replaced.
+3. **What pre-1.7.1 recipients hold.** See the licensing history above. The
+   assertion that they simply "retain Apache-2.0" for those versions has been
+   withdrawn pending counsel: it conflates a grant this project can make over its
+   own contributions with the validity of an Apache-2.0 label applied to
+   OpenJDK-derived material.
+4. **Downstream impact.** Some automated license scanners flag anything matching
    `GPL-2.0` regardless of the Classpath Exception. Consumers whose policy blocks
    on that string may need the exception pointed out to them explicitly.

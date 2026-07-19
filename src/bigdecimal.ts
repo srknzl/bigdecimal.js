@@ -1,35 +1,58 @@
 /* !
-  @license
-  Copyright (c) 2021 Serkan Özel. All Rights Reserved.
+ * Copyright (c) 1996, 2026, Oracle and/or its affiliates. All rights reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the LICENSE file that accompanied this code.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+ * or visit www.oracle.com if you need additional information or have any
+ * questions.
+ */
 
-  This file is a port of java.math.BigDecimal from OpenJDK, which is
-  copyright (c) Oracle and/or its affiliates and distributed under the GNU
-  General Public License version 2 with the Classpath Exception. As a
-  derivative work it carries the same terms.
+/* !
+ * Portions Copyright IBM Corporation, 2001. All Rights Reserved.
+ */
 
-  SPDX-License-Identifier: GPL-2.0-only WITH Classpath-exception-2.0
-
-  This program is free software; you can redistribute it and/or modify it
-  under the terms of the GNU General Public License version 2 only, as
-  published by the Free Software Foundation.
-
-  This program is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
-  Public License version 2 for more details (a copy is included in the
-  LICENSE file that accompanied this code).
-
-  Linking this library statically or dynamically with other modules is
-  making a combined work based on this library. Thus, the terms and
-  conditions of the GNU General Public License cover the whole combination.
-  As a special exception, the copyright holders of this library give you
-  permission to link this library with independent modules to produce an
-  executable, regardless of the license terms of these independent modules,
-  and to copy and distribute the resulting executable under terms of your
-  choice, provided that you also meet, for each linked independent module,
-  the terms and conditions of the license of that module. See the LICENSE
-  file for the full exception text.
-*/
+/* !
+ * @license
+ * MODIFICATION NOTICE
+ *
+ * This file is not the original OpenJDK source. It is a translation of
+ * java.math.BigDecimal from OpenJDK into TypeScript, first published in 2021
+ * and modified continuously since.
+ *
+ * Translation and modifications:
+ *   Copyright (c) 2021-2026 Serkan Ozel and bigdecimal.js contributors.
+ *
+ * As a derivative work of the OpenJDK source whose notices appear above, this
+ * file is distributed under the same terms. The copyright holders of this
+ * library extend the "Classpath" exception designated by Oracle to this
+ * version: you may link this library with independent modules and distribute
+ * the result under terms of your choice, without those modules becoming
+ * subject to the GPL. The full exception text is in the LICENSE file.
+ *
+ * SPDX-License-Identifier: GPL-2.0-only WITH Classpath-exception-2.0
+ *
+ * See PROVENANCE.md for the derivation and licensing history.
+ *
+ * Note on the comment delimiters: each block above opens with the esbuild
+ * "legal comment" marker so that the notices survive minification into the UMD
+ * bundle. Only the delimiter differs from upstream; the notice text is verbatim.
+ */
 
 /**
  * Specifies a `rounding policy` for numerical operations capable
