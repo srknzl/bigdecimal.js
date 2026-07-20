@@ -5,8 +5,8 @@
 [![codecov](https://codecov.io/gh/srknzl/bigdecimal.js/branch/main/graph/badge.svg?token=Y9PL8TFV2L)](https://codecov.io/gh/srknzl/bigdecimal.js)
 
 [BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt) based BigDecimal implementation for Node.js 18 and above, and for browsers that support native `BigInt` (Chrome 67+, Firefox 68+, Safari 14+).
-This implementation is inspired from java BigDecimal class. This implementation is faster than popular big decimal libraries for most operations.
-See [benchmarks results part below](https://github.com/srknzl/bigdecimal.js#benchmark-results) for comparison of each operation.
+This implementation is inspired from java BigDecimal class. It's fastest on 35 of the 38 comparable operations
+against popular BigDecimal libraries — see [benchmark results below](https://github.com/srknzl/bigdecimal.js#benchmark-results) for the full breakdown.
 
 ## 📖 Documentation & Playground
 
@@ -227,7 +227,12 @@ To run the benchmark run `npm install` and then `npm run benchmark`.
 
 ## Benchmark Results
 
-Benchmarked against [big.js](https://www.npmjs.com/package/big.js), [bigdecimal](https://www.npmjs.com/package/bigdecimal) (GWT-based), [bignumber.js](https://www.npmjs.com/package/bignumber.js) and [decimal.js](https://www.npmjs.com/package/decimal.js).
+Benchmarked against [big.js](https://www.npmjs.com/package/big.js), [bigdecimal](https://www.npmjs.com/package/bigdecimal) (GWT-based), [bignumber.js](https://www.npmjs.com/package/bignumber.js) and [decimal.js](https://www.npmjs.com/package/decimal.js), across 42 operations.
+
+**bigdecimal.js is fastest on 35 of the 38 rows where a winner can be fairly declared** (4 rows compare libraries doing different work — no winner, see footnotes) — often by a wide margin: 9.3× on `multiply`, 100×+ on `pow`/`ulp`/`movePointLeft`/`movePointRight`. The only rows it loses are `round` and `setScale`, where big.js's digit-array representation makes truncation nearly free — a representational gap, not a missed optimization (see [Performance notes](https://srknzl.github.io/bigdecimal.js/guide/performance)). It performs best in absolute terms on the **money** cohort below — plain two-decimal-place currency arithmetic, the most realistic workload.
+
+<details>
+<summary>Methodology, test machine, and library versions</summary>
 
 * Test Machine:
   * Apple M1
@@ -247,6 +252,8 @@ Benchmarked against [big.js](https://www.npmjs.com/package/big.js), [bigdecimal]
 * **A winner is only declared for rows that are actually a like-for-like race.** If the libraries disagree on the result, work to different precision bases, implement different semantics, or only one of them implements the operation at all, the row reports its rates with no trophy. Margins are claimed only when the winner's measured error interval clears the runner-up's; otherwise the row reads *within noise*. Raw machine-readable results are written to `benchmarks/results.json`.
 * Micro benchmark framework used is [benchmark](https://www.npmjs.com/package/benchmark). Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
 * Numbers are operations per second (higher is better). In each row the **fastest library is bold**, and the **Fastest** column names the winner with how many times faster it is than the runner-up. A `-` means the library has no equivalent operation.
+
+</details>
 
 | Operation | Bigdecimal.js | Big.js | BigNumber.js | decimal.js | GWTBased | Fastest |
 | --- | --- | --- | --- | --- | --- | --- |
