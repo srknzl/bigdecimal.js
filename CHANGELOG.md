@@ -9,13 +9,159 @@ For releases before 1.6.0, see the
 
 ## [Unreleased]
 
+## [1.7.1]
+
+### Licensing
+
+- **Relicensed from Apache-2.0 to `GPL-2.0-only WITH Classpath-exception-2.0`,
+  effective this release.** This library is a port of `java.math.BigDecimal` from
+  OpenJDK, which is distributed under GPLv2 with the Classpath Exception. A
+  translation of that source is a derivative work of it, and the Classpath
+  Exception permits linking without GPL propagation but does not grant permission
+  to relicense the OpenJDK source under different terms. The project now carries
+  its upstream terms. See [`PROVENANCE.md`](PROVENANCE.md).
+- **Versions up to and including 1.7.0 were published under Apache-2.0.** What
+  recipients of those versions hold is deliberately not asserted here. This project's
+  own copyright holders cannot retract a grant they made over what they own, but that
+  is narrower than the whole derivative having been validly Apache-2.0 to begin with:
+  if that label was not a grant this project was in a position to make over
+  OpenJDK-derived material, upstream GPL rights in that material are not neutralised
+  by it. Recorded as an open item in [`PROVENANCE.md`](PROVENANCE.md) pending counsel.
+- **The Classpath Exception is what keeps this usable.** You may depend on
+  `bigdecimal.js` from a program under any license, including a proprietary one,
+  without that program becoming subject to the GPL. GPL obligations attach to this
+  library's own source and to modifications of it, not to independent modules that
+  link against it.
+
+### Fixed
+
+- **Malformed `precision` or `scale` could hang or corrupt a value.** Java types
+  both as `int`; JavaScript has only `number`, and neither was validated. A
+  fractional precision reached the digit-stepping precision-reduction loops in
+  `round()` and `sqrt()`, which can never converge on a non-integer target —
+  `Big('1.2345').round(MC(1.5))` and `Big(2).sqrt(MC(1.5))` looped forever. A
+  non-finite scale reached the string layout, so `Big(1n, NaN)` produced `'1ENaN'`
+  and `Big(123n, 2.9)` produced `'.12'` with a non-integer `scale()`. Both are now
+  validated at construction: `MathContext` requires an integer precision in
+  `[0, 2147483647]`, and `Big(value, scale)` requires an integer scale in the
+  32-bit range. Rejected inputs throw `RangeError`.
+- **`equals()` returned `false` across the CJS and ESM builds.** The two bundles
+  are compiled separately and so have distinct class identities, making the
+  `instanceof` guard fail for values that are genuinely equal. A foreign
+  `BigDecimal` is now recognised through a global-registry brand and compared by
+  canonical string form — deliberately not by internal fields, since a foreign
+  instance may originate from a different version.
+- **The advertised browser floor was not actually met.** The sole use of optional
+  chaining (`options?.style` in `toFormat`) is ES2020 syntax that the `es2020`
+  target emits verbatim, so every bundle failed to parse on Chrome 67–79 and
+  Firefox 68–73 despite the documented Chrome 67+ / Firefox 68+ support. Replaced
+  with an explicit `&&` guard; the compiled output is now free of optional
+  chaining.
+
+- **Exponents outside the `int` range are accepted when the resulting scale fits.**
+  The parser rejected the exponent before computing the scale it denotes, which broke
+  the guarantee that `Big(x.toString())` round-trips: `Big(1n, -2147483648)` prints
+  `'1E+2147483648'`, whose exponent exceeds `Integer.MAX_VALUE` even though the scale
+  (`-2147483648`) is perfectly representable — and parsing that back threw. The JDK
+  removed the same premature check in Java 19 ([JDK-8287376]) for exactly this reason.
+  The range check now runs once, on the final scale, *after* any `MathContext` rounding
+  — rounding can bring an out-of-range scale back into range, so
+  `Big('1.234E-2147483647', undefined, MC(1))` is valid, as it is in Java. Verified
+  case-by-case against JDK 26.0.1, including error messages.
+
+[JDK-8287376]: https://bugs.openjdk.org/browse/JDK-8287376
+
 ### Changed
 
+- **Scale, exponent and point-shift arguments must now be in the 32-bit integer range.**
+  `divide(d, scale, rm)`, `setScale`, `scaleByPowerOfTen`, `movePointLeft` and
+  `movePointRight` take `int` in Java, so an out-of-range value cannot be passed there
+  at all. Accepting one was a JavaScript-only extension that let a caller construct a
+  value Java cannot represent — `Big(0).setScale(2147483648).scale()` returned
+  `2147483648`, because a zero significand takes any scale without ever reaching the
+  overflow path. Such arguments now throw `out of the 32-bit integer range`. An
+  *in-range* argument whose resulting scale overflows is unaffected and still reports
+  Java's `Scale too high` / `Scale too less`.
+- A zero dividend in a scaled division now returns immediately instead of materialising
+  `10^scale` to rescale a zero significand. The result is identical (verified against
+  JDK 26.0.1 across positive, negative and defaulted scales, and `UNNECESSARY`);
+  `Big(0).divide(1, 10_000_000, RoundingMode.DOWN)` drops from ~330 ms to
+  effectively free. Note this is a shortcut for a degenerate input, not a bound on what
+  a large scale can cost: a nonzero dividend at that scale genuinely has that many
+  digits, and the JDK takes ~1.2 s for the same call.
 - `Big(aBigDecimal, undefined, mc)` now applies the `MathContext` (rounding the
   copy), consistent with construction from a string, number, or bigint; it was
   previously ignored silently. Passing a `scale` together with a `BigDecimal`
   now throws `RangeError` (as it already did for strings) instead of being
   ignored.
+- The shared `MathContext` constants (`UNLIMITED`, `DECIMAL32`, `DECIMAL64`,
+  `DECIMAL128`) are now `Object.freeze`d, so a caller can no longer mutate global
+  state through them. `BigDecimal` instances are deliberately not frozen — the
+  lazy `precision`/`toString` caches need to remain writable.
+
+### Documentation
+
+- `toFormat()` now documents that it is display-oriented and lossy beyond 100
+  decimal places: ECMA-402 caps `maximumFractionDigits` at 100, so a value whose
+  significant digits fall past the 100th decimal place formats as `'0'`. Use
+  `toPlainString()`/`toString()` when every digit matters.
+- `toJSON()` now documents that its plain notation expands large positive
+  exponents dramatically — `Big('1E+100000')` serialises to 100,001 characters
+  where `toString()` emits nine. The behaviour is unchanged in this patch.
+
+  **Announcement: `toJSON()` will switch to `toString()` in 2.0.** Flagged here so
+  the change does not arrive unannounced. The migration surface is narrower than
+  "breaking JSON change" suggests: the JSON type stays a string, ordinary values are
+  unaffected, and only values where `toString()` selects exponent notation change.
+  Consumers that reparse with `Big(value)` stay compatible — and more so after the
+  exponent-parsing fix in this release, which is what makes the exponent form
+  reliably round-trip. The exposed cases are stored snapshots, hashes and signatures
+  computed over the serialised form, string-typed database columns, direct display,
+  and schemas that forbid exponent notation. If you need today's behaviour, serialise
+  explicitly:
+
+  ```js
+  JSON.stringify({ amount: amount.toPlainString() });
+  ```
+- `test/jdk/NOTICE.md` now states the licensing of the OpenJDK-derived test
+  material explicitly (GPLv2 with Classpath Exception) and clarifies that the
+  upstream header's reference to an accompanying GPL `LICENSE` file points at the
+  OpenJDK distribution, and now also to this repository's own root `LICENSE`.
+
+### Internal
+
+- **Benchmark harness reworked so it stops overstating our own results.** The
+  published table was not a like-for-like comparison in several rows, and the errors
+  ran in our favour:
+  - A winner is now declared **only** for rows that are genuinely comparable.
+    Previously a row could disagree on its results, or compare different precision
+    bases, and still be awarded a trophy with a footnote underneath. `Equals` was the
+    worst case — bigdecimal.js implements Java's scale-sensitive `equals` while every
+    other library does numeric equality, so the two are not the same operation — and
+    it is now reported without a winner, as are `Sqrt`, `Negative pow` and the new
+    `Constructor (from number)` row.
+  - `MathContext` objects are hoisted out of the timed callbacks. Building one inside
+    the loop taxed only the libraries whose API takes a context per call (ours and the
+    GWT port) while big.js and BigNumber.js read a global configured once — a harness
+    artefact that was penalising bigdecimal.js on `Divide`, `Round`, `Sqrt` and
+    `Negative pow`.
+  - Output equivalence is verified over **every** result in the batch rather than the
+    last one, and in a **child process**, so stringifying results to compare them
+    cannot warm the lazy `toString`/`precision` caches the suite is about to measure.
+    The full-stream check immediately caught two real divergences that the
+    single-sample check had passed.
+  - `Positive pow`/`Negative pow` are unary but walked operands pairwise, silently
+    skipping the last value; `Constructor` mixed string and number inputs, where only
+    the string half is a fair race (the GWT port reads the exact binary double, the
+    others the shortest repr). Margins now come from the measured error of both rates
+    instead of a hard-coded 5% allowance, and read *within noise* when they overlap.
+- The publish workflow now verifies that the release tag matches `package.json`'s
+  version, and packs the tarball and smoke-tests it as an installed dependency
+  (CJS require, ESM import, and `.d.ts` resolution under `nodenext`) before
+  publishing.
+- The Java-differential generator's random target scale is now symmetric about
+  zero; the fallback previously drew from `[-1000, 0)`, so positive target scales
+  were only ever reached through the edge-case list.
 
 ## [1.7.0]
 
@@ -156,6 +302,7 @@ This is a correction release to clarify minimum supported Node version is 18.
 See [GitHub Releases](https://github.com/srknzl/bigdecimal.js/releases) and the
 [tag history](https://github.com/srknzl/bigdecimal.js/tags) for 1.5.2 and earlier.
 
+[1.7.1]: https://github.com/srknzl/bigdecimal.js/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/srknzl/bigdecimal.js/compare/v1.6.1...v1.7.0
 [1.6.1]: https://github.com/srknzl/bigdecimal.js/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/srknzl/bigdecimal.js/compare/v1.5.2...v1.6.0

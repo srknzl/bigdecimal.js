@@ -1,18 +1,58 @@
-/*
-  Copyright (c) 2021 Serkan Özel. All Rights Reserved.
+/* !
+ * Copyright (c) 1996, 2026, Oracle and/or its affiliates. All rights reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the LICENSE file that accompanied this code.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+ * or visit www.oracle.com if you need additional information or have any
+ * questions.
+ */
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+/* !
+ * Portions Copyright IBM Corporation, 2001. All Rights Reserved.
+ */
 
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions andg
-  limitations under the License.
-*/
+/* !
+ * @license
+ * MODIFICATION NOTICE
+ *
+ * This file is not the original OpenJDK source. It is a translation of
+ * java.math.BigDecimal from OpenJDK into TypeScript, first published in 2021
+ * and modified continuously since.
+ *
+ * Translation and modifications:
+ *   Copyright (c) 2021-2026 Serkan Ozel and bigdecimal.js contributors.
+ *
+ * As a derivative work of the OpenJDK source whose notices appear above, this
+ * file is distributed under the same terms. The copyright holders of this
+ * library extend the "Classpath" exception designated by Oracle to this
+ * version: you may link this library with independent modules and distribute
+ * the result under terms of your choice, without those modules becoming
+ * subject to the GPL. The full exception text is in the LICENSE file.
+ *
+ * SPDX-License-Identifier: GPL-2.0-only WITH Classpath-exception-2.0
+ *
+ * See PROVENANCE.md for the derivation and licensing history.
+ *
+ * Note on the comment delimiters: each block above opens with the esbuild
+ * "legal comment" marker so that the notices survive minification into the UMD
+ * bundle. Only the delimiter differs from upstream; the notice text is verbatim.
+ */
 
 /**
  * Specifies a `rounding policy` for numerical operations capable
@@ -179,13 +219,32 @@ export class MathContext {
     readonly roundingMode: RoundingMode;
 
     constructor(precision: number, roundingMode: RoundingMode = MathContext.DEFAULT_ROUNDINGMODE) {
-        if (precision < 0) {
+        // Java's precision is an int, so anything non-integral is malformed. Guarding here rather
+        // than at each call site is what matters: a fractional precision makes the precision-reduction
+        // loops in round()/sqrt() (which step by whole digits) never reach their target and spin forever.
+        if (!Number.isInteger(precision)) {
+            throw new RangeError(`MathContext precision must be an integer: ${precision}`);
+        } else if (precision < 0) {
             throw new RangeError('MathContext precision cannot be less than 0');
-        } else if (!RoundingMode[roundingMode]) {
-            throw new RangeError(`RoundingMode is invalid: ${roundingMode}`);
+            // 2147483647 inlined rather than BigDecimal.MAX_INT_VALUE: it is private, and MathContext's
+            // static constants below initialise before BigDecimal exists.
+        } else if (precision > 2147483647) {
+            throw new RangeError(`MathContext precision is out of the 32-bit integer range: ${precision}`);
+        } else if (!Number.isInteger(roundingMode) ||
+                   roundingMode < RoundingMode.UP || roundingMode > RoundingMode.UNNECESSARY) {
+            // Not a `RoundingMode[roundingMode]` lookup: that is an index, so NaN, 4.5, null and
+            // the string '4' all miss every key or hit the reverse mapping, and previously either
+            // threw the wrong error or were stored verbatim.
+            throw new RangeError(`RoundingMode is invalid: ${String(roundingMode)}`);
         }
         this.precision = precision;
         this.roundingMode = roundingMode;
+        // Frozen on every instance, not just the shared constants. `readonly` is erased at
+        // runtime, so an ordinary context could be mutated after construction — reintroducing a
+        // fractional precision that makes the reduction loops in round()/sqrt() never terminate.
+        // Freezing here is also what lets normalizeMathContext() treat "frozen instance of
+        // MathContext" as proof the values were validated.
+        Object.freeze(this);
     }
 
     /** @internal */
@@ -195,7 +254,7 @@ export class MathContext {
      * required for unlimited precision arithmetic.
      * The values of the settings are: `precision=0 roundingMode=HALF_UP`
      */
-    static UNLIMITED = new MathContext(0, RoundingMode.HALF_UP);
+    static readonly UNLIMITED = new MathContext(0, RoundingMode.HALF_UP);
     /**
      * A `MathContext` object with a precision setting
      * matching the precision of the IEEE 754-2019 decimal32 format, 7 digits, and a
@@ -203,7 +262,7 @@ export class MathContext {
      * Note the exponent range of decimal32 is **not** used for
      * rounding.
      */
-    static DECIMAL32 = new MathContext(7, RoundingMode.HALF_EVEN);
+    static readonly DECIMAL32 = new MathContext(7, RoundingMode.HALF_EVEN);
     /**
      * A `MathContext` object with a precision setting
      * matching the precision of the IEEE 754-2019 decimal64 format, 16 digits, and a
@@ -211,7 +270,7 @@ export class MathContext {
      * Note the exponent range of decimal64 is **not** used for
      * rounding.
      */
-    static DECIMAL64 = new MathContext(16, RoundingMode.HALF_EVEN);
+    static readonly DECIMAL64 = new MathContext(16, RoundingMode.HALF_EVEN);
     /**
      * A `MathContext` object with a precision setting
      * matching the precision of the IEEE 754-2019 decimal128 format, 34 digits, and a
@@ -219,7 +278,7 @@ export class MathContext {
      * Note the exponent range of decimal64 is **not** used for
      * rounding.
      */
-    static DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
+    static readonly DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
 }
 
 /**
@@ -517,6 +576,88 @@ export class BigDecimal {
     /** @internal */
     private static readonly INFLATED_BIGINT = BigInt(BigDecimal.INFLATED);
 
+    /**
+     * Cross-build brand. Registered in the global symbol registry so that separately compiled
+     * bundles (CJS vs ESM) agree on it, letting {@link equals} recognise a BigDecimal that fails
+     * `instanceof`. Installed on the prototype below, so instances carry no extra property.
+     * @internal
+     */
+    static readonly BRAND = Symbol.for('bigdecimal.js.BigDecimal');
+
+    /**
+     * Rejects anything that is not a Java `int`.
+     *
+     * Java types scales, exponents and point shifts as `int`, so a fractional or non-finite
+     * value cannot arise there. JavaScript has only `number`, and an unchecked one propagates
+     * into scale arithmetic and the string layout, producing malformed output such as `'N.a'`
+     * or a `BigDecimal` whose `scale()` is fractional. Validating at each public boundary keeps
+     * every such value out of the core.
+     * @internal
+     */
+    private static requireInt32(name: string, value: number): void {
+        BigDecimal.requireInteger(name, value);
+        if (value > BigDecimal.MAX_INT_VALUE || value < BigDecimal.MIN_INT_VALUE) {
+            throw new RangeError(`${name} is out of the 32-bit integer range: ${value}`);
+        }
+    }
+
+    /**
+     * Rejects a non-integral argument, without constraining its magnitude.
+     *
+     * Only for arguments that carry their own, tighter range check — currently just `pow`'s
+     * exponent, which Java limits to ±999999999 well inside the `int` range. Anything typed
+     * `int` in Java should use {@link requireInt32} instead.
+     *
+     * An earlier revision used this for scales and point shifts too, reasoning that an
+     * out-of-range *argument* was not itself an error because `checkScale` reproduces Java's
+     * behaviour for the resulting scale. That was wrong: `checkScale` models a scale computed
+     * internally by adding two valid `int`s, whereas Java's public parameters cannot be out of
+     * range in the first place. Admitting one let a caller build a value Java cannot represent
+     * — `Big(0).setScale(2147483648).scale()` returned 2147483648, since a zero significand
+     * takes any scale without ever reaching the overflow path.
+     * @internal
+     */
+    private static requireInteger(name: string, value: number): void {
+        if (!Number.isInteger(value)) {
+            throw new RangeError(`${name} must be an integer: ${value}`);
+        }
+    }
+
+    /**
+     * Rejects anything that is not a member of {@link RoundingMode}.
+     *
+     * A plain `RoundingMode[value]` lookup is not sufficient on its own: it is an index, so
+     * `NaN`, `4.5` and `null` all miss every key and previously fell through the switch
+     * statements to the default branch, silently behaving as though a valid mode had been
+     * supplied. An explicit integer-and-range test is the only form that covers the runtime
+     * space a caller can actually reach.
+     * @internal
+     */
+    private static requireRoundingMode(value: RoundingMode): void {
+        if (!Number.isInteger(value) || value < RoundingMode.UP || value > RoundingMode.UNNECESSARY) {
+            throw new RangeError(`Invalid rounding mode: ${String(value)}`);
+        }
+    }
+
+    /**
+     * Returns a `MathContext` that is safe to read.
+     *
+     * `MathContext` is validated in its constructor and frozen, but a caller can still reach the
+     * arithmetic core with something that never went through it: a structurally compatible object
+     * literal, or an instance from a separately compiled bundle. Those carry no guarantee that
+     * `precision` is an integer, and a fractional precision makes the digit-stepping reduction
+     * loops in `round()`/`sqrt()` spin forever. Anything that is not one of our own frozen
+     * instances is therefore rebuilt through the constructor, which re-runs validation.
+     * @internal
+     */
+    private static normalizeMathContext(mc: MathContext): MathContext {
+        if (mc instanceof MathContext && Object.isFrozen(mc)) return mc;
+        if (mc === null || typeof mc !== 'object') {
+            throw new RangeError(`MathContext expected, got: ${String(mc)}`);
+        }
+        return new MathContext(mc.precision, mc.roundingMode);
+    }
+
     /** @internal */
     private static readonly MAX_INT_VALUE = 2147483647;
     /** @internal */
@@ -677,12 +818,37 @@ export class BigDecimal {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
     ];
 
-    /** @internal */
+    /**
+     * Apply a parsed exponent to a running scale.
+     *
+     * Deliberately unchecked. Java holds `scl` in a `long` for the whole of the string
+     * constructor and range-checks it exactly once, at the end, after any MathContext
+     * rounding has been applied — see `checkParsedScale`. Rejecting here instead would
+     * reject inputs the JDK accepts, because rounding can bring an out-of-range scale
+     * back into range.
+     *
+     * Both operands are small enough that the subtraction is exact in a double: `scl`
+     * is bounded by the input length and `parseExp` admits at most 10 exponent digits.
+     * @internal
+     */
     private static adjustScale(scl: number, exp: number): number {
-        const adjustedScale = scl - exp;
-        if (adjustedScale > BigDecimal.MAX_INT_VALUE || adjustedScale < BigDecimal.MIN_INT_VALUE)
-            throw new RangeError('Scale out of range.');
-        scl = adjustedScale;
+        return scl - exp;
+    }
+
+    /**
+     * Final scale check for the string constructor, mirroring Java's
+     * `if ((int) scl != scl) throw new NumberFormatException("Exponent overflow.")`.
+     *
+     * Java stopped rejecting out-of-range *exponents* up front in JDK 19 (JDK-8287376) so
+     * that `new BigDecimal(x.toString())` always round-trips: `BigDecimal.valueOf(1, Integer.MIN_VALUE)`
+     * prints `1E+2147483648`, whose exponent does not fit an `int` even though the scale
+     * it denotes does. What must fit is the resulting scale, and only once it is final.
+     * @internal
+     */
+    private static checkParsedScale(scl: number): number {
+        if (scl > BigDecimal.MAX_INT_VALUE || scl < BigDecimal.MIN_INT_VALUE) {
+            throw new RangeError('Exponent overflow.');
+        }
         return scl;
     }
 
@@ -775,10 +941,6 @@ export class BigDecimal {
                     dot = true;
                 } else if ((c === 'e') || (c === 'E')) {
                     exp = BigDecimal.parseExp(input, offset, len);
-
-                    // Next test is required for backwards compatibility
-                    if (exp > BigDecimal.MAX_INT_VALUE || exp < BigDecimal.MIN_INT_VALUE) // overflow
-                        throw new RangeError('Exponent overflow.');
                     break; // [saves a test]
                 } else {
                     throw new RangeError('Character ' + c
@@ -799,7 +961,9 @@ export class BigDecimal {
             // therefore, this subtract cannot overflow
             if (mcp > 0 && drop > 0) { // do rounding
                 while (drop > 0) {
-                    scl = BigDecimal.checkScaleNonZero(scl - drop);
+                    // Unchecked, like Java's `scl -= drop` on a long: the scale is only
+                    // required to be in range once rounding has finished (checkParsedScale).
+                    scl = scl - drop;
                     rs = BigDecimal.divideAndRound(rs, BigDecimal.TEN_POWERS_TABLE[drop]!, mc.roundingMode);
                     prec = BigDecimal.integerDigitLength(rs);
                     drop = prec - mcp;
@@ -840,9 +1004,6 @@ export class BigDecimal {
                     throw new RangeError('String is missing "e" notation exponential mark.');
                 }
                 exp = BigDecimal.parseExp(input, offset, len);
-                // Next test is required for backwards compatibility
-                if (exp > BigDecimal.MAX_INT_VALUE || exp < BigDecimal.MIN_INT_VALUE) // overflow
-                    throw new RangeError('Exponent overflow.');
                 break; // [saves a test]
             }
             // here when no characters left
@@ -866,7 +1027,7 @@ export class BigDecimal {
                 if (rs === BigDecimal.INFLATED) {
                     let drop = prec - mcp;
                     while (drop > 0) {
-                        scl = BigDecimal.checkScaleNonZero(scl - drop);
+                        scl = scl - drop; // unchecked; see checkParsedScale
                         rb = BigDecimal.divideAndRoundByTenPow(rb, drop, mc.roundingMode);
                         rs = BigDecimal.compactValFor(rb);
                         if (rs !== BigDecimal.INFLATED) {
@@ -880,7 +1041,7 @@ export class BigDecimal {
                 if (rs !== BigDecimal.INFLATED) {
                     let drop = prec - mcp;
                     while (drop > 0) {
-                        scl = BigDecimal.checkScaleNonZero(scl - drop);
+                        scl = scl - drop; // unchecked; see checkParsedScale
                         rs = BigDecimal.divideAndRound(rs, BigDecimal.TEN_POWERS_TABLE[drop]!, mc.roundingMode);
                         prec = BigDecimal.integerDigitLength(rs);
                         drop = prec - mcp;
@@ -889,7 +1050,7 @@ export class BigDecimal {
                 }
             }
         }
-        return new BigDecimal(rb, rs, scl, prec);
+        return new BigDecimal(rb, rs, BigDecimal.checkParsedScale(scl), prec);
     }
 
     /** @internal */
@@ -1177,6 +1338,12 @@ export class BigDecimal {
 
     /** @internal */
     static fromValue(value: BigDecimal | bigint | number | string, scale?: number, mc?: MathContext): BigDecimal {
+        // Java's scale is an int. Validated here because fromValue is the single entry point for every
+        // construction path; a NaN or fractional scale otherwise reaches the string layout and produces
+        // malformed output such as '1ENaN'.
+        // Unlike the scale-shifting operations, a construction scale has no checkScale overflow
+        // path behind it, so the 32-bit range is enforced here directly.
+        if (scale !== undefined) BigDecimal.requireInt32('Scale', scale);
         if (typeof value === 'number') {
             if (value > Number.MAX_VALUE || value < -Number.MAX_VALUE) {
                 throw new RangeError('Number must be in the range [-Number.MAX_VALUE, Number.MAX_VALUE]');
@@ -1193,7 +1360,12 @@ export class BigDecimal {
                 return BigDecimal.fromDouble(value, mc);
             }
             if (!(value > Number.MIN_SAFE_INTEGER && value <= Number.MAX_SAFE_INTEGER)) {
-                // Unsafe range, build from string
+                // Past the safe-integer range the double no longer carries every digit it
+                // prints, so route through the string form rather than BigInt(value): the
+                // string is the shortest decimal that reproduces the double, whereas BigInt
+                // would materialise the exact binary value and hand back digits the caller
+                // never wrote. This mirrors Java's BigDecimal.valueOf(double) over
+                // new BigDecimal(double).
                 value = String(value);
                 return BigDecimal.fromString(value, 0, value.length, scale, mc);
             }
@@ -1839,6 +2011,7 @@ export class BigDecimal {
      * @return `-this`, rounded as necessary.
      */
     negate(mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         let result = this.intCompact === BigDecimal.INFLATED ?
             new BigDecimal(
                 BigDecimal.minusOneBigInt * this.intVal!, BigDecimal.INFLATED, this._scale, this._precision
@@ -1869,6 +2042,7 @@ export class BigDecimal {
      * ```
      */
     add(augend: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         augend = BigDecimal.convertToBigDecimal(augend);
         if (!mc || (mc && mc.precision === 0)) {
             if (this.intCompact !== BigDecimal.INFLATED) {
@@ -1941,6 +2115,7 @@ export class BigDecimal {
      * ```
      */
     subtract(subtrahend: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         subtrahend = BigDecimal.convertToBigDecimal(subtrahend);
         if (!mc || (mc && mc.precision === 0)) {
             if (this.intCompact !== BigDecimal.INFLATED) {
@@ -1984,6 +2159,7 @@ export class BigDecimal {
      * ```
      */
     multiply(multiplicand: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         multiplicand = BigDecimal.convertToBigDecimal(multiplicand);
         if (!mc || (mc && mc.precision === 0)) {
             const productScale = this.checkScale(this._scale + multiplicand._scale);
@@ -2042,6 +2218,8 @@ export class BigDecimal {
      * ```
      */
     divide(divisor: BigDecimal | bigint | number | string, scale?: number, roundingMode?: RoundingMode): BigDecimal {
+        if (scale !== undefined) BigDecimal.requireInt32('Scale', scale);
+        if (roundingMode !== undefined) BigDecimal.requireRoundingMode(roundingMode);
         divisor = BigDecimal.convertToBigDecimal(divisor);
         /*
          * Handle zero cases first.
@@ -2063,6 +2241,14 @@ export class BigDecimal {
             }
             if (roundingMode < RoundingMode.UP || roundingMode > RoundingMode.UNNECESSARY)
                 throw new RangeError('Invalid rounding mode');
+            // A zero dividend is exactly zero at the requested scale, whatever the divisor and
+            // rounding mode. Java arrives at the same value through the general path, which
+            // materialises 10^scale to rescale a zero significand — about 1.2s at scale 1e7 on
+            // JDK 26. This returns the identical result (verified against the JDK across
+            // positive, negative and defaulted scales, and UNNECESSARY) without building it.
+            // It is a shortcut for a degenerate input, not a bound on the work a large scale
+            // can ask for: a nonzero dividend at the same scale genuinely has that many digits.
+            if (this.signum() === 0) return BigDecimal.zeroValueOf(scale);
             if (this.intCompact !== BigDecimal.INFLATED) {
                 if ((divisor.intCompact !== BigDecimal.INFLATED)) {
                     return BigDecimal.divide7(
@@ -2150,6 +2336,7 @@ export class BigDecimal {
      * ```
      */
     divideWithMathContext(divisor: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         divisor = BigDecimal.convertToBigDecimal(divisor);
         if (divisor.signum() === 0) { // x/0
             if (this.signum() === 0) // 0/0
@@ -2475,6 +2662,7 @@ export class BigDecimal {
      *         requires a precision of more than `mc.precision` digits.
      */
     divideToIntegralValue(divisor: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         divisor = BigDecimal.convertToBigDecimal(divisor);
         if (!mc || (mc && (mc.precision === 0 || this.compareMagnitude(divisor) < 0))) {
             // Calculate preferred scale
@@ -2592,6 +2780,7 @@ export class BigDecimal {
      * @see    {@link divideToIntegralValue}
      */
     remainder(divisor: BigDecimal | bigint | number | string, mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         return this.divideAndRemainder(divisor, mc)[1];
     }
 
@@ -2690,8 +2879,21 @@ export class BigDecimal {
      * @see    {@link compareTo}
      */
     equals(value: any): boolean {
-        if (!(value instanceof BigDecimal))
+        if (!(value instanceof BigDecimal)) {
+            // A BigDecimal produced by a different build of this library (the CJS and ESM bundles are
+            // compiled separately, so they have distinct class identities) fails instanceof even when
+            // the values are identical. Fall back to comparing canonical string form, which is injective
+            // over (unscaled value, scale) and therefore matches Java's equals semantics exactly.
+            // Deliberately does not read internal fields: a foreign instance may come from a different
+            // version whose representation differs.
+            if (value !== null && typeof value === 'object') {
+                const foreign = value as { [key: symbol]: unknown; toString(): string };
+                if (foreign[BigDecimal.BRAND] === true) {
+                    return this.toString() === foreign.toString();
+                }
+            }
             return false;
+        }
         if (value === this)
             return true;
         if (this._scale !== value._scale)
@@ -2736,6 +2938,7 @@ export class BigDecimal {
      * @see    {@link remainder}
      */
     divideAndRemainder(divisor: BigDecimal | bigint | number | string, mc?: MathContext): [BigDecimal, BigDecimal] {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         divisor = BigDecimal.convertToBigDecimal(divisor);
         const result = new Array<BigDecimal>(2);
 
@@ -2770,6 +2973,7 @@ export class BigDecimal {
      * digits.
      */
     sqrt(mc: MathContext): BigDecimal {
+        mc = BigDecimal.normalizeMathContext(mc);
         const signum = this.signum();
         if (signum !== 1) {
             let result = null;
@@ -3102,6 +3306,7 @@ export class BigDecimal {
      * @throws RangeError if the scale would be outside the range of a safe integer.
      */
     scaleByPowerOfTen(n: number): BigDecimal {
+        BigDecimal.requireInt32('n', n);
         return new BigDecimal(this.intVal, this.intCompact, this.checkScale(this._scale - n), this._precision);
     }
 
@@ -3162,99 +3367,90 @@ export class BigDecimal {
         }
     }
 
+    // Readable predicates over compareTo. Every one of these is scale-INSENSITIVE, because
+    // compareTo is: `2.0` and `2.00` compare equal. That is the difference from {@link equals},
+    // which follows Java and treats them as distinct. When in doubt, these are the ones you
+    // want — `equals` surprises people.
+    //
+    // Each calls compareTo directly rather than delegating to its long-form spelling, so the
+    // short and long names cost the same.
+
     /**
-    * Alias for `compareTo(val) === 0`.
-    * Consider using {@link equals} in case the scale needs to be considered.
-    * @returns true if the value is the same as `val`
-    * @see {@link equals}
-    * @see {@link compareTo}
-    */
+     * Value-equality: true when this and `val` denote the same number, regardless of scale.
+     *
+     * `Big('2.0').sameValue('2.00')` is `true`, where {@link equals} is `false`.
+     *
+     * @param val value to compare against. Anything the {@link Big | constructor} accepts;
+     * it is converted first.
+     * @see {@link equals} for Java's scale-sensitive equality
+     * @see {@link compareTo}
+     */
     sameValue(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) === 0;
     }
 
     /**
-     * Alias for `compareTo(val) > 0`.
+     * True when this value is strictly greater than `val`, ignoring scale.
      *
-     * @param val value to which this `BigDecimal` is to be compared.
-     * This value will be converted to a `BigDecimal` before the operation.
-     * See the {@link Big | constructor} to learn more about the conversion.
-     * @returns true if the value is greater than `val`
-     * @see     {@link compareTo}
-     * @see     {@link gt}
+     * @param val value to compare against. Anything the {@link Big | constructor} accepts;
+     * it is converted first.
+     * @see {@link gt} — the same method under a shorter name
      */
     greaterThan(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) > 0;
     }
 
-    /**
-     * Alias for {@link greaterThan}.
-     */
+    /** Short name for {@link greaterThan}. */
     gt(val: BigDecimal | bigint | number | string): boolean {
-        return this.greaterThan(val);
+        return this.compareTo(val) > 0;
     }
 
     /**
-     * Alias for `compareTo(val) >= 0`.
+     * True when this value is greater than or equal to `val`, ignoring scale.
      *
-     * @param val value to which this `BigDecimal` is to be compared.
-     * This value will be converted to a `BigDecimal` before the operation.
-     * See the {@link Big | constructor} to learn more about the conversion.
-     * @returns true if the value is greater than or equals to `val`
-     * @see     {@link compareTo}
-     * @see     {@link gte}
+     * @param val value to compare against. Anything the {@link Big | constructor} accepts;
+     * it is converted first.
+     * @see {@link gte} — the same method under a shorter name
      */
     greaterThanOrEquals(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) >= 0;
     }
 
-    /**
-     * Alias for {@link greaterThanOrEquals}.
-     */
+    /** Short name for {@link greaterThanOrEquals}. */
     gte(val: BigDecimal | bigint | number | string): boolean {
-        return this.greaterThanOrEquals(val);
+        return this.compareTo(val) >= 0;
     }
 
     /**
-     * Alias for `compareTo(val) < 0`.
+     * True when this value is strictly less than `val`, ignoring scale.
      *
-     * @param val value to which this `BigDecimal` is to be compared.
-     * This value will be converted to a `BigDecimal` before the operation.
-     * See the {@link Big | constructor} to learn more about the conversion.
-     * @returns true if the value is lower than `val`
-     * @see     {@link compareTo}
-     * @see     {@link lt}
+     * @param val value to compare against. Anything the {@link Big | constructor} accepts;
+     * it is converted first.
+     * @see {@link lt} — the same method under a shorter name
      */
     lowerThan(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) < 0;
     }
 
-    /**
-     * Alias for {@link lowerThan}.
-     */
+    /** Short name for {@link lowerThan}. */
     lt(val: BigDecimal | bigint | number | string): boolean {
-        return this.lowerThan(val);
+        return this.compareTo(val) < 0;
     }
 
     /**
-     * Alias for `compareTo(val) <= 0`.
+     * True when this value is less than or equal to `val`, ignoring scale.
      *
-     * @param val value to which this `BigDecimal` is to be compared.
-     * This value will be converted to a `BigDecimal` before the operation.
-     * See the {@link Big | constructor} to learn more about the conversion.
-     * @returns true if the value is lower than or equals to `val`
-     * @see     {@link compareTo}
-     * @see     {@link lte}
+     * @param val value to compare against. Anything the {@link Big | constructor} accepts;
+     * it is converted first.
+     * @see {@link lte} — the same method under a shorter name
      */
     lowerThanOrEquals(val: BigDecimal | bigint | number | string): boolean {
         return this.compareTo(val) <= 0;
     }
 
-    /**
-     * Alias for {@link lowerThanOrEquals}.
-     */
+    /** Short name for {@link lowerThanOrEquals}. */
     lte(val: BigDecimal | bigint | number | string): boolean {
-        return this.lowerThanOrEquals(val);
+        return this.compareTo(val) <= 0;
     }
 
     // #endregion
@@ -3443,6 +3639,7 @@ export class BigDecimal {
      * ```
      */
     round(mc: MathContext): BigDecimal {
+        mc = BigDecimal.normalizeMathContext(mc);
         return this.plus(mc);
     }
 
@@ -3475,8 +3672,8 @@ export class BigDecimal {
      * ```
      */
     setScale(newScale: number, roundingMode: RoundingMode = RoundingMode.UNNECESSARY): BigDecimal {
-        if (roundingMode < RoundingMode.UP || roundingMode > RoundingMode.UNNECESSARY)
-            throw new RangeError('Invalid rounding mode');
+        BigDecimal.requireRoundingMode(roundingMode);
+        BigDecimal.requireInt32('Scale', newScale);
 
         const oldScale = this._scale;
         if (newScale === oldScale) // easy case
@@ -3543,6 +3740,7 @@ export class BigDecimal {
      * @see    {@link round}
      */
     plus(mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         if (!mc) return this;
         if (mc.precision === 0) // no rounding please
             return this;
@@ -3592,6 +3790,8 @@ export class BigDecimal {
      *         of range.
      */
     pow(n: number, mc?: MathContext): BigDecimal {
+        BigDecimal.requireInteger('Exponent', n);
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         if (!mc || (mc && mc.precision === 0)) {
             if (n < 0 || n > 999999999)
                 throw new RangeError('Invalid operation');
@@ -3643,6 +3843,7 @@ export class BigDecimal {
      * @return absolute value, rounded as necessary.
      */
     abs(mc?: MathContext): BigDecimal {
+        if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         return this.signum() < 0 ? this.negate(mc) : this.plus(mc);
     }
 
@@ -3861,10 +4062,15 @@ export class BigDecimal {
      * @private
      */
     private static compareHalf(first: bigint, second: bigint): number {
-        second = second / BigDecimal.twoBigInt;
-        if (first < second) return -1;
-        if (first > second) return 1;
-        return 0;
+        // Double `first` rather than halving `second`. BigInt division truncates, so
+        // `second / 2n` loses the .5 for an odd divisor and a remainder of
+        // floor(second / 2) — which is strictly below half — compared equal to it.
+        // That misreported a near-tie as an exact tie, so HALF_UP rounded away from
+        // zero and HALF_EVEN consulted quotient parity, both incorrectly. Only
+        // HALF_DOWN was unaffected, since it treats an exact tie as "round down"
+        // anyway. Doubling is exact and matches what the compact paths
+        // (needIncrement / needIncrement3) already do.
+        return BigDecimal.bigIntCompareMagnitude(first * BigDecimal.twoBigInt, second);
     }
 
     /**
@@ -3958,6 +4164,7 @@ export class BigDecimal {
      * @throws RangeError if scale overflows.
      */
     movePointLeft(n: number): BigDecimal {
+        BigDecimal.requireInt32('n', n);
         if (n === 0 && this._scale >= 0) return this;
 
         // Cannot use movePointRight(-n) in case of n==BigDecimal.MIN_INT_VALUE
@@ -3981,6 +4188,7 @@ export class BigDecimal {
      * @throws RangeError if scale overflows.
      */
     movePointRight(n: number): BigDecimal {
+        BigDecimal.requireInt32('n', n);
         if (n === 0 && this._scale >= 0) return this;
 
         // Cannot use movePointLeft(-n) in case of n==BigDecimal.MIN_INT_VALUE
@@ -4539,6 +4747,12 @@ export class BigDecimal {
      * (Node >= 20 or a current browser); older engines than the library's stated
      * floor may format the string as a float.
      *
+     * Note: this method is display-oriented and is **lossy beyond 100 decimal places**.
+     * ECMA-402 caps `maximumFractionDigits` at 100, so a value whose only significant
+     * digits fall past the 100th decimal place formats as `'0'`. This is a platform
+     * limit, not a rounding choice — use {@link toPlainString} or {@link toString}
+     * when you need every digit.
+     *
      * @param locales BCP 47 locale string(s), as accepted by `Intl.NumberFormat`.
      * @param options `Intl.NumberFormatOptions`; values here override the defaults above.
      * @return a locale-formatted string representation of this `BigDecimal`.
@@ -4550,7 +4764,10 @@ export class BigDecimal {
      * ```
      */
     toFormat(locales?: string | string[], options?: Intl.NumberFormatOptions): string {
-        const style = options?.style;
+        // Deliberately an explicit && guard, not optional chaining: that syntax is ES2020 and the
+        // es2020 target emits it verbatim, which fails to parse on the Chrome 67 / Firefox 68
+        // engines that the advertised BigInt floor promises support for.
+        const style = options && options.style;
         const keepAll = style !== 'currency' && style !== 'percent';
         // ponytail: Intl caps maximumFractionDigits at 100; clamp — tiny display loss only beyond 100 dp.
         const defaults = keepAll
@@ -4619,34 +4836,33 @@ export class BigDecimal {
     }
 
     /**
-     * Returns a string representation of this `BigDecimal`
-     * without an exponent field.  For values with a positive scale,
-     * the number of digits to the right of the decimal point is used
-     * to indicate scale.  For values with a zero or negative scale,
-     * the resulting string is generated as if the value were
-     * converted to a numerically equal value with zero scale and as
-     * if all the trailing zeros of the zero scale value were present
-     * in the result.
+     * Called automatically by `JSON.stringify`, so a `BigDecimal` serialises to a decimal
+     * string rather than to `{}`. Currently delegates to {@link toPlainString}.
      *
-     * The entire string is prefixed by a minus sign character '-'
-     * (<code>'&#92;u002D'</code>) if the unscaled value is less than
-     * zero. No sign character is prefixed if the unscaled value is
-     * zero or positive.
+     * ```js
+     * JSON.stringify({ price: Big('19.99') }); // '{"price":"19.99"}'
+     * ```
      *
-     * Note that if the result of this method is passed to the
-     * string constructor, only the
-     * numerical value of this `BigDecimal` will necessarily be
-     * recovered; the representation of the new `BigDecimal`
-     * may have a different scale.  In particular, if this
-     * `BigDecimal` has a negative scale, the string resulting
-     * from this method will have a scale of zero when processed by
-     * the string constructor.
+     * It serialises as a JSON **string**, not a JSON number: routing through a `number`
+     * would reintroduce the binary floating-point error this library exists to avoid. Read
+     * it back with `Big(value)`.
      *
-     * @return a string representation of this `BigDecimal`
-     * without an exponent field.
+     * Two caveats, both consequences of the plain (exponent-free) notation:
+     *
+     * - A large positive exponent expands enormously. `Big('1E+100000')` serialises to
+     *   100,001 characters where {@link toString} emits nine.
+     * - Scale is not preserved through a round-trip in every case. A negative-scale value
+     *   reparses with scale zero, so `Big(JSON.parse(...))` may not {@link equals} the
+     *   original even though it {@link sameValue | compares equal}.
+     *
+     * **This will change in 2.0** to delegate to {@link toString}, which avoids the
+     * expansion above and round-trips reliably. Only values whose `toString` selects
+     * exponent notation are affected. If you need today's output regardless of version,
+     * serialise explicitly with `toPlainString()` rather than relying on this method.
+     *
+     * @returns this value in plain notation, never exponent notation.
      * @see {@link toPlainString}
      * @see {@link toString}
-     * @see {@link toEngineeringString}
      */
     toJSON(): string {
         return this.toPlainString();
@@ -5110,3 +5326,12 @@ export interface MathContextConstructor {
 export const MC = <MathContextConstructor> function _MC(precision: number, roundingMode?: RoundingMode): MathContext {
     return new MathContext(precision, roundingMode);
 };
+
+// Install the cross-build brand on the prototype rather than on each instance, so recognising a
+// foreign BigDecimal in equals() costs nothing per allocation. See BigDecimal.BRAND.
+(BigDecimal.prototype as unknown as Record<symbol, boolean>)[BigDecimal.BRAND] = true;
+
+// Freeze the MathContext constructor so its shared constants cannot be reassigned. `readonly`
+// is a compile-time annotation only; without this, `MathContext.UNLIMITED = {precision: 1.5}`
+// reintroduces a fractional precision and with it the non-terminating rounding loop.
+Object.freeze(MathContext);

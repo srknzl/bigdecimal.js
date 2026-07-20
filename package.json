@@ -1,6 +1,6 @@
 {
   "name": "bigdecimal.js",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "A BigDecimal implementation with native BigInts",
   "exports": {
     "browser": {
@@ -57,7 +57,8 @@
     "lib/bigdecimal.mjs",
     "lib/bigdecimal.umd.min.js",
     "lib/bigdecimal.d.ts",
-    "lib/bigdecimal.d.mts"
+    "lib/bigdecimal.d.mts",
+    "PROVENANCE.md"
   ],
   "types": "lib/bigdecimal.d.ts",
   "overrides": {
@@ -73,7 +74,7 @@
     "email": "serkanozel380@gmail.com",
     "url": "https://github.com/srknzl"
   },
-  "license": "Apache-2.0",
+  "license": "GPL-2.0-only WITH Classpath-exception-2.0",
   "bugs": {
     "url": "https://github.com/srknzl/bigdecimal.js/issues"
   },

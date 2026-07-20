@@ -234,63 +234,106 @@ Benchmarked against [big.js](https://www.npmjs.com/package/big.js), [bigdecimal]
   * 8 GB Ram
   * macOS 26.3
   * Node.js 24
-* Update Date: July 15th 2026
+* Update Date: July 20th 2026
 * Library versions used:  
     * big.js 7.0.1
-    * (this library) bigdecimal.js 1.7.0
+    * (this library) bigdecimal.js 1.7.1
     * bigdecimal 0.6.1
     * bignumber.js: 11.1.5
     * decimal.js: 10.6.0
 
-* Each operation is run with a fixed set of decimal numbers composed of both simple and complex numbers.
+* Each operation is run with a fixed set of decimal numbers composed of both simple and complex numbers. Rows whose cost depends on their argument (`Round`, `SetScale`, `MovePointLeft`/`Right`, `ScaleByPowerOfTen`) cycle through a range of arguments rather than a single hard-coded one.
+* Before timing, the harness verifies that every library computes the **same result** for each operation — every result in the batch, not a sample — and runs that check in a **separate process**, so stringifying results to compare them cannot warm the lazy caches the suite is about to measure.
+* **A winner is only declared for rows that are actually a like-for-like race.** If the libraries disagree on the result, work to different precision bases, implement different semantics, or only one of them implements the operation at all, the row reports its rates with no trophy. Margins are claimed only when the winner's measured error interval clears the runner-up's; otherwise the row reads *within noise*. Raw machine-readable results are written to `benchmarks/results.json`.
 * Micro benchmark framework used is [benchmark](https://www.npmjs.com/package/benchmark). Check out [benchmarks folder](https://github.com/srknzl/bigdecimal.js/tree/main/benchmarks) for source code of benchmarks.
 * Numbers are operations per second (higher is better). In each row the **fastest library is bold**, and the **Fastest** column names the winner with how many times faster it is than the runner-up. A `-` means the library has no equivalent operation.
 
 | Operation | Bigdecimal.js | Big.js | BigNumber.js | decimal.js | GWTBased | Fastest |
 | --- | --- | --- | --- | --- | --- | --- |
-| Constructor | **92,925** | 43,229 | 49,026 | 47,998 | 3,448 | 🏆 **Bigdecimal.js** (1.9×) |
-| Add | **416,927** | 118,992 | 255,031 | 102,880 | 882 | 🏆 **Bigdecimal.js** (1.6×) |
-| Subtract | **407,903** | 100,556 | 231,897 | 103,756 | 814 | 🏆 **Bigdecimal.js** (1.8×) |
-| Multiply | **837,887** | 33,510 | 91,703 | 80,826 | 3,252 | 🏆 **Bigdecimal.js** (9.1×) |
-| Divide | **55,617** | 1,108 | 12,804 | 14,703 | 813 | 🏆 **Bigdecimal.js** (3.8×) |
-| DivideToIntegralValue | **194,906** |  -  | 24,228 | 48,053 | 1,649 | 🏆 **Bigdecimal.js** (4.1×) |
-| Remainder | **123,564** | 6,810 | 18,776 | 30,271 | 2,244 | 🏆 **Bigdecimal.js** (4.1×) |
-| Positive pow | **31,769** | 26 | 118 | 3,598 | 7 | 🏆 **Bigdecimal.js** (8.8×) |
-| Negative pow | **13,642** | 22 | 114 | 1,993 | 334 | 🏆 **Bigdecimal.js** (6.8×) |
-| Sqrt | **5,632** | 48 | 1,173 | 1,575 |  -  | 🏆 **Bigdecimal.js** (3.6×) |
-| Abs | **3,986,281** | 1,797,291 | 990,440 | 366,424 | 17,290 | 🏆 **Bigdecimal.js** (2.2×) |
-| Negate | **3,282,506** | 1,762,001 | 960,448 | 377,185 | 8,808 | 🏆 **Bigdecimal.js** (1.9×) |
-| Round | 306,206 | **668,047** |  -  | 188,869 | 5,259 | 🏆 **Big.js** (2.2×) |
-| SetScale | 353,784 | **684,585** | 218,688 | 177,488 | 1,896 | 🏆 **Big.js** (1.9×) |
-| Compare | **2,344,023** | 1,226,746 | 932,273 | 437,279 | 1,169,606 | 🏆 **Bigdecimal.js** (1.9×) |
-| Equals | **8,829,128** | 1,230,994 | 927,999 | 432,378 | 1,626,161 | 🏆 **Bigdecimal.js** (5.4×) |
-| Min | **2,117,867** |  -  | 466,892 | 149,704 | 36,667 | 🏆 **Bigdecimal.js** (4.5×) |
-| Max | **2,120,100** |  -  | 466,093 | 149,571 | 31,322 | 🏆 **Bigdecimal.js** (4.5×) |
-| MovePointLeft | **2,552,021** |  -  |  -  |  -  | 2,151 | 🏆 **Bigdecimal.js** (1186.6×) |
-| MovePointRight | **1,243,076** |  -  |  -  |  -  | 2,061 | 🏆 **Bigdecimal.js** (603.2×) |
-| ScaleByPowerOfTen | **9,342,274** |  -  | 64,751 |  -  | 8,927 | 🏆 **Bigdecimal.js** (144.3×) |
-| StripTrailingZeros | **568,697** |  -  |  -  |  -  | 7,448 | 🏆 **Bigdecimal.js** (76.4×) |
-| Ulp | **10,802,420** |  -  |  -  |  -  | 54,306 | 🏆 **Bigdecimal.js** (198.9×) |
-| UnscaledValue | **3,212,765** |  -  |  -  |  -  | 11,142 | 🏆 **Bigdecimal.js** (288.3×) |
-| ToString | **10,676,511** | 118,226 | 253,802 | 258,435 | 1,245,853 | 🏆 **Bigdecimal.js** (8.6×) |
-| NumberValue | **760,852** | 104,744 | 234,134 | 119,574 | 288,163 | 🏆 **Bigdecimal.js** (2.6×) |
-| ToBigInt | **296,985** |  -  |  -  |  -  | 2,361 | 🏆 **Bigdecimal.js** (125.8×) |
+| Constructor (from string) | **6,043,887** | 4,195,972 | 3,247,185 | 2,931,506 | 258,913 | 🏆 **Bigdecimal.js** (1.4x) |
+| Constructor (from number) | 7,576,681 | 5,176,388 | 3,919,409 | 3,877,530 | 250,414 | not comparable &sup2; |
+| Add | **14,229,864** | 4,104,673 | 8,930,482 | 4,929,984 | 31,122 | 🏆 **Bigdecimal.js** (1.6x) |
+| Subtract | **13,743,623** | 3,582,666 | 8,194,245 | 4,713,292 | 29,768 | 🏆 **Bigdecimal.js** (1.7x) |
+| Multiply | **29,533,206** | 1,162,450 | 3,182,634 | 2,703,482 | 115,628 | 🏆 **Bigdecimal.js** (9.3x) |
+| Divide (50 significant digits) | **1,871,711** |  -  |  -  | 519,219 | 28,432 | 🏆 **Bigdecimal.js** (3.6x) |
+| Divide (50 decimal places) | **3,143,825** | 38,247 | 447,610 |  -  |  -  | 🏆 **Bigdecimal.js** (7.0x) |
+| DivideToIntegralValue | **6,929,746** |  -  | 848,253 | 1,657,834 | 57,258 | 🏆 **Bigdecimal.js** (4.2x) |
+| Remainder | **4,483,372** | 257,894 | 671,933 | 1,072,037 | 76,267 | 🏆 **Bigdecimal.js** (4.2x) |
+| Positive pow | **8,120,873** | 19,787 | 78,783 | 47,267 | 4,747 | 🏆 **Bigdecimal.js** (103.1x) |
+| Negative pow | 551,844 | 6,821 | 35,693 | 98,234 | 14,022 | not comparable &sup2; |
+| Sqrt | 194,241 | 1,735 | 42,447 | 61,617 |  -  | not comparable &#8309; |
+| Abs | **128,346,670** | 64,251,496 | 34,883,119 | 12,119,044 | 627,442 | 🏆 **Bigdecimal.js** (2.0x) |
+| Negate | **78,316,396** | 63,124,412 | 34,658,534 | 12,484,994 | 324,386 | 🏆 **Bigdecimal.js** (1.2x) |
+| Round | 7,040,580 | **22,228,115** |  -  | 5,988,927 | 237,352 | 🏆 **Big.js** (3.2x) |
+| SetScale | 11,915,905 | **22,984,262** | 10,568,821 | 6,805,968 | 62,691 | 🏆 **Big.js** (1.9x) |
+| SetScale (negative scales) | 7,312,717 | **16,548,250** | 8,735,792 |  -  | 87,508 | 🏆 **Big.js** (1.9x) |
+| Compare | **80,452,682** | 45,633,664 | 33,290,710 | 14,342,564 | 40,143,511 | 🏆 **Bigdecimal.js** (1.8x) |
+| Equals | 299,142,435 | 45,925,211 | 33,242,317 | 14,378,704 | 56,851,480 | not comparable &#8308; |
+| Min | **72,682,832** |  -  | 16,664,155 | 4,902,009 | 1,272,017 | 🏆 **Bigdecimal.js** (4.4x) |
+| Max | **72,889,348** |  -  | 16,693,262 | 4,886,171 | 1,096,132 | 🏆 **Bigdecimal.js** (4.4x) |
+| MovePointLeft | **43,676,966** |  -  |  -  |  -  | 70,409 | 🏆 **Bigdecimal.js** (620.3x) |
+| MovePointRight | **47,562,716** |  -  |  -  |  -  | 68,349 | 🏆 **Bigdecimal.js** (695.9x) |
+| ScaleByPowerOfTen | **120,945,092** |  -  | 2,077,470 |  -  | 318,469 | 🏆 **Bigdecimal.js** (58.2x) |
+| StripTrailingZeros | **21,166,976** |  -  |  -  |  -  | 270,002 | 🏆 **Bigdecimal.js** (78.4x) |
+| Ulp | **191,628,137** |  -  |  -  |  -  | 1,959,367 | 🏆 **Bigdecimal.js** (97.8x) |
+| UnscaledValue | **120,729,014** |  -  |  -  |  -  | 401,821 | 🏆 **Bigdecimal.js** (300.5x) |
+| ToString | **477,254,728** | 4,234,022 | 8,997,549 | 12,028,523 | 43,367,501 | 🏆 **Bigdecimal.js** (11.0x) &#8310; |
+| NumberValue | **27,912,581** | 3,129,783 | 5,876,804 | 5,201,013 | 9,954,646 | 🏆 **Bigdecimal.js** (2.8x) |
+| ToBigInt | **10,278,944** |  -  |  -  |  -  | 85,551 | 🏆 **Bigdecimal.js** (120.1x) |
 
-bigdecimal.js is the fastest in 25 of 27 operations. It trails big.js on `round`/`setScale`, where big.js's digit-array representation makes truncation nearly free.
+&sup2; Libraries did not agree on the result, so rates are not a like-for-like comparison.
+&#8308; The libraries implement different semantics here, so equal rates would not mean equal work.
+&#8309; Precision basis differs between libraries (significant digits vs decimal places), so they are not doing equal work.
+&#8310; ToString: bigdecimal.js memoises toString per instance; repeated calls on the same value read a warm cache.
+
+### Workload cohorts
+
+bigdecimal.js keeps a significand of up to 15 digits in a plain `number` (the *compact* path) and only inflates to `BigInt` beyond that. The blended table above mixes both, so it reports neither regime cleanly. The **money** cohort is ordinary currency arithmetic — two decimal places, magnitudes under 1e9 — which is what most callers actually run:
+
+| Operation | Bigdecimal.js | Big.js | BigNumber.js | decimal.js | GWTBased | Fastest |
+| --- | --- | --- | --- | --- | --- | --- |
+| Add (compact) | **33,081,703** | 11,890,970 | 5,549,990 | 5,489,052 | 608,639 | 🏆 **Bigdecimal.js** (2.8x) |
+| Subtract (compact) | **39,117,025** | 10,545,499 | 5,756,486 | 5,566,898 | 629,004 | 🏆 **Bigdecimal.js** (3.7x) |
+| Multiply (compact) | **45,780,797** | 9,626,315 | 5,033,788 | 6,276,386 | 581,085 | 🏆 **Bigdecimal.js** (4.8x) |
+| Compare (compact) | **93,241,756** | 52,573,517 | 30,453,519 | 14,431,139 | 10,522,627 | 🏆 **Bigdecimal.js** (1.8x) |
+| Add (inflated) | **13,982,954** | 2,269,699 | 3,862,954 | 4,575,386 | 15,539 | 🏆 **Bigdecimal.js** (3.1x) |
+| Subtract (inflated) | **11,667,307** | 1,820,552 | 3,666,368 | 4,316,760 | 14,811 | 🏆 **Bigdecimal.js** (2.7x) |
+| Multiply (inflated) | **32,143,326** | 384,076 | 1,282,752 | 1,231,227 | 53,320 | 🏆 **Bigdecimal.js** (25.1x) |
+| Compare (inflated) | **55,035,878** | 40,038,707 | 29,782,989 | 12,334,647 | 24,751,841 | 🏆 **Bigdecimal.js** (1.4x) |
+| Add (money) | **46,921,220** | 17,758,712 | 7,058,574 | 7,304,699 | 764,132 | 🏆 **Bigdecimal.js** (2.6x) |
+| Subtract (money) | **55,498,366** | 14,749,204 | 7,041,060 | 6,975,336 | 751,021 | 🏆 **Bigdecimal.js** (3.8x) |
+| Multiply (money) | **53,960,270** | 14,713,216 | 3,985,381 | 5,450,712 | 593,383 | 🏆 **Bigdecimal.js** (3.7x) |
+| Compare (money) | **201,708,998** | 55,547,864 | 29,816,394 | 14,603,893 | 19,634,421 | 🏆 **Bigdecimal.js** (3.6x) |
+
+Two things worth noting. The money cohort — the most realistic workload — is where bigdecimal.js performs best in absolute terms. And the blended rows are slower than *any* cohort, because walking consecutive operands in the mixed dataset pairs values of very different magnitude, and aligning their scales costs more than any like-with-like pairing.
+
+bigdecimal.js posts the highest rate in most rows above. It trails big.js on `round`/`setScale`, where big.js's digit-array representation makes truncation nearly free. That gap is representational rather than incidental: it holds at roughly the same ratio across positive scales (0–40), across significant-digit precisions from 1 to 40, and across negative scales.
 
 ### Other engines: Bun (JavaScriptCore)
 
-The table above is measured on Node.js, i.e. V8. Because bigdecimal.js builds on native `BigInt`, relative results depend on the engine's `BigInt` implementation. Running the same suite on the same machine under Bun 1.3.14 (JavaScriptCore, the engine of Safari), bigdecimal.js is the fastest in 24 of 27 operations, and its absolute throughput is often higher than on V8 — for example ToString reaches 17.8M ops/sec (10.7M on V8), NumberValue 4.0M (761K on V8) and DivideToIntegralValue 215K (195K on V8).
+The table above is measured on Node.js, i.e. V8. Because bigdecimal.js builds on native `BigInt`, relative results depend on the engine's `BigInt` implementation — running the same suite under Bun (JavaScriptCore, the engine of Safari) reorders a few rows. Measured with the current 42-operation harness (Bun 1.3.14, same machine and AC conditions as the table above); the preflight reported the same two known mismatches (`Constructor (from number)`, `Negative pow`) as on Node, so nothing here is a JavaScriptCore-only correctness difference.
 
-Operations where the outcome differs on JavaScriptCore:
+bigdecimal.js still wins 35 of the 38 comparable rows on JavaScriptCore, same as on V8. Three rows change their winner:
 
 | Operation | Node.js (V8) | Bun (JavaScriptCore) |
 | --- | --- | --- |
-| Constructor | 🏆 **Bigdecimal.js** (1.9×) | 🏆 **Big.js** (1.0×) — JavaScriptCore parses decimal strings into `BigInt` more slowly than V8 |
-| Round | 🏆 **Big.js** (2.2×) | 🏆 **decimal.js** (1.4×) |
-| SetScale | 🏆 **Big.js** (1.9×) | 🏆 **decimal.js** (1.2×), Bigdecimal.js second |
+| Constructor (from string) | 🏆 **Bigdecimal.js** (1.4×) | 🏆 **BigNumber.js** (1.1×) — JavaScriptCore parses decimal strings into `BigInt` more slowly than V8 |
+| SetScale | 🏆 **Big.js** (1.9×) | *within noise* — Bigdecimal.js and BigNumber.js tie (13.07M vs 13.07M ops/sec) |
+| SetScale (negative scales) | 🏆 **Big.js** (1.9×) | 🏆 **BigNumber.js** (1.2×), Bigdecimal.js third |
+
+`Round` keeps its Big.js win on both engines. The largest single-engine gap is `ToString`, where bigdecimal.js's per-instance memoisation (see the note on that row above) is worth more on V8: 2.3× faster there than on JavaScriptCore for the identical code path.
 
 To reproduce, run the suite with Bun: `bun benchmarks/index.js`.
+
+## License
+
+`GPL-2.0-only WITH Classpath-exception-2.0` — see [LICENSE](LICENSE).
+
+bigdecimal.js is a port of `java.math.BigDecimal` from OpenJDK, which is distributed under the GNU General Public License version 2 with the Classpath Exception. As a derivative work this library carries the same terms. See [PROVENANCE.md](PROVENANCE.md) for the details of the derivation.
+
+**The Classpath Exception means you can use this in proprietary software.** You may depend on bigdecimal.js from a program under any license, closed-source included, without that program becoming subject to the GPL. The GPL's obligations attach to this library's own source and to modifications of it — not to independent modules that merely link against it.
+
+Releases up to and including 1.7.0 were published under Apache-2.0. The change applies from 1.7.1 onward; see [PROVENANCE.md](PROVENANCE.md) for what that does and does not settle about versions before it.
 
 [npm-image]: https://img.shields.io/npm/v/bigdecimal.js.svg
 [npm-url]: https://npmjs.org/package/bigdecimal.js

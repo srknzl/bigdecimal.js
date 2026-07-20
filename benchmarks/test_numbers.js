@@ -58,11 +58,47 @@ for (const x of bigDecimalStrings) {
     bigDecimalsGWT.push(GWTDecimal(x));
 }
 
+// Representation cohorts.
+//
+// bigdecimal.js keeps a significand of <= MAX_COMPACT_DIGITS (15) digits in a plain
+// `number` and only inflates to `bigint` beyond that. The compact path is roughly
+// 2.3x faster for Add, but this dataset is an even 18/18 mix, and a blended rate is
+// dominated by the slow operands — so the blended figure lands near the inflated one
+// and hides the fast path entirely. Splitting by representation reports each regime
+// instead of an average that describes neither.
+//
+// Partitioned by string so every library receives exactly the same values.
+const compactStrings = bigDecimalStrings.filter((s) => Big(s).precision() <= 15);
+const inflatedStrings = bigDecimalStrings.filter((s) => Big(s).precision() > 15);
+
+// A realistic money workload. The dataset above deliberately skews exotic — 69-digit
+// significands, E233 exponents — which stresses the library but is not what most
+// callers do. The dominant real use of a decimal library is currency: two decimal
+// places, magnitudes below ~1e9, every value on the compact path. Without this cohort
+// the published numbers describe a workload almost nobody actually runs.
+const moneyStrings = [
+    '0.01', '0.07', '0.50', '0.99', '2.99', '3.33', '7.25', '12.75', '19.99',
+    '45.00', '64.20', '149.50', '250.00', '1234.56', '8999.95', '45678.90',
+    '99999.99', '1500000.00',
+];
+
+const cohort = (strings) => ({
+    strings,
+    bigDecimals: strings.map((s) => Big(s)),
+    bigjs: strings.map((s) => BigJs(s)),
+    bigNumber: strings.map((s) => BigNumber(s)),
+    decimal: strings.map((s) => Decimal(s)),
+    gwt: strings.map((s) => GWTDecimal(s)),
+});
+
 module.exports = {
     bigDecimalStrings,
     bigDecimals: bigDecimals,
     bigDecimalsBigjs: bigDecimalsBigjs,
     bigDecimalsBigNumber: bigDecimalsBigNumber,
     bigDecimalsDecimal: bigDecimalsDecimal,
-    bigDecimalsGWT: bigDecimalsGWT
+    bigDecimalsGWT: bigDecimalsGWT,
+    compact: cohort(compactStrings),
+    inflated: cohort(inflatedStrings),
+    money: cohort(moneyStrings),
 };

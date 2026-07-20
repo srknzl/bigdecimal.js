@@ -28,7 +28,11 @@ conditions below will look familiar.
 
 - strings that are not valid decimal numbers: multiple decimal points or signs, no
   digits, a missing or malformed exponent after `e`/`E`
-- exponents outside the 32-bit integer range
+- an exponent whose **resulting scale** would fall outside the 32-bit integer range.
+  Note it is the scale that must fit, not the exponent: `Big('1E+2147483648')` is
+  accepted (its scale is `-2147483648`, which fits) while `Big('1E-2147483648')`
+  throws, because that scale would be `+2147483648`. This mirrors the JDK, which
+  changed in Java 19 so that `Big(x.toString())` always round-trips
 - a `number` outside `[-Number.MAX_VALUE, Number.MAX_VALUE]` (`NaN`, `Infinity`)
 - invalid argument combinations: passing both `scale` and a `MathContext`, or passing
   `scale` with a non-integer `number`
@@ -114,6 +118,44 @@ try {
 - `toFixed`/`toExponential`/`toPrecision` validate their arguments
   (non-negative / positive integers) with a `RangeError`, matching how JS `Number`
   methods reject bad arguments.
+
+### Malformed precision and scale
+
+Java types both `precision` and `scale` as `int`, so a fractional or non-finite
+value is impossible there. JavaScript has only `number`, so both are validated on
+the way in:
+
+- `MC(p)` requires `p` to be an integer in `[0, 2147483647]` — `MC(1.5)`, `MC(NaN)`
+  and `MC(Infinity)` throw `MathContext precision must be an integer`, and values
+  above the `int` range throw `out of the 32-bit integer range`.
+- `Big(value, scale)` requires `scale` to be an integer in the 32-bit range —
+  `Big(1n, NaN)` and `Big(1n, 1.5)` throw `Scale must be an integer`.
+- The operations that take a scale, exponent or point shift — `divide(d, scale, rm)`,
+  `setScale`, `scaleByPowerOfTen`, `movePointLeft`, `movePointRight` — require the
+  same. These are `int` parameters in Java, so an out-of-range value cannot be passed
+  there at all; passing one here throws `out of the 32-bit integer range` rather than
+  producing a value Java could not represent. This is distinct from an *in-range*
+  argument whose resulting scale overflows, which still reports `Scale too high` /
+  `Scale too less` (see below).
+
+These are rejected at construction rather than at use because a fractional
+precision would otherwise reach the digit-stepping reduction loops in `round()`
+and `sqrt()`, which can never converge on a non-integer target, and a `NaN` scale
+would reach the string layout and produce malformed output such as `'1ENaN'`.
+
+```js-live
+try {
+    MC(1.5)
+} catch (e) {
+    console.log(e.message)
+}
+
+try {
+    Big(1n, NaN)
+} catch (e) {
+    console.log(e.message)
+}
+```
 
 ## Why `RangeError`?
 

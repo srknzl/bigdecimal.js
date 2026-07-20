@@ -1,0 +1,1041 @@
+{
+  "generatedAt": "2026-07-20T15:12:37.550Z",
+  "node": "v24.16.0",
+  "platform": "darwin arm64",
+  "unit": "operations per second",
+  "equivalenceSignificantDigits": 12,
+  "operations": [
+    {
+      "name": "Constructor (from string)",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 6043887.2599572735,
+        "Big.js": 4195971.683011187,
+        "BigNumber.js": 3247184.971739132,
+        "decimal.js": 2931506.0113327457,
+        "GWTBased": 258913.47207970187
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 1.376958909752834,
+        "Big.js": 1.320451884045162,
+        "BigNumber.js": 0.19834564131294571,
+        "decimal.js": 1.8911102834667828,
+        "GWTBased": 1.4609785184540935
+      }
+    },
+    {
+      "name": "Constructor (from number)",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "mismatch",
+      "comparable": false,
+      "notComparableReason": "results disagree",
+      "note": null,
+      "fastest": null,
+      "opsPerSec": {
+        "Bigdecimal.js": 7576681.303395249,
+        "Big.js": 5176388.080812095,
+        "BigNumber.js": 3919409.128840915,
+        "decimal.js": 3877529.951986197,
+        "GWTBased": 250413.73579757666
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 1.1102167623981392,
+        "Big.js": 0.16766199351066458,
+        "BigNumber.js": 1.3522922880253878,
+        "decimal.js": 0.4644475343704775,
+        "GWTBased": 0.43780228072774363
+      }
+    },
+    {
+      "name": "Add",
+      "callsPerBatch": 35,
+      "resultsCompared": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 14229863.848645223,
+        "Big.js": 4104672.8529806905,
+        "BigNumber.js": 8930482.477689516,
+        "decimal.js": 4929983.704043932,
+        "GWTBased": 31121.92115894229
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 2.993223569830756,
+        "Big.js": 1.7732166338311401,
+        "BigNumber.js": 1.1587330974418966,
+        "decimal.js": 0.2771150602874077,
+        "GWTBased": 0.17633866439676812
+      }
+    },
+    {
+      "name": "Subtract",
+      "callsPerBatch": 35,
+      "resultsCompared": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 13743622.705968391,
+        "Big.js": 3582665.552747662,
+        "BigNumber.js": 8194245.440871492,
+        "decimal.js": 4713292.091913069,
+        "GWTBased": 29767.842046510134
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 1.2409667695915867,
+        "Big.js": 1.4174318549754554,
+        "BigNumber.js": 0.5733076548385708,
+        "decimal.js": 1.3684542505334474,
+        "GWTBased": 0.16054164976304577
+      }
+    },
+    {
+      "name": "Multiply",
+      "callsPerBatch": 35,
+      "resultsCompared": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 29533206.064646713,
+        "Big.js": 1162449.8047671544,
+        "BigNumber.js": 3182633.597205837,
+        "decimal.js": 2703481.6573677827,
+        "GWTBased": 115628.43464617015
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.16090143992015132,
+        "Big.js": 1.9382389729731169,
+        "BigNumber.js": 0.4932666962375011,
+        "decimal.js": 2.856842201870651,
+        "GWTBased": 0.13778402686742175
+      }
+    },
+    {
+      "name": "Divide (50 significant digits)",
+      "callsPerBatch": 35,
+      "resultsCompared": 35,
+      "precisionBasis": "significant-digits",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 1871711.1391805264,
+        "decimal.js": 519219.30991654546,
+        "GWTBased": 28431.911861516543
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 2.7871282471908967,
+        "decimal.js": 1.5195938779109026,
+        "GWTBased": 1.7216874321925142
+      }
+    },
+    {
+      "name": "Divide (50 decimal places)",
+      "callsPerBatch": 35,
+      "resultsCompared": 35,
+      "precisionBasis": "decimal-places",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 3143824.7876426633,
+        "Big.js": 38247.312804605106,
+        "BigNumber.js": 447610.0639163898
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 1.3424864610348137,
+        "Big.js": 1.3414265384443198,
+        "BigNumber.js": 0.13323210844106115
+      }
+    },
+    {
+      "name": "DivideToIntegralValue",
+      "callsPerBatch": 35,
+      "resultsCompared": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 6929746.114162342,
+        "BigNumber.js": 848253.4847874749,
+        "decimal.js": 1657834.4669959226,
+        "GWTBased": 57258.323071799765
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.24571478174808992,
+        "BigNumber.js": 0.1655650155353938,
+        "decimal.js": 1.0722998928686014,
+        "GWTBased": 0.3929206115414521
+      }
+    },
+    {
+      "name": "Remainder",
+      "callsPerBatch": 35,
+      "resultsCompared": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 4483371.657727941,
+        "Big.js": 257893.87110644556,
+        "BigNumber.js": 671933.2589673556,
+        "decimal.js": 1072037.0454808464,
+        "GWTBased": 76266.56320965303
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.09105025524027076,
+        "Big.js": 0.18846702532844184,
+        "BigNumber.js": 0.07928285672555353,
+        "decimal.js": 0.1594034819923969,
+        "GWTBased": 3.2446813151003715
+      }
+    },
+    {
+      "name": "Positive pow",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 8120873.195411387,
+        "Big.js": 19786.99149024801,
+        "BigNumber.js": 78783.3871835995,
+        "decimal.js": 47267.125577083534,
+        "GWTBased": 4747.49192856875
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.2287323209200138,
+        "Big.js": 0.05209427016892128,
+        "BigNumber.js": 0.10716405553961526,
+        "decimal.js": 0.07732067421369791,
+        "GWTBased": 0.0693918615403783
+      }
+    },
+    {
+      "name": "Negative pow",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "mixed",
+      "cohort": null,
+      "equivalence": "mismatch",
+      "comparable": false,
+      "notComparableReason": "results disagree",
+      "note": null,
+      "fastest": null,
+      "opsPerSec": {
+        "Bigdecimal.js": 551843.8817865493,
+        "Big.js": 6820.863150985498,
+        "BigNumber.js": 35692.6373648817,
+        "decimal.js": 98234.43482829312,
+        "GWTBased": 14022.361856454374
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.16542887503947507,
+        "Big.js": 0.05260778078708196,
+        "BigNumber.js": 0.20518534884634024,
+        "decimal.js": 0.15623054942929715,
+        "GWTBased": 0.09702658650463777
+      }
+    },
+    {
+      "name": "Sqrt",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "mixed",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": false,
+      "notComparableReason": "precision basis differs",
+      "note": null,
+      "fastest": null,
+      "opsPerSec": {
+        "Bigdecimal.js": 194240.51679461633,
+        "Big.js": 1735.4153778470788,
+        "BigNumber.js": 42446.997170431554,
+        "decimal.js": 61616.85522530132
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.08413870023871337,
+        "Big.js": 0.061047079130644354,
+        "BigNumber.js": 0.06515201103381195,
+        "decimal.js": 0.09734220663043613
+      }
+    },
+    {
+      "name": "Abs",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 128346669.65267323,
+        "Big.js": 64251496.053410664,
+        "BigNumber.js": 34883119.1313308,
+        "decimal.js": 12119044.080657493,
+        "GWTBased": 627441.6105454493
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 1.0843047697310388,
+        "Big.js": 0.3097932105490913,
+        "BigNumber.js": 0.0974574146192402,
+        "decimal.js": 0.11809781719862471,
+        "GWTBased": 0.05811899020561716
+      }
+    },
+    {
+      "name": "Negate",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 78316395.55978267,
+        "Big.js": 63124412.06702362,
+        "BigNumber.js": 34658533.781414226,
+        "decimal.js": 12484994.298756521,
+        "GWTBased": 324386.4575938428
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.112735484392813,
+        "Big.js": 0.0989223312843386,
+        "BigNumber.js": 0.05762485008976993,
+        "decimal.js": 0.1376470364702595,
+        "GWTBased": 0.2836629492307277
+      }
+    },
+    {
+      "name": "Round",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Big.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 7040580.39437829,
+        "Big.js": 22228115.337391455,
+        "decimal.js": 5988926.884410923,
+        "GWTBased": 237351.88198246833
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.07315330627931738,
+        "Big.js": 0.5271751138580323,
+        "decimal.js": 0.1385641008993973,
+        "GWTBased": 0.07326872380306439
+      }
+    },
+    {
+      "name": "SetScale",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Big.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 11915904.805329267,
+        "Big.js": 22984261.819431033,
+        "BigNumber.js": 10568821.232462252,
+        "decimal.js": 6805968.112176555,
+        "GWTBased": 62690.87388539185
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 2.3275124561605467,
+        "Big.js": 0.07239045078662325,
+        "BigNumber.js": 0.2487566828718891,
+        "decimal.js": 0.07064477515892377,
+        "GWTBased": 0.06350402522003971
+      }
+    },
+    {
+      "name": "SetScale (negative scales)",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Big.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 7312717.282228373,
+        "Big.js": 16548249.781002346,
+        "BigNumber.js": 8735791.79625195,
+        "GWTBased": 87508.19563151637
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.0622922529256293,
+        "Big.js": 0.06409401345084255,
+        "BigNumber.js": 0.06627982931341644,
+        "GWTBased": 0.07714994249153587
+      }
+    },
+    {
+      "name": "Compare",
+      "callsPerBatch": 35,
+      "resultsCompared": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 80452682.4792225,
+        "Big.js": 45633664.30274415,
+        "BigNumber.js": 33290710.4302887,
+        "decimal.js": 14342563.691212421,
+        "GWTBased": 40143511.47154034
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.3143217686477992,
+        "Big.js": 0.3368217778272811,
+        "BigNumber.js": 0.12331363945528599,
+        "decimal.js": 0.3784956805232077,
+        "GWTBased": 0.08106619643631617
+      }
+    },
+    {
+      "name": "Equals",
+      "callsPerBatch": 35,
+      "resultsCompared": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": false,
+      "notComparableReason": "different semantics",
+      "note": null,
+      "fastest": null,
+      "opsPerSec": {
+        "Bigdecimal.js": 299142435.32186115,
+        "Big.js": 45925211.07462598,
+        "BigNumber.js": 33242316.918243084,
+        "decimal.js": 14378704.043508615,
+        "GWTBased": 56851479.56830356
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.20934865347315668,
+        "Big.js": 0.10894059297415226,
+        "BigNumber.js": 0.14331305252422905,
+        "decimal.js": 0.08770090862642187,
+        "GWTBased": 0.39182098524883513
+      }
+    },
+    {
+      "name": "Min",
+      "callsPerBatch": 35,
+      "resultsCompared": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 72682831.81417596,
+        "BigNumber.js": 16664154.748478508,
+        "decimal.js": 4902008.733893472,
+        "GWTBased": 1272016.7967465443
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.16856899252510515,
+        "BigNumber.js": 0.21553312786434625,
+        "decimal.js": 0.22296509115594726,
+        "GWTBased": 0.07959713776340123
+      }
+    },
+    {
+      "name": "Max",
+      "callsPerBatch": 35,
+      "resultsCompared": 35,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 72889347.89915141,
+        "BigNumber.js": 16693261.770314604,
+        "decimal.js": 4886170.86529561,
+        "GWTBased": 1096131.6679770534
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.10692706427284424,
+        "BigNumber.js": 0.09354801057754858,
+        "decimal.js": 0.5658061870093666,
+        "GWTBased": 0.05880061264374619
+      }
+    },
+    {
+      "name": "MovePointLeft",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 43676966.351321034,
+        "GWTBased": 70408.80536664993
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.07323745618716891,
+        "GWTBased": 0.06250884053226159
+      }
+    },
+    {
+      "name": "MovePointRight",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 47562716.26805848,
+        "GWTBased": 68348.66789376657
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 1.893247299105769,
+        "GWTBased": 0.05507316123968811
+      }
+    },
+    {
+      "name": "ScaleByPowerOfTen",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 120945091.73695423,
+        "BigNumber.js": 2077469.8191226157,
+        "GWTBased": 318469.01479240315
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.10455032704757641,
+        "BigNumber.js": 0.14104656913236122,
+        "GWTBased": 0.4873600712952937
+      }
+    },
+    {
+      "name": "StripTrailingZeros",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 21166976.214956414,
+        "GWTBased": 270002.2520677305
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.07906038409027547,
+        "GWTBased": 0.07089055436053061
+      }
+    },
+    {
+      "name": "Ulp",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 191628136.7806573,
+        "GWTBased": 1959367.0825116818
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.16727726527652628,
+        "GWTBased": 0.05281232251016395
+      }
+    },
+    {
+      "name": "UnscaledValue",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 120729014.10035303,
+        "GWTBased": 401820.9336330611
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.2142733607506408,
+        "GWTBased": 0.0707875475482981
+      }
+    },
+    {
+      "name": "ToString",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": "bigdecimal.js memoises toString per instance; repeated calls on the same value read a warm cache",
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 477254727.80367994,
+        "Big.js": 4234021.999732799,
+        "BigNumber.js": 8997548.61379954,
+        "decimal.js": 12028523.439615551,
+        "GWTBased": 43367500.594992384
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.4934935945553469,
+        "Big.js": 0.05647360549724025,
+        "BigNumber.js": 0.08914825789716392,
+        "decimal.js": 0.06910694138677742,
+        "GWTBased": 0.17510337019273842
+      }
+    },
+    {
+      "name": "NumberValue",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 27912581.199397683,
+        "Big.js": 3129782.594696709,
+        "BigNumber.js": 5876804.057029636,
+        "decimal.js": 5201013.474747203,
+        "GWTBased": 9954646.007787485
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.47508118895840484,
+        "Big.js": 0.07354770615506777,
+        "BigNumber.js": 0.3637522215978544,
+        "decimal.js": 0.051321330201683224,
+        "GWTBased": 0.09670849718702332
+      }
+    },
+    {
+      "name": "ToBigInt",
+      "callsPerBatch": 36,
+      "resultsCompared": 36,
+      "precisionBasis": "exact",
+      "cohort": null,
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 10278943.66896375,
+        "GWTBased": 85551.15965192147
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.05837683318409005,
+        "GWTBased": 0.06792990740537905
+      }
+    },
+    {
+      "name": "Add (compact)",
+      "callsPerBatch": 17,
+      "resultsCompared": 17,
+      "precisionBasis": "exact",
+      "cohort": "compact",
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 33081702.668452602,
+        "Big.js": 11890970.147042822,
+        "BigNumber.js": 5549990.421872649,
+        "decimal.js": 5489051.680296538,
+        "GWTBased": 608638.6278026099
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.07905579486469946,
+        "Big.js": 0.05532131080612766,
+        "BigNumber.js": 0.05608900720672,
+        "decimal.js": 0.15932573094798996,
+        "GWTBased": 0.42416393419976023
+      }
+    },
+    {
+      "name": "Subtract (compact)",
+      "callsPerBatch": 17,
+      "resultsCompared": 17,
+      "precisionBasis": "exact",
+      "cohort": "compact",
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 39117025.03521422,
+        "Big.js": 10545498.937136337,
+        "BigNumber.js": 5756486.050367872,
+        "decimal.js": 5566897.912823843,
+        "GWTBased": 629003.5392799272
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.3000421117477191,
+        "Big.js": 2.3224305722719265,
+        "BigNumber.js": 0.08107865265670744,
+        "decimal.js": 0.10222439806284093,
+        "GWTBased": 0.09796738245521255
+      }
+    },
+    {
+      "name": "Multiply (compact)",
+      "callsPerBatch": 17,
+      "resultsCompared": 17,
+      "precisionBasis": "exact",
+      "cohort": "compact",
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 45780796.905851044,
+        "Big.js": 9626314.8367534,
+        "BigNumber.js": 5033787.673323751,
+        "decimal.js": 6276385.5245665675,
+        "GWTBased": 581085.0691816845
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.19427092892953976,
+        "Big.js": 0.042724866512040716,
+        "BigNumber.js": 0.4459365892456068,
+        "decimal.js": 0.10959277297728058,
+        "GWTBased": 0.04651913364468456
+      }
+    },
+    {
+      "name": "Compare (compact)",
+      "callsPerBatch": 17,
+      "resultsCompared": 17,
+      "precisionBasis": "exact",
+      "cohort": "compact",
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 93241756.28097335,
+        "Big.js": 52573517.057411544,
+        "BigNumber.js": 30453518.885508325,
+        "decimal.js": 14431139.139606917,
+        "GWTBased": 10522626.55075388
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.45503120000399117,
+        "Big.js": 0.09410899389287436,
+        "BigNumber.js": 0.13675765400138123,
+        "decimal.js": 0.10287524319187366,
+        "GWTBased": 0.11090904449999794
+      }
+    },
+    {
+      "name": "Add (inflated)",
+      "callsPerBatch": 17,
+      "resultsCompared": 17,
+      "precisionBasis": "exact",
+      "cohort": "inflated",
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 13982953.512063028,
+        "Big.js": 2269698.511967828,
+        "BigNumber.js": 3862954.2373825875,
+        "decimal.js": 4575385.898202579,
+        "GWTBased": 15539.381979559117
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.440572243288983,
+        "Big.js": 0.06926792221744499,
+        "BigNumber.js": 0.0866731047123883,
+        "decimal.js": 0.0690670072682224,
+        "GWTBased": 0.04842228896020035
+      }
+    },
+    {
+      "name": "Subtract (inflated)",
+      "callsPerBatch": 17,
+      "resultsCompared": 17,
+      "precisionBasis": "exact",
+      "cohort": "inflated",
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 11667307.220775977,
+        "Big.js": 1820551.976511574,
+        "BigNumber.js": 3666368.411665279,
+        "decimal.js": 4316759.831754625,
+        "GWTBased": 14811.321229255367
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.07979673624877955,
+        "Big.js": 0.07138313040684499,
+        "BigNumber.js": 0.07616021279180861,
+        "decimal.js": 0.4411296738791352,
+        "GWTBased": 0.042584158239323884
+      }
+    },
+    {
+      "name": "Multiply (inflated)",
+      "callsPerBatch": 17,
+      "resultsCompared": 17,
+      "precisionBasis": "exact",
+      "cohort": "inflated",
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 32143326.22776128,
+        "Big.js": 384076.15092594986,
+        "BigNumber.js": 1282751.6450885956,
+        "decimal.js": 1231226.9988943872,
+        "GWTBased": 53320.4911707816
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.07686543500714221,
+        "Big.js": 0.06056270614665471,
+        "BigNumber.js": 0.09637060084026745,
+        "decimal.js": 0.2151240072060274,
+        "GWTBased": 0.06692386597277951
+      }
+    },
+    {
+      "name": "Compare (inflated)",
+      "callsPerBatch": 17,
+      "resultsCompared": 17,
+      "precisionBasis": "exact",
+      "cohort": "inflated",
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 55035877.636785895,
+        "Big.js": 40038706.60422179,
+        "BigNumber.js": 29782988.790549744,
+        "decimal.js": 12334647.00682004,
+        "GWTBased": 24751841.369037736
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 2.1875079417279095,
+        "Big.js": 0.6959924436728282,
+        "BigNumber.js": 0.19642405546939218,
+        "decimal.js": 7.537599784139733,
+        "GWTBased": 2.243276198013319
+      }
+    },
+    {
+      "name": "Add (money)",
+      "callsPerBatch": 17,
+      "resultsCompared": 17,
+      "precisionBasis": "exact",
+      "cohort": "money",
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 46921220.37664854,
+        "Big.js": 17758712.20652935,
+        "BigNumber.js": 7058573.636362637,
+        "decimal.js": 7304699.295515992,
+        "GWTBased": 764131.5823460697
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.13232001328478946,
+        "Big.js": 0.05974286553173675,
+        "BigNumber.js": 0.12740750185902433,
+        "decimal.js": 0.12066154455475063,
+        "GWTBased": 0.5545110515988353
+      }
+    },
+    {
+      "name": "Subtract (money)",
+      "callsPerBatch": 17,
+      "resultsCompared": 17,
+      "precisionBasis": "exact",
+      "cohort": "money",
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 55498366.36426295,
+        "Big.js": 14749203.770462925,
+        "BigNumber.js": 7041059.85216126,
+        "decimal.js": 6975336.488031698,
+        "GWTBased": 751020.511856501
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.08973249698218842,
+        "Big.js": 0.05764119839080163,
+        "BigNumber.js": 0.13021377363833456,
+        "decimal.js": 0.06183852834454706,
+        "GWTBased": 0.050422166748684355
+      }
+    },
+    {
+      "name": "Multiply (money)",
+      "callsPerBatch": 17,
+      "resultsCompared": 17,
+      "precisionBasis": "exact",
+      "cohort": "money",
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 53960270.18270739,
+        "Big.js": 14713215.975828005,
+        "BigNumber.js": 3985381.4901225916,
+        "decimal.js": 5450712.439270537,
+        "GWTBased": 593382.7579343169
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.09839015848379976,
+        "Big.js": 0.06580406255298812,
+        "BigNumber.js": 0.4412607171533672,
+        "decimal.js": 0.07110204467325891,
+        "GWTBased": 0.14200143514776978
+      }
+    },
+    {
+      "name": "Compare (money)",
+      "callsPerBatch": 17,
+      "resultsCompared": 17,
+      "precisionBasis": "exact",
+      "cohort": "money",
+      "equivalence": "ok",
+      "comparable": true,
+      "notComparableReason": null,
+      "note": null,
+      "fastest": "Bigdecimal.js",
+      "opsPerSec": {
+        "Bigdecimal.js": 201708997.76505128,
+        "Big.js": 55547863.83195183,
+        "BigNumber.js": 29816394.09518843,
+        "decimal.js": 14603892.819297513,
+        "GWTBased": 19634420.821696863
+      },
+      "relativeMarginOfErrorPct": {
+        "Bigdecimal.js": 0.3129872368728428,
+        "Big.js": 0.08551636456855315,
+        "BigNumber.js": 0.07664114335158514,
+        "decimal.js": 0.06348076966382836,
+        "GWTBased": 0.36409097834090504
+      }
+    }
+  ]
+}

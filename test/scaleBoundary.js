@@ -34,8 +34,22 @@ describe('Scale boundary (Java int range) error contracts', function () {
             .should.throw(RangeError, 'Scale too high');
     });
 
-    it('should throw when setScale exceeds the int range on a nonzero value', function () {
+    // Two different contracts, and they used to be conflated. An out-of-int-range *argument*
+    // is rejected outright, because Java types these parameters as `int` and could never
+    // receive one. An in-range argument whose *resulting* scale overflows is what checkScale
+    // is for, and that path still reports Java's overflow error.
+    it('should reject an out-of-int-range setScale argument', function () {
         (() => Big('2').setScale(2200000000, RoundingMode.HALF_UP))
+            .should.throw(RangeError, 'out of the 32-bit integer range');
+        (() => Big('2').setScale(-2200000000, RoundingMode.HALF_UP))
+            .should.throw(RangeError, 'out of the 32-bit integer range');
+    });
+
+    // setScale overflows on the *difference* newScale - oldScale, not on newScale itself, so
+    // it takes a large negative starting scale to reach. Java throws ArithmeticException here
+    // too (reported as "Underflow").
+    it('should throw when setScale overflows the scale from an in-range argument', function () {
+        (() => Big('1e2000000000').setScale(2000000000, RoundingMode.HALF_UP))
             .should.throw(RangeError, 'Scale too high');
     });
 
@@ -44,9 +58,20 @@ describe('Scale boundary (Java int range) error contracts', function () {
             .should.throw(RangeError, 'Scale too high');
     });
 
+    // Verified against JDK 26.0.1: a zero significand has no digits to lose, so a scale that
+    // would overflow is clamped rather than throwing, while the same call on a nonzero value
+    // throws. The arguments here are all inside the int range — reaching this path with an
+    // out-of-range argument was a JS-only extension and is now rejected up front.
     it('should clamp instead of throwing when the value is zero', function () {
-        // A zero significand has no digits to lose, so an out-of-range scale is clamped.
         Big('0').multiply(Big('1e2000000000')).signum().should.be.equal(0);
-        Big('0').movePointLeft(2200000000).signum().should.be.equal(0);
+
+        const zero = Big(0n, 1000);
+        zero.movePointLeft(2147483647).scale().should.be.equal(2147483647);
+        zero.movePointLeft(2147483647).signum().should.be.equal(0);
+        Big('0').setScale(2147483647).scale().should.be.equal(2147483647);
+        Big(0n, -1000).movePointRight(2147483647).scale().should.be.equal(0);
+
+        // the same movePointLeft on a nonzero value overflows instead
+        (() => Big(1n, 1000).movePointLeft(2147483647)).should.throw(RangeError);
     });
 });

@@ -104,4 +104,6 @@ npm run benchmark   # full suite, ~10 min; the output table is pasted into the R
 5. Open a PR describing the change and referencing any issue. CI must pass on all Node versions.
 
 By contributing you agree your contributions are licensed under the project's
-[Apache-2.0](LICENSE) license.
+[GPL-2.0-only WITH Classpath-exception-2.0](LICENSE) license. This project is a
+port of `java.math.BigDecimal` from OpenJDK and carries its upstream terms; see
+[PROVENANCE.md](PROVENANCE.md).
