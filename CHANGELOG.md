@@ -9,6 +9,22 @@ For releases before 1.6.0, see the
 
 ## [Unreleased]
 
+### Changed / Performance
+
+Allocation-free hot paths on inflated values and string parsing, contributed by
+[@Teknesyum](https://github.com/Teknesyum) ([#196](https://github.com/srknzl/bigdecimal.js/issues/196));
+no result changes:
+
+- `BigInt` negation uses unary minus instead of multiplying by `-1n` — `negate`
+  **~2×**, `abs` **~1.5×**, `subtract` on inflated values **+25–33%**, and every
+  rounding division with a negative operand benefits via `compareHalf`.
+- Digit counts of inflated significands below 2^1024 are estimated from
+  `Math.log10(Number(b))` instead of a hex-string conversion — `precision()` on
+  inflated values **−35%**, which carries `add` / `multiply` / `round` with a
+  `MathContext` (**~20%**), `divide` with a `MathContext` and `sqrt` (**~15%**).
+- `fromString` classifies characters by char code instead of one-character
+  strings — `Big(string)` **10–17% faster**.
+
 ## [1.7.1]
 
 ### Licensing
