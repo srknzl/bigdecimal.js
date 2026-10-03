@@ -543,9 +543,6 @@ export class BigDecimal {
     /** @internal */
     private static readonly tenBigInt = BigInt(10);
 
-    /** @internal */
-    private static readonly minusOneBigInt = BigInt(-1);
-
     /** Java Long.MIN_VALUE, the lower bound of {@link longValueExact}. @internal */
     private static readonly longMinValue = BigInt('-9223372036854775808');
 
@@ -896,11 +893,12 @@ export class BigDecimal {
         // bad offset, etc.
         // handle the sign
         let isneg = false; // assume positive
-        if (input[offset] === '-') {
+        const first = input.charCodeAt(offset);
+        if (first === 45) { // '-'
             isneg = true; // leading minus means negative
             offset++;
             len--;
-        } else if (input[offset] === '+') { // leading + allowed
+        } else if (first === 43) { // '+' leading + allowed
             offset++;
             len--;
         }
@@ -908,7 +906,7 @@ export class BigDecimal {
         // should now be at numeric part of the significand
         let dot = false; // true when there is a '.'
         let exp = 0; // exponent
-        let c: string; // current character
+        let c: number; // current character code
         const isCompact = len <= this.MAX_COMPACT_DIGITS;
 
         // integer significand array & idx is the index to it. The array
@@ -918,8 +916,8 @@ export class BigDecimal {
             // First compact case, we need not to preserve the character
             // and we can just compute the value in place.
             for (; len > 0; offset++, len--) {
-                c = input[offset]!;
-                if ((c === '0')) { // have zero
+                c = input.charCodeAt(offset);
+                if (c === 48) { // '0': have zero
                     if (prec === 0)
                         prec = 1;
                     else if (rs !== 0) {
@@ -928,22 +926,22 @@ export class BigDecimal {
                     } // else digit is a redundant leading zero
                     if (dot)
                         ++scl;
-                } else if ((c >= '1' && c <= '9')) { // have digit
-                    const digit = +c;
+                } else if (c >= 49 && c <= 57) { // '1'..'9': have digit
+                    const digit = c - 48;
                     if (prec !== 1 || rs !== 0)
                         ++prec; // prec unchanged if preceded by 0s
                     rs = rs * 10 + digit;
                     if (dot)
                         ++scl;
-                } else if (c === '.') { // have dot
+                } else if (c === 46) { // '.': have dot
                     if (dot) // two dots
                         throw new RangeError('Character array contains more than one decimal point.');
                     dot = true;
-                } else if ((c === 'e') || (c === 'E')) {
+                } else if (c === 101 || c === 69) { // 'e' / 'E'
                     exp = BigDecimal.parseExp(input, offset, len);
                     break; // [saves a test]
                 } else {
-                    throw new RangeError('Character ' + c
+                    throw new RangeError('Character ' + input[offset]
                         + ' is neither a decimal digit number, decimal point, nor'
                         + ' "e" notation exponential mark.');
                 }
@@ -973,10 +971,10 @@ export class BigDecimal {
             const start = offset; // digits and at most one dot run from here to the exponent mark or end
             let dotPos = -1;
             for (; len > 0; offset++, len--) {
-                c = input[offset]!;
+                c = input.charCodeAt(offset);
                 // have digit
-                if (c >= '0' && c <= '9') {
-                    if (c === '0') {
+                if (c >= 48 && c <= 57) {
+                    if (c === 48) {
                         if (prec === 0) {
                             prec = 1;
                         } else if (idx !== 0) {
@@ -991,7 +989,7 @@ export class BigDecimal {
                     continue;
                 }
                 // have dot
-                if (c === '.') {
+                if (c === 46) {
                     if (dot) { // two dots
                         throw new RangeError('String contains more than one decimal point.');
                     }
@@ -1000,7 +998,7 @@ export class BigDecimal {
                     continue;
                 }
                 // exponent expected
-                if ((c !== 'e') && (c !== 'E')) {
+                if (c !== 101 && c !== 69) {
                     throw new RangeError('String is missing "e" notation exponential mark.');
                 }
                 exp = BigDecimal.parseExp(input, offset, len);
@@ -1775,10 +1773,18 @@ export class BigDecimal {
     private static bigDigitLength(b: bigint) {
         if (b < BigDecimal.zeroBigInt) b = -b;
         if (b < BigDecimal.tenBigInt) return 1;
-        const hex = b.toString(16);
-        const bitLength = (hex.length - 1) * 4 + (32 - Math.clz32(parseInt(hex.charAt(0), 16)));
-        // 2^(bitLength-1) <= b < 2^bitLength, so the true digit count is d or d+1
-        let d = Math.floor((bitLength - 1) * BigDecimal.LOG10_2) + 1;
+        let d: number;
+        const approx = Number(b);
+        if (approx !== Infinity) {
+            // Fits a double (< 2^1024, ~308 digits): the rounded conversion is
+            // within one digit and costs no allocation.
+            d = Math.floor(Math.log10(approx)) + 1;
+        } else {
+            const hex = b.toString(16);
+            const bitLength = (hex.length - 1) * 4 + (32 - Math.clz32(parseInt(hex.charAt(0), 16)));
+            // 2^(bitLength-1) <= b < 2^bitLength, so the true digit count is d or d+1
+            d = Math.floor((bitLength - 1) * BigDecimal.LOG10_2) + 1;
+        }
         while (b >= BigDecimal.bigTenToThe(d)) d++;
         while (b < BigDecimal.bigTenToThe(d - 1)) d--;
         return d;
@@ -2014,7 +2020,7 @@ export class BigDecimal {
         if (mc !== undefined) mc = BigDecimal.normalizeMathContext(mc);
         let result = this.intCompact === BigDecimal.INFLATED ?
             new BigDecimal(
-                BigDecimal.minusOneBigInt * this.intVal!, BigDecimal.INFLATED, this._scale, this._precision
+                -this.intVal!, BigDecimal.INFLATED, this._scale, this._precision
             ) :
             BigDecimal.fromInteger2(-this.intCompact, this._scale, this._precision);
         if (mc) {
@@ -2123,7 +2129,7 @@ export class BigDecimal {
                     return BigDecimal.add3(this.intCompact, this._scale, -subtrahend.intCompact, subtrahend._scale);
                 } else {
                     return BigDecimal.add2(
-                        this.intCompact, this._scale, BigDecimal.minusOneBigInt * subtrahend.intVal!, subtrahend._scale
+                        this.intCompact, this._scale, -subtrahend.intVal!, subtrahend._scale
                     );
                 }
             } else {
@@ -2134,7 +2140,7 @@ export class BigDecimal {
                     return BigDecimal.add2(-subtrahend.intCompact, subtrahend._scale, this.intVal!, this._scale);
                 } else {
                     return BigDecimal.add1(
-                        this.intVal!, this._scale, BigDecimal.minusOneBigInt * subtrahend.intVal!, subtrahend._scale
+                        this.intVal!, this._scale, -subtrahend.intVal!, subtrahend._scale
                     );
                 }
             }
@@ -3954,9 +3960,9 @@ export class BigDecimal {
      */
     private static bigIntCompareMagnitude(x: bigint, y: bigint): number {
         if (x < BigDecimal.zeroBigInt)
-            x = BigDecimal.minusOneBigInt * x;
+            x = -x;
         if (y < BigDecimal.zeroBigInt)
-            y = BigDecimal.minusOneBigInt * y;
+            y = -y;
         return (x < y) ? -1 : ((x === y) ? 0 : 1);
     }
 
@@ -4414,7 +4420,7 @@ export class BigDecimal {
      */
     private static bigIntAbs(val: bigint) {
         if (val < BigDecimal.zeroBigInt) {
-            return val * BigDecimal.minusOneBigInt;
+            return -val;
         } else return val;
     }
 
@@ -5073,7 +5079,7 @@ export class BigDecimal {
         else {
             let unscaledVal = BigDecimal.bigTenToThe(n);
             if (sign === -1) {
-                unscaledVal = unscaledVal * BigDecimal.minusOneBigInt;
+                unscaledVal = -unscaledVal;
             }
             return new BigDecimal(unscaledVal, BigDecimal.INFLATED, scale, n + 1);
         }
