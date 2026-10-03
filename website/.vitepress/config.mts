@@ -64,9 +64,9 @@ export default defineConfig({
             // do a real navigation instead of a SPA route lookup that 404s.
             text: 'Older versions',
             items: [
+              { text: 'v1.7.1', link: 'https://srknzl.github.io/bigdecimal.js/api/1.7.1/docs/' },
+              { text: 'v1.7.0', link: 'https://srknzl.github.io/bigdecimal.js/api/1.7.0/docs/' },
               { text: 'v1.6.2', link: 'https://srknzl.github.io/bigdecimal.js/api/1.6.2/docs/' },
-              { text: 'v1.6.1', link: 'https://srknzl.github.io/bigdecimal.js/api/1.6.1/docs/' },
-              { text: 'v1.6.0', link: 'https://srknzl.github.io/bigdecimal.js/api/1.6.0/docs/' },
               { text: 'All versions →', link: '/versions' },
             ],
           },

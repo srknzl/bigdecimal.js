@@ -22,6 +22,8 @@ banner back to this site.
 
 | Version | API docs |
 | --- | --- |
+| 1.7.1 | [Open →](https://srknzl.github.io/bigdecimal.js/api/1.7.1/docs/) |
+| 1.7.0 | [Open →](https://srknzl.github.io/bigdecimal.js/api/1.7.0/docs/) |
 | 1.6.2 | [Open →](https://srknzl.github.io/bigdecimal.js/api/1.6.2/docs/) |
 | 1.6.1 | [Open →](https://srknzl.github.io/bigdecimal.js/api/1.6.1/docs/) |
 | 1.6.0 | [Open →](https://srknzl.github.io/bigdecimal.js/api/1.6.0/docs/) |
