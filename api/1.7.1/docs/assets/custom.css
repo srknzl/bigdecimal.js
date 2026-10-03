@@ -1,0 +1,10 @@
+/* Keep wide README tables (e.g. the benchmark table) inside the content column
+   instead of overflowing under the right-hand "On This Page" sidebar. Tables
+   default to display:table, which ignores overflow-x; display:block lets the
+   table scroll horizontally within its column. */
+.tsd-typography table {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+}
