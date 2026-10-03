@@ -9,6 +9,11 @@ const apiSidebar = existsSync(apiSidebarPath)
   ? JSON.parse(readFileSync(apiSidebarPath, 'utf-8'))
   : [{ text: 'Run `npm run docs:api` to generate the API reference', link: '/api/' }]
 
+// The nav's version label tracks package.json so it can't go stale between releases.
+const { version } = JSON.parse(
+  readFileSync(fileURLToPath(new URL('../../package.json', import.meta.url)), 'utf-8'),
+)
+
 export default defineConfig({
   base: '/bigdecimal.js/',
   title: 'BigDecimal.js',
@@ -43,7 +48,7 @@ export default defineConfig({
       { text: 'API', link: '/api/', activeMatch: '/api/' },
       { text: 'Playground', link: '/playground' },
       {
-        text: 'v1.7.0',
+        text: `v${version}`,
         items: [
           {
             text: 'This release',
