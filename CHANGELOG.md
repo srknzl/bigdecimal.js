@@ -9,21 +9,32 @@ For releases before 1.6.0, see the
 
 ## [Unreleased]
 
+## [1.7.2]
+
 ### Changed / Performance
 
 Allocation-free hot paths on inflated values and string parsing, contributed by
 [@Teknesyum](https://github.com/Teknesyum) ([#196](https://github.com/srknzl/bigdecimal.js/issues/196));
-no result changes:
+no result changes. Figures are from the benchmark suite, 1.7.1 vs 1.7.2 on the same
+machine (AMD Ryzen 7 9800X3D, Windows 11, Node 24):
 
 - `BigInt` negation uses unary minus instead of multiplying by `-1n` — `negate`
-  **~2×**, `abs` **~1.5×**, `subtract` on inflated values **+25–33%**, and every
-  rounding division with a negative operand benefits via `compareHalf`.
+  **+138%**, `abs` **+64%**, `subtract` **+38%** (inflated operands **+23%**), and
+  every rounding division with a negative operand benefits via `compareHalf`.
+  `negate` moves from a narrow big.js win to a bigdecimal.js win.
 - Digit counts of inflated significands below 2^1024 are estimated from
-  `Math.log10(Number(b))` instead of a hex-string conversion — `precision()` on
-  inflated values **−35%**, which carries `add` / `multiply` / `round` with a
-  `MathContext` (**~20%**), `divide` with a `MathContext` and `sqrt` (**~15%**).
+  `Math.log10(Number(b))` instead of a hex-string conversion, which speeds up
+  everything that rounds to a `MathContext` — `divide` to 50 significant digits
+  **+21%**, `pow` with a negative exponent **+19%**, `sqrt` **+17%**.
 - `fromString` classifies characters by char code instead of one-character
-  strings — `Big(string)` **10–17% faster**.
+  strings — `Big(string)` **+17%**.
+
+### Internal
+
+- Development dependencies and the fuzz workflow's `actions/setup-java` updated
+  ([#202](https://github.com/srknzl/bigdecimal.js/pull/202)); the published package
+  still has no runtime dependencies.
+- README benchmark tables re-measured on the 1.7.2 code.
 
 ## [1.7.1]
 
@@ -318,6 +329,7 @@ This is a correction release to clarify minimum supported Node version is 18.
 See [GitHub Releases](https://github.com/srknzl/bigdecimal.js/releases) and the
 [tag history](https://github.com/srknzl/bigdecimal.js/tags) for 1.5.2 and earlier.
 
+[1.7.2]: https://github.com/srknzl/bigdecimal.js/compare/v1.7.1...v1.7.2
 [1.7.1]: https://github.com/srknzl/bigdecimal.js/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/srknzl/bigdecimal.js/compare/v1.6.1...v1.7.0
 [1.6.1]: https://github.com/srknzl/bigdecimal.js/compare/v1.6.0...v1.6.1
